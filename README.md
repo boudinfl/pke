@@ -1,6 +1,6 @@
 # pke - python keyphrase extraction
 
-pke currently holds the following keyphrase extraction models:
+pke currently implements the following keyphrase extraction models:
 
 - SingleRank [(Xiaojun and Jianguo, 2008)][1]
 - TopicRank [(Bougouin, Boudin and Daille, 2013)][2]

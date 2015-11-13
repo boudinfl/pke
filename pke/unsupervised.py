@@ -2,19 +2,12 @@
 
 """ Unsupervised keyphrase extraction models. """
 
-import re
 import string
-from .base import *
-
-from collections import defaultdict
-from itertools import combinations
-
-from nltk.corpus import stopwords
-
 import networkx as nx
-
 import numpy as np
-
+from .base import LoadFile
+from itertools import combinations
+from nltk.corpus import stopwords
 from scipy.cluster.hierarchy import linkage, fcluster
 from scipy.spatial.distance import pdist
 
@@ -36,7 +29,8 @@ class KPMiner(LoadFile):
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=stopwords.words('english') +
                                  list(string.punctuation) +
-                        ['-lrb-', '-rrb-', '-lcb-', '-lrb-', '-rcb-', '-rrb-'])
+                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
+                                  '-rsb-'])
 
         for k, v in self.candidates.items():
 
@@ -62,21 +56,19 @@ class KPMiner(LoadFile):
 
             Args:
                 idf (dict): idf weights dictionary.
-                sigma (int): first parameter for boosting factor, defaults to 
-                    3.0.
-                alpha (int): second parameter for boosting factor, defaults to 
-                    2.3.
+                sigma (int): parameter for boosting factor, defaults to 3.0.
+                alpha (int): parameter for boosting factor, defaults to 2.3.
         """
 
         # compute the number of candidates whose length exceeds one
-        P_d = sum([len(v.surface_forms) for v in self.candidates.values() 
+        P_d = sum([len(v.surface_forms) for v in self.candidates.values()
                    if len(v.surface_forms[0]) > 1])
 
         # compute the number of all candidate terms
         N_d = sum([len(v.surface_forms) for v in self.candidates.values()])
 
         # compute the boosting factor
-        B = min( N_d / (P_d*alpha), sigma )
+        B = min(N_d / (P_d*alpha), sigma)
 
         # find the maximum idf weight for compounds
         default_idf = max(idf.values())
@@ -90,6 +82,8 @@ class KPMiner(LoadFile):
             else:
                 self.weights[k] *= default_idf
 
+    # def keyphrase_extraction(self, )
+
 
 class SingleRank(LoadFile):
     """ The SingleRank keyphrase extraction model. """
@@ -102,15 +96,15 @@ class SingleRank(LoadFile):
         self.graph = nx.Graph()
 
 
-    def build_word_graph(self, window=3, POS=['JJ', 'NN']):
+    def build_word_graph(self, window=10, pos=None):
         """ Build the word graph from the document. """
 
         # loop through the sentences to build the graph
-        for i, sentence in enumerate(self.sentences):
+        for sentence in self.sentences:
 
             # add the nodes to the graph
             for j, node in enumerate(sentence.stems):
-                if sentence.POS[j][:2] in POS:
+                if sentence.pos[j][:2] in pos:
                     self.graph.add_node(node)
 
             # add the edges between the nodes
@@ -125,20 +119,21 @@ class SingleRank(LoadFile):
         """ The candidate selection as described in the SingleRank paper. """
 
         # select sequence of adjectives and nouns
-        self.sequence_selection(pos=['NN', 'NNS', 'NNP', 'NNPS', 
-                                      'JJ', 'JJR', 'JJS'])
+        self.sequence_selection(pos=['NN', 'NNS', 'NNP', 'NNPS',
+                                     'JJ', 'JJR', 'JJS'])
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=stopwords.words('english') +
                                  list(string.punctuation) +
-                        ['-lrb-', '-rrb-', '-lcb-', '-lrb-', '-rcb-', '-rrb-'])
+                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
+                                  '-rsb-'])
 
 
     def candidate_weighting(self):
         """ Candidate weight calculation using random walk. """
 
         # build the word graph
-        self.build_word_graph()
+        self.build_word_graph(window=10, pos=['JJ', 'NN'])
 
         # compute the word scores using random walk
         w = nx.pagerank_scipy(self.graph)
@@ -164,13 +159,14 @@ class TopicRank(LoadFile):
         """ The candidate selection as described in the TopicRank paper. """
 
         # select sequence of adjectives and nouns
-        self.sequence_selection(pos=['NN', 'NNS', 'NNP', 'NNPS', 
-                                      'JJ', 'JJR', 'JJS'])
+        self.sequence_selection(pos=['NN', 'NNS', 'NNP', 'NNPS',
+                                     'JJ', 'JJR', 'JJS'])
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=stopwords.words('english') +
                                  list(string.punctuation) +
-                        ['-lrb-', '-rrb-', '-lcb-', '-lrb-', '-rcb-', '-rrb-'])
+                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
+                                  '-rsb-'])
 
 
     def vectorize_candidates(self):
@@ -193,7 +189,7 @@ class TopicRank(LoadFile):
         X = np.zeros((len(C), len(dim)))
         for i, k in enumerate(C):
             for w in self.candidates[k].lexical_form:
-                X[i,dim.index(w)] += 1
+                X[i, dim.index(w)] += 1
 
         return C, X
 
@@ -214,14 +210,14 @@ class TopicRank(LoadFile):
         Y = pdist(X, 'jaccard')
 
         # compute the clusters
-        Z = linkage(Y, method='average')
+        Z = linkage(Y, method=method)
 
         # form flat clusters
         clusters = fcluster(Z, t=1.0-threshold, criterion='distance')
 
         # for each cluster id
         for cluster_id in range(1, max(clusters)+1):
-            self.topics.append([candidates[j] for j in range(len(clusters)) 
+            self.topics.append([candidates[j] for j in range(len(clusters))
                                 if clusters[j] == cluster_id])
 
 
@@ -260,36 +256,6 @@ class TopicRank(LoadFile):
             offsets = [self.candidates[t].offsets[0] for t in topic]
             first = offsets.index(min(offsets))
             self.weights[topic[first]] = w[i]
-
-                    
-
-
-        
-
-
-
-        
-
-
-
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

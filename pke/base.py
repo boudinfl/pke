@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
-
-import re
+""" Base classes for the pke module. """
 
 from corenlp_parser import MinimalCoreNLPParser
-
 from collections import defaultdict
+from nltk.stem.snowball import SnowballStemmer
 
-from nltk.stem.snowball import SnowballStemmer as stemmer
-from nltk.corpus import stopwords
-
-class Sentence:
+class Sentence(object):
     """ The sentence data structure. """
 
     def __init__(self, words):
@@ -17,7 +13,7 @@ class Sentence:
         self.words = words
         """ tokens as a list. """
 
-        self.POS = []
+        self.pos = []
         """ Part-Of-Speeches as a list. """
 
         self.stems = []
@@ -27,7 +23,7 @@ class Sentence:
         """ length of the sentence. """
 
 
-class Candidate:
+class Candidate(object):
     """ The keyphrase candidate data structure. """
 
     def __init__(self):
@@ -65,27 +61,35 @@ class LoadFile(object):
         """ The weight container (can be either word or candidate weights). """
 
 
-    def read_corenlp_document(self, use_lemmas=True, stemming="porter"):
+    def read_corenlp_document(self, use_lemmas=True, language="porter"):
         """ Read the input file in CoreNLP XML format and populate the sentence
             list.
 
             Args:
                 use_lemmas (bool): weither lemmas from stanford corenlp are used
                     instead of stems (computed by nltk), defaults to True.
-                stemming (str): the language of the stemming (if used), defaults
+                language (str): the language of the stemming (if used), defaults
                     to porter.
         """
 
+        # parse the document using the Minimal CoreNLP parser
         parse = MinimalCoreNLPParser(self.input_file)
 
-        for i, sentence in enumerate(parse.sentences):
-            s = Sentence(words=sentence["words"])
-            s.POS = sentence["POS"]
+        # populate the sentence container
+        for sentence in parse.sentences:
+
+            new_sentence = Sentence(words=sentence["words"])
+            new_sentence.pos = sentence["POS"]
+
             if use_lemmas:
-                s.stems = [t.lower() for t in sentence["lemmas"]]
+                new_sentence.stems = [t.lower() for t in sentence["lemmas"]]
             else:
-                s.stems = [stemmer(stemming).stem(t.lower()) for t in s.words]
-            self.sentences.append(s)
+                for word in new_sentence.words:
+                    new_sentence.stems.append(
+                        SnowballStemmer(language).stem(word.lower())
+                    )
+
+            self.sentences.append(new_sentence)
 
 
     def get_n_best(self, n=10):
@@ -96,7 +100,7 @@ class LoadFile(object):
 
 
     def ngram_selection(self, n=3):
-        """ Select all the n-grams and populate the candidate container. 
+        """ Select all the n-grams and populate the candidate container.
 
             Args:
                 n (int): the n-gram length, defaults to 3.
@@ -119,9 +123,8 @@ class LoadFile(object):
                     self.candidates[lex_form].offsets.append(shift+j)
 
 
-    def sequence_selection(self, pos=['NN', 'NNS', 'NNP', 'NNPS', 
-                                      'JJ', 'JJR', 'JJS']):
-        """ Select all the n-grams and populate the candidate container. 
+    def sequence_selection(self, pos=None):
+        """ Select all the n-grams and populate the candidate container.
 
             Args:
                 n (int): the n-gram length, defaults to 3.
@@ -135,7 +138,7 @@ class LoadFile(object):
             for j in range(sentence.length):
 
                 # add candidate offset in sequence and continue if not last word
-                if sentence.POS[j] in pos:
+                if sentence.pos[j] in pos:
                     seq.append(j)
                     if j < (sentence.length - 1):
                         continue
@@ -153,26 +156,14 @@ class LoadFile(object):
                 seq = []
 
 
-    def candidate_filtering(self, stoplist=[]):
+    def candidate_filtering(self, stoplist=None):
         """ Filter the candidates containing strings from the stoplist.
 
             Args:
-                stoplist (list): list of strings, defaults to empty.
+                stoplist (list): list of strings, defaults to None.
         """
 
         for k, v in self.candidates.items():
             words = [u.lower() for u in v.surface_forms[0]]
             if set(words).intersection(stoplist):
                 del self.candidates[k]
-
-
-
-
-
-
-
-
-
-
-
-
