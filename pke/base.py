@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 """ Base classes for the pke module. """
 
 from corenlp_parser import MinimalCoreNLPParser

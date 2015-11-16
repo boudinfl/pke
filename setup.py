@@ -8,7 +8,7 @@ setup(name='pke',
       packages=['pke'],
       url="https://github.com/boudinfl/pke",
       install_requires=[
-      	'MinimalCoreNLPParser',
+      	'corenlp_parser',
       	'nltk',
       	'networkx',
       	'numpy',

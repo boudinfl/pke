@@ -11,8 +11,48 @@ from nltk.corpus import stopwords
 from scipy.cluster.hierarchy import linkage, fcluster
 from scipy.spatial.distance import pdist
 
+
+class TfIdf(LoadFile):
+    """ TF*IDF keyphrase extraction model. """
+
+    def candidate_selection(self):
+        """ Select 1-3 grams as keyphrase candidates. """
+
+        # select ngrams from 1 to 3 grams
+        self.ngram_selection(n=3)
+
+        # filter candidates containing stopwords or punctuation marks
+        self.candidate_filtering(stoplist=stopwords.words('english') +
+                                 list(string.punctuation) +
+                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
+                                  '-rsb-'])
+
+
+    def candidate_weighting(self, idf=None):
+        """ Candidate weighting function using idf weights. """
+
+        # find the maximum idf weight
+        default_idf = max(idf.values())
+
+        # loop throught the candidates
+        for k, v in self.candidates.items():
+
+            current_idf = default_idf
+            if v in idf:
+                current_idf *= idf[v]
+
+            self.weights[k] = len(v.surface_forms) * current_idf
+
+
 class KPMiner(LoadFile):
-    """ KP-Miner keyphrase extraction model. """
+    """ KP-Miner keyphrase extraction model. 
+
+        This model was published and described in:
+
+          * Samhaa R. El-Beltagy and Ahmed Rafea, KP-Miner: Participation in 
+            SemEval-2, *Proceedings of the 5th International Workshop on 
+            Semantic Evaluation*, pages 190-193, 2010.
+    """
 
     def candidate_selection(self, lasf=3, cutoff=400):
         """ The candidate selection as described in the KP-Miner paper.
@@ -43,7 +83,7 @@ class KPMiner(LoadFile):
                 del self.candidates[k]
 
 
-    def candidate_weighting(self, idf, sigma=3.0, alpha=2.3):
+    def candidate_weighting(self, idf=None, sigma=3.0, alpha=2.3):
         """ Candidate weight calculation as described in the KP-Miner paper.
 
             w = tf * idf * B * P_f
@@ -82,18 +122,25 @@ class KPMiner(LoadFile):
             else:
                 self.weights[k] *= default_idf
 
-    # def keyphrase_extraction(self, )
-
 
 class SingleRank(LoadFile):
-    """ The SingleRank keyphrase extraction model. """
+    """ The SingleRank keyphrase extraction model.
 
+        This model was published and described in:
+
+          * Xiaojun Wan and Jianguo Xiao, CollabRank: Towards a Collaborative 
+            Approach to Single-Document Keyphrase Extraction, *Proceedings of 
+            the 22nd International Conference on Computational Linguistics 
+            (Coling 2008)*, pages 969-976, 2008.
+    """
 
     def __init__(self, input_file):
         """ Redefining initializer for SingleRank. """
 
         super(SingleRank, self).__init__(input_file)
+
         self.graph = nx.Graph()
+        """ The word graph. """
 
 
     def build_word_graph(self, window=10, pos=None):
@@ -114,6 +161,7 @@ class SingleRank(LoadFile):
                     if not self.graph.has_edge(node_1, node_2):
                         self.graph.add_edge(node_1, node_2, weight=0)
                     self.graph[node_1][node_2]['weight'] += 1.0
+
 
     def candidate_selection(self):
         """ The candidate selection as described in the SingleRank paper. """
@@ -145,14 +193,26 @@ class SingleRank(LoadFile):
 
 
 class TopicRank(LoadFile):
-    """ The TopicRank keyphrase extraction model. """
+    """ The TopicRank keyphrase extraction model. 
+
+        This model was published and described in:
+
+          * Adrien Bougouin, Florian Boudin and Béatrice Daille, TopicRank: 
+            Graph-Based Topic Ranking for Keyphrase Extraction, *Proceedings of
+            the Sixth International Joint Conference on Natural Language
+            Processing*, pages 543-551, 2013.
+    """
 
     def __init__(self, input_file):
         """ Redefining initializer for TopicRank. """
 
         super(TopicRank, self).__init__(input_file)
+
         self.graph = nx.Graph()
+        """ The topic graph. """
+
         self.topics = []
+        """ The topic container. """
 
 
     def candidate_selection(self):
@@ -194,7 +254,7 @@ class TopicRank(LoadFile):
         return C, X
 
 
-    def topic_clustering(self, threshold=0.5, method='average'):
+    def topic_clustering(self, threshold=0.25, method='average'):
         """ Clustering candidates into topics.
 
             Args:
