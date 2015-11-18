@@ -42,7 +42,7 @@ class Candidate(object):
 class LoadFile(object):
     """ The LoadFile class that provides base functions. """
 
-    def __init__(self, input_file):
+    def __init__(self, input_file, language='english'):
         """ Initializer for LoadFile class.
 
             Args:
@@ -51,6 +51,9 @@ class LoadFile(object):
 
         self.input_file = input_file
         """ The path of the input file. """
+
+        self.language = language
+        """ The language of the input file. """
 
         self.sentences = []
         """ The sentence container (list of Sentence). """

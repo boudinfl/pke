@@ -22,7 +22,7 @@ class TfIdf(LoadFile):
         self.ngram_selection(n=3)
 
         # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=stopwords.words('english') +
+        self.candidate_filtering(stoplist=stopwords.words(self.language) +
                                  list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
@@ -67,7 +67,7 @@ class KPMiner(LoadFile):
         self.ngram_selection(n=3)
 
         # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=stopwords.words('english') +
+        self.candidate_filtering(stoplist=stopwords.words(self.language) +
                                  list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
@@ -117,7 +117,7 @@ class KPMiner(LoadFile):
         for k, v in self.candidates.items():
 
             self.weights[k] = len(v.surface_forms) * B
-            if v in idf:
+            if v in idf and len(v.lexical_form) == 1:
                 self.weights[k] *= idf[v]
             else:
                 self.weights[k] *= default_idf
@@ -171,7 +171,7 @@ class SingleRank(LoadFile):
                                      'JJ', 'JJR', 'JJS'])
 
         # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=stopwords.words('english') +
+        self.candidate_filtering(stoplist=stopwords.words(self.language) +
                                  list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
@@ -223,7 +223,7 @@ class TopicRank(LoadFile):
                                      'JJ', 'JJR', 'JJS'])
 
         # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=stopwords.words('english') +
+        self.candidate_filtering(stoplist=stopwords.words(self.language) +
                                  list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
