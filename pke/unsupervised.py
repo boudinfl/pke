@@ -38,8 +38,8 @@ class TfIdf(LoadFile):
         for k, v in self.candidates.items():
 
             current_idf = default_idf
-            if v in idf:
-                current_idf *= idf[v]
+            if k in idf:
+                current_idf *= idf[k]
 
             self.weights[k] = len(v.surface_forms) * current_idf
 
@@ -72,6 +72,7 @@ class KPMiner(LoadFile):
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
 
+        # further filter candidates using lasf and cutoff
         for k, v in self.candidates.items():
 
             # delete if first candidate offset is greater than cutoff
@@ -117,8 +118,8 @@ class KPMiner(LoadFile):
         for k, v in self.candidates.items():
 
             self.weights[k] = len(v.surface_forms) * B
-            if v in idf and len(v.lexical_form) == 1:
-                self.weights[k] *= idf[v]
+            if k in idf and len(v.lexical_form) == 1:
+                self.weights[k] *= idf[k]
             else:
                 self.weights[k] *= default_idf
 
