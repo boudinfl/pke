@@ -5,7 +5,8 @@
 import string
 from .base import LoadFile
 from nltk.corpus import stopwords
-
+from sklearn.externals import joblib
+import numpy as np
 
 class Kea(LoadFile):
     """ Kea keyphrase extraction model. """
@@ -63,6 +64,43 @@ class Kea(LoadFile):
             if k in idf:
                 current_idf = idf[k]
 
-            self.instances[k] = [len(v.surface_forms) * current_idf,
+            self.instances[k] = np.array([len(v.surface_forms) * current_idf,
                                  v.offsets[0]/maximum_offset,
-                                 len(v.lexical_form)]
+                                 len(v.lexical_form)])
+
+    def classify_candidates(self, model):
+        """ Classify the candidates as keyphrase or not keyphrase.
+
+            Args:
+                model (str): the path to load the model.
+        """
+
+        # load the model
+        clf = joblib.load(model)
+
+        # get matrix of instances
+        candidates = self.instances.keys()
+        X = [self.instances[u] for u in candidates]
+
+        # classify candidates
+        y = clf.predict_proba(X)
+
+        for i, candidate in enumerate(candidates):
+            self.weights[candidate] = y[i][1]
+       
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

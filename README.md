@@ -24,6 +24,29 @@ To install this module:
 
     pip install git+https://github.com/boudinfl/pke.git
 
+## Usage
+
+Before using some keyphrase extraction algorithms (e.g. TfIdf, KP-Miner), one 
+need to compute idf weights from a collection of documents. Such weights can
+be computed as:
+
+    from pke import compute_inverse_document_frequency
+    from nltk.corpus import stopwords
+    from string import punctuation
+
+    # path to the collection of documents
+    input_dir = '/path/to/input/documents'
+
+    # path to the idf weights dictionary, saved as a pickle
+    output_pkl = '/path/to/output/'
+
+    # stoplist, candidates containing stopwords are filtered
+    stoplist = stopwords.words('english') + list(punctuation)
+
+    # compute idf weights
+    compute_inverse_document_frequency(input_dir, output_pkl, stoplist=stoplist)
+
+
 ## Example
 
 A typical usage of this module is:
@@ -45,6 +68,8 @@ A typical usage of this module is:
 
     # Get the n-highest scored candidates
     print (u';'.join([u for u, v in doc.get_n_best(n=10)])).encode('utf-8')
+
+
 
 
 [1]: http://aclweb.org/anthology/C08-1122.pdf
