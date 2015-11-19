@@ -54,28 +54,30 @@ be computed as:
 
 #### SingleRank
 
+    from pke import SingleRank
 
-## Example
+    # create a SingleRank object
+    extractor = SingleRank(input_file='/path/to/input')
 
-A typical usage of this module is:
+    # load the content of the document, here in CoreNLP XML format
+    # the use_lemmas parameter allows to choose using CoreNLP lemmas or stems 
+    # computed using nltk
+    extractor.read_corenlp_document(use_lemmas=False)
 
-    import pke
-
-    # Create a pke object using SingleRank model
-    doc = pke.SingleRank(input_file=sys.argv[1])
-
-    # Load the content of the document, here in CoreNLP XML format
-    doc.read_corenlp_document()
-
-    # Select the keyphrase candidates, for SingleRank the longest sequences of 
+    # select the keyphrase candidates, for SingleRank the longest sequences of 
     # nouns and adjectives
-    doc.candidate_selection()
+    extractor.candidate_selection()
 
-    # Weight the candidates, for SingleRank using using random walk
+    # weight the candidates using a random walk
     doc.candidate_weighting()
 
-    # Get the n-highest scored candidates
+    # print the n-highest (10) scored candidates
     print (u';'.join([u for u, v in doc.get_n_best(n=10)])).encode('utf-8')
+
+#### TfIdf
+    
+
+    
 
 
 
