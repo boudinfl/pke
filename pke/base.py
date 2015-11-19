@@ -180,5 +180,5 @@ class LoadFile(object):
                 del self.candidates[k]
 
             # discard if not containing only alpha-numeric characters
-            if not set(' '.join(words)).issubset(printable):
+            elif not set(' '.join(words)).issubset(printable):
                 del self.candidates[k]
