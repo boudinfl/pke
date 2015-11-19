@@ -5,6 +5,7 @@
 from corenlp_parser import MinimalCoreNLPParser
 from collections import defaultdict
 from nltk.stem.snowball import SnowballStemmer
+from string import printable
 
 class Sentence(object):
     """ The sentence data structure. """
@@ -161,13 +162,23 @@ class LoadFile(object):
 
 
     def candidate_filtering(self, stoplist=None):
-        """ Filter the candidates containing strings from the stoplist.
+        """ Filter the candidates containing strings from the stoplist. Only 
+            keep the candidates containing alpha-numeric characters.
 
             Args:
                 stoplist (list): list of strings, defaults to None.
         """
 
+        # loop throught the candidates
         for k, v in self.candidates.items():
+            
+            # get the words from the first occurring surface form
             words = [u.lower() for u in v.surface_forms[0]]
+
+            # discard if words are in the stoplist
             if set(words).intersection(stoplist):
+                del self.candidates[k]
+
+            # discard if not containing only alpha-numeric characters
+            if not set(' '.join(words)).issubset(printable):
                 del self.candidates[k]
