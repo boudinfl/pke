@@ -52,11 +52,13 @@ be computed as:
 
 ### Unsupervised models
 
-#### SingleRank
+All the unsupervised models can be used by typing the 5 lines below. For using
+another model, simply replace SingleRank with KPMiner, TfIdf, TopicRank, etc.
 
-    from pke import SingleRank
+    # this example uses SingleRank
+    from pke import SingleRank 
 
-    # create a SingleRank object
+    # create an unsupervised object
     extractor = SingleRank(input_file='/path/to/input')
 
     # load the content of the document, here in CoreNLP XML format
@@ -69,18 +71,12 @@ be computed as:
     extractor.candidate_selection()
 
     # weight the candidates using a random walk
-    doc.candidate_weighting()
+    extractor.candidate_weighting()
 
     # print the n-highest (10) scored candidates
-    print (u';'.join([u for u, v in doc.get_n_best(n=10)])).encode('utf-8')
-
-#### TfIdf
-    
+    print (';'.join([u for u, v in extractor.get_n_best(n=10)])).encode('utf-8')
 
     
-
-
-
 
 [1]: http://aclweb.org/anthology/C08-1122.pdf
 [2]: http://aclweb.org/anthology/I13-1062.pdf
