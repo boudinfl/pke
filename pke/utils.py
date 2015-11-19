@@ -29,12 +29,17 @@ def compute_inverse_document_frequency(input_dir,
             n (int): the lenght for ngrams, defaults to 3.
     """
 
+    logging.info('computing IDF weights from '+input_dir)
+
+    # document frequency container
     df = defaultdict(set)
+
+    # number of documents
     N = 0
 
     for input_file in listdir(input_dir):
 
-        print input_file
+        logging.info('reading file '+input_file)
 
         doc = LoadFile(input_dir+'/'+input_file)
 
@@ -60,6 +65,7 @@ def compute_inverse_document_frequency(input_dir,
     for ngram in df:
         df[ngram] = math.log(float(N) / len(df[ngram]), 2)
 
+    logging.info('writing IDF weights to '+output_file)
     # Dump the df container
     with codecs.open(output_file, 'w') as f:
         cPickle.dump(df, f)

@@ -2,9 +2,13 @@
 
 pke currently implements the following keyphrase extraction models:
 
-- SingleRank [(Xiaojun and Jianguo, 2008)][1]
-- TopicRank [(Bougouin, Boudin and Daille, 2013)][2]
-- KP-miner [(El-Beltagy and Rafea, 2010)][3]
+- Unsupervised models
+  - SingleRank [(Xiaojun and Jianguo, 2008)][1]
+  - TopicRank [(Bougouin, Boudin and Daille, 2013)][2]
+  - KP-miner [(El-Beltagy and Rafea, 2010)][3]
+  - TF*IDF
+- Supervised models
+  - Kea
 
 ## Requirements
 
@@ -45,6 +49,10 @@ be computed as:
 
     # compute idf weights
     compute_inverse_document_frequency(input_dir, output_pkl, stoplist=stoplist)
+
+### Unsupervised models
+
+#### SingleRank
 
 
 ## Example
