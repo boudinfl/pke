@@ -16,11 +16,6 @@ pke currently implements the following keyphrase extraction models:
     scipy
     nltk
     networkx
-    corenlp_parser
-
-To install corenlp_parser:
-
-    pip install git+https://github.com/boudinfl/corenlp_parser.git
 
 ## Installation
 
@@ -47,7 +42,7 @@ be computed as:
     # stoplist, candidates containing stopwords are filtered
     stoplist = stopwords.words('english') + list(punctuation)
 
-    # compute idf weights
+    # compute idf weights and store stem -> weigth dictionary
     compute_inverse_document_frequency(input_dir, output_pkl, stoplist=stoplist)
 
 ### Unsupervised models

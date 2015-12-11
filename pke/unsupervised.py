@@ -103,7 +103,7 @@ class KPMiner(LoadFile):
 
         # compute the number of candidates whose length exceeds one
         P_d = sum([len(v.surface_forms) for v in self.candidates.values()
-                   if len(v.surface_forms[0]) > 1])
+                   if len(v.lexical_form) > 1])
 
         # compute the number of all candidate terms
         N_d = sum([len(v.surface_forms) for v in self.candidates.values()])

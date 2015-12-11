@@ -2,10 +2,10 @@
 
 """ Base classes for the pke module. """
 
-from corenlp_parser import MinimalCoreNLPParser
+from .readers import MinimalCoreNLPParser
 from collections import defaultdict
 from nltk.stem.snowball import SnowballStemmer
-from string import printable
+from string import letters, digits
 
 class Sentence(object):
     """ The sentence data structure. """
@@ -161,13 +161,18 @@ class LoadFile(object):
                 seq = []
 
 
-    def candidate_filtering(self, stoplist=None):
+    def candidate_filtering(self, stoplist=None, mininum_length=3):
         """ Filter the candidates containing strings from the stoplist. Only 
-            keep the candidates containing alpha-numeric characters.
+            keep the candidates containing alpha-numeric characters and those 
+            length exceeds a given number of characters.
 
             Args:
                 stoplist (list): list of strings, defaults to None.
+                mininum_length (int): minimum number of characters for a 
+                    candidate, defaults to 3.
         """
+
+        printable = set(letters + digits + '-')
 
         # loop throught the candidates
         for k, v in self.candidates.items():
@@ -180,5 +185,9 @@ class LoadFile(object):
                 del self.candidates[k]
 
             # discard if not containing only alpha-numeric characters
-            elif not set(' '.join(words)).issubset(printable):
+            elif not set(''.join(words)).issubset(printable):
+                del self.candidates[k]
+
+            # discard candidates composed of 1-2 characters
+            elif len(''.join(words)) < mininum_length:
                 del self.candidates[k]

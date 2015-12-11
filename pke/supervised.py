@@ -39,7 +39,7 @@ class Kea(LoadFile):
         # filter candidates that start or end with a stopword
         for k, v in self.candidates.items():
 
-            # delete if first candidate offset is greater than cutoff
+            # delete if candidate contains a stopword in first/last position
             if v.lexical_form[0] in stoplist or v.lexical_form[-1] in stoplist:
                 del self.candidates[k]
 

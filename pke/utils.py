@@ -56,7 +56,7 @@ def compute_inverse_document_frequency(input_dir,
                     if set(sentence.words[j:k]).intersection(stoplist):
                         continue
 
-                    ngram = ' '.join(sentence.words[j:k]).lower()
+                    ngram = ' '.join(sentence.stems[j:k]).lower()
                     df[ngram].add(input_file)
 
         N += 1
@@ -89,15 +89,17 @@ def train_supervised_model(input_dir,
             model (str): the supervised model to train, defaults to kea.
     """
 
+    logging.info('building model '+model+' from '+input_dir)
+
     references = load_references(reference_file)
     training_instances = []
     training_classes = []
 
     for input_file in listdir(input_dir):
 
-        doc_id = input_file.split('.')[0]
+        logging.info('reading file '+input_file)
 
-        print doc_id
+        doc_id = input_file.split('.')[0]
 
         if model == "kea":
             doc = Kea(input_dir+'/'+input_file)
@@ -115,6 +117,7 @@ def train_supervised_model(input_dir,
 
     clf = MultinomialNB()
     clf.fit(training_instances, training_classes)
+    logging.info('writing model to '+model_file)
     joblib.dump(clf, model_file)
 
         
