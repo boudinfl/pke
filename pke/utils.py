@@ -9,7 +9,7 @@ import math
 from os import listdir
 from collections import defaultdict
 from nltk.stem.snowball import SnowballStemmer
-from corenlp_parser import MinimalCoreNLPParser
+from .readers import MinimalCoreNLPParser
 from .base import LoadFile
 from supervised import Kea
 from sklearn.naive_bayes import MultinomialNB
@@ -38,6 +38,9 @@ def compute_inverse_document_frequency(input_dir,
     N = 0
 
     for input_file in listdir(input_dir):
+
+        if format == "corenlp" and input_file[-3:] != 'xml':
+            continue
 
         logging.info('reading file '+input_file)
 
@@ -96,6 +99,9 @@ def train_supervised_model(input_dir,
     training_classes = []
 
     for input_file in listdir(input_dir):
+
+        if format == "corenlp" and input_file[-3:] != 'xml':
+            continue
 
         logging.info('reading file '+input_file)
 
