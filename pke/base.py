@@ -6,6 +6,7 @@ from .readers import MinimalCoreNLPParser
 from collections import defaultdict
 from nltk.stem.snowball import SnowballStemmer
 from string import letters, digits
+import re
 
 class Sentence(object):
     """ The sentence data structure. """
@@ -35,6 +36,9 @@ class Candidate(object):
 
         self.offsets = []
         """ the offsets of the surface forms. """
+
+        self.pos_patterns = []
+        """ the Part-Of-Speech patterns of the candidate. """
 
         self.lexical_form = []
         """ the lexical form of the candidate. """
@@ -97,10 +101,31 @@ class LoadFile(object):
             self.sentences.append(new_sentence)
 
 
-    def get_n_best(self, n=10):
-        """ Returns the n-best candidates given the weights. """
+    def get_n_best(self, n=10, redundancy_removal=False):
+        """ Returns the n-best candidates given the weights. 
+
+            Args:
+                n (int): the number of candidates, defaults to 10.
+                redundancy_removal (bool): whether redundant keyphrases are 
+                    filtered out from the n-best list, defaults to False:
+        """
 
         best = sorted(self.weights, key=self.weights.get, reverse=True)
+
+        if redundancy_removal:
+            l = []
+            for i in range(len(best)):
+                is_redundant = False
+                for c in best[:i]:
+                    if len(self.candidates[best[i]].lexical_form) > 1 and\
+                        re.search('(^|\s)'+best[i]+'($|\s)', c):
+                        is_redundant = True
+                if not is_redundant:
+                    l.append(best[i])
+                if len(l) >= n:
+                    break
+            best = l
+
         return [(u, self.weights[u]) for u in best[:min(n, len(best))]]
 
 
@@ -121,18 +146,20 @@ class LoadFile(object):
 
                     surface_form = sentence.words[j:k]
                     norm_form = sentence.stems[j:k]
-                    lex_form = ' '.join(norm_form)
+                    key = ' '.join(norm_form)
+                    pos_pattern = sentence.pos[j:k]
 
-                    self.candidates[lex_form].surface_forms.append(surface_form)
-                    self.candidates[lex_form].lexical_form = norm_form
-                    self.candidates[lex_form].offsets.append(shift+j)
+                    self.candidates[key].surface_forms.append(surface_form)
+                    self.candidates[key].lexical_form = norm_form
+                    self.candidates[key].offsets.append(shift+j)
+                    self.candidates[key].pos_patterns.append(pos_pattern)
 
 
     def sequence_selection(self, pos=None):
         """ Select all the n-grams and populate the candidate container.
 
             Args:
-                n (int): the n-gram length, defaults to 3.
+                pos (list): the set of valid POS tags, defaults to None.
         """
 
         for i, sentence in enumerate(self.sentences):
@@ -150,18 +177,26 @@ class LoadFile(object):
 
                 # add candidate
                 if seq:
+
                     surface_form = sentence.words[seq[0]:seq[-1]+1]
                     norm_form = sentence.stems[seq[0]:seq[-1]+1]
-                    lex_form = ' '.join(norm_form)
-                    self.candidates[lex_form].surface_forms.append(surface_form)
-                    self.candidates[lex_form].lexical_form = norm_form
-                    self.candidates[lex_form].offsets.append(shift+j)
+                    key = ' '.join(norm_form)
+                    pos_pattern = sentence.pos[seq[0]:seq[-1]+1]
+
+                    self.candidates[key].surface_forms.append(surface_form)
+                    self.candidates[key].lexical_form = norm_form
+                    self.candidates[key].offsets.append(shift+j)
+                    self.candidates[key].pos_patterns.append(pos_pattern)
 
                 # flush sequence container
                 seq = []
 
 
-    def candidate_filtering(self, stoplist=None, mininum_length=3):
+    def candidate_filtering(self,
+                            stoplist=None,
+                            mininum_length=3,
+                            mininum_word_size=2,
+                            valid_punctuation_marks='-'):
         """ Filter the candidates containing strings from the stoplist. Only 
             keep the candidates containing alpha-numeric characters and those 
             length exceeds a given number of characters.
@@ -170,9 +205,13 @@ class LoadFile(object):
                 stoplist (list): list of strings, defaults to None.
                 mininum_length (int): minimum number of characters for a 
                     candidate, defaults to 3.
+                mininum_word_size (int): minimum number of characters for a
+                    token to be considered as a valid word, defaults to 2.
+                valid_punctuation_marks (str): punctuation marks that are valid
+                    for a candidate, defaults to '-'.
         """
 
-        printable = set(letters + digits + '-')
+        printable = set(letters + digits + valid_punctuation_marks)
 
         # loop throught the candidates
         for k, v in self.candidates.items():
@@ -188,6 +227,14 @@ class LoadFile(object):
             elif not set(''.join(words)).issubset(printable):
                 del self.candidates[k]
 
+            # discard if containing tokens composed of only punctuation
+            elif any([set(u).issubset(valid_punctuation_marks) for u in words]):
+                del self.candidates[k]
+
             # discard candidates composed of 1-2 characters
             elif len(''.join(words)) < mininum_length:
+                del self.candidates[k]
+
+            # discard candidates containing small words (1-character)
+            elif min([len(u) for u in words]) < mininum_word_size:
                 del self.candidates[k]

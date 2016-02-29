@@ -5,6 +5,7 @@
 import string
 import networkx as nx
 import numpy as np
+import math
 from .base import LoadFile
 from itertools import combinations
 from nltk.corpus import stopwords
@@ -21,27 +22,31 @@ class TfIdf(LoadFile):
         # select ngrams from 1 to 3 grams
         self.ngram_selection(n=3)
 
-        # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=stopwords.words(self.language) +
-                                 list(string.punctuation) +
+        # filter candidates containing punctuation marks
+        self.candidate_filtering(stoplist=list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
 
 
-    def candidate_weighting(self, idf=None):
-        """ Candidate weighting function using idf weights. """
-
-        # find the maximum idf weight
-        default_idf = max(idf.values())
+    def candidate_weighting(self, df=None, N=144):
+        """ Candidate weighting function using document frequencies.
+            Args:
+                df (dict): document frequencies.
+                N (int): the number of documents for computing IDF, defaults to
+                    144 as in the SemEval dataset.
+        """
 
         # loop throught the candidates
         for k, v in self.candidates.items():
 
-            current_idf = default_idf
-            if k in idf:
-                current_idf *= idf[k]
+            # get candidate document frequency
+            candidate_df = 1 + df.get(k, 0)
 
-            self.weights[k] = len(v.surface_forms) * current_idf
+            # compute the idf score
+            idf = math.log(float(N+1) / float(candidate_df), 2)
+
+            # add the idf score to the weights container
+            self.weights[k] = len(v.surface_forms) * idf
 
 
 class KPMiner(LoadFile):
@@ -63,8 +68,8 @@ class KPMiner(LoadFile):
                     filtered out, defaults to 400.
         """
 
-        # select ngrams from 1 to 3 grams
-        self.ngram_selection(n=3)
+        # select ngrams from 1 to 5 grams
+        self.ngram_selection(n=5)
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=stopwords.words(self.language) +
@@ -84,7 +89,7 @@ class KPMiner(LoadFile):
                 del self.candidates[k]
 
 
-    def candidate_weighting(self, idf=None, sigma=3.0, alpha=2.3):
+    def candidate_weighting(self, df=None, N=144, sigma=3.0, alpha=2.3):
         """ Candidate weight calculation as described in the KP-Miner paper.
 
             w = tf * idf * B * P_f
@@ -96,7 +101,9 @@ class KPMiner(LoadFile):
                 P_f = 1
 
             Args:
-                idf (dict): idf weights dictionary.
+                df (dict): document frequencies.
+                N (int): the number of documents for computing IDF, defaults to
+                    144 as in the SemEval dataset.
                 sigma (int): parameter for boosting factor, defaults to 3.0.
                 alpha (int): parameter for boosting factor, defaults to 2.3.
         """
@@ -111,17 +118,20 @@ class KPMiner(LoadFile):
         # compute the boosting factor
         B = min(N_d / (P_d*alpha), sigma)
 
-        # find the maximum idf weight for compounds
-        default_idf = max(idf.values())
-
         # loop throught the candidates
         for k, v in self.candidates.items():
 
-            self.weights[k] = len(v.surface_forms) * B
-            if k in idf and len(v.lexical_form) == 1:
-                self.weights[k] *= idf[k]
-            else:
-                self.weights[k] *= default_idf
+            # get candidate document frequency
+            candidate_df = 1
+
+            # get the df for unigram only
+            if len(v.lexical_form) == 1:
+                candidate_df += df.get(k, 0)
+
+            # compute the idf score
+            idf = math.log(float(N+1) / float(candidate_df), 2)
+
+            self.weights[k] = len(v.surface_forms) * B * idf
 
 
 class SingleRank(LoadFile):
