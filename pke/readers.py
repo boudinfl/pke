@@ -3,13 +3,14 @@
 
 """ Readers for the pke module. """
 
-from xml.etree import ElementTree
+from lxml import etree
 
 class MinimalCoreNLPParser:
     """ Minimal CoreNLP XML Parser in Python. """
     def __init__(self, path):
         self.sentences = []
-        tree = ElementTree.ElementTree(file=path)
+        parser = etree.XMLParser()
+        tree = etree.parse(path, parser)
         for sentence in tree.iterfind('./document/sentences/sentence'):
             self.sentences.append({
               "words" : [u.text for u in sentence.iterfind("tokens/token/word")],
