@@ -227,45 +227,6 @@ class LoadFile(object):
                 seq = []
 
 
-    def sequence_selection(self, pos=None):
-        """ Select all the n-grams and populate the candidate container.
-
-            Args:
-                pos (set): the set of valid POS tags, defaults to None.
-        """
-
-        # loop through the sentences
-        for i, sentence in enumerate(self.sentences):
-
-            # compute the offset shift for the sentence
-            shift = sum([s.length for s in self.sentences[0:i]])
-            seq = []
-
-            for j in range(sentence.length):
-
-                # add candidate offset in sequence and continue if not last word
-                if sentence.pos[j] in pos:
-                    seq.append(j)
-                    if j < (sentence.length - 1):
-                        continue
-
-                # add candidate
-                if seq:
-
-                    surface_form = sentence.words[seq[0]:seq[-1]+1]
-                    norm_form = sentence.stems[seq[0]:seq[-1]+1]
-                    key = ' '.join(norm_form)
-                    pos_pattern = sentence.pos[seq[0]:seq[-1]+1]
-
-                    self.candidates[key].surface_forms.append(surface_form)
-                    self.candidates[key].lexical_form = norm_form
-                    self.candidates[key].offsets.append(shift+j)
-                    self.candidates[key].pos_patterns.append(pos_pattern)
-
-                # flush sequence container
-                seq = []
-
-
     def candidate_filtering(self,
                             stoplist=None,
                             mininum_length=3,
