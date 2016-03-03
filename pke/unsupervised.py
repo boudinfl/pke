@@ -155,15 +155,24 @@ class SingleRank(LoadFile):
         """ The word graph. """
 
 
-    def build_word_graph(self, window=10, pos=None):
-        """ Build the word graph from the document. """
+    def build_word_graph(self,
+                         window=10,
+                         pos=set(['NN', 'NNS', 'NNP', 'NNPS'])):
+        """ Build the word graph from the document.
+
+            Args:
+                window (int): the window within the sentence for connecting two
+                    words in the graph, defaults to 10.
+                pos (set): the set of valid pos for words to be considered as
+                    nodes in the graph, defaults to (NN, NNS, NNP, NNPS).
+        """
 
         # loop through the sentences to build the graph
         for sentence in self.sentences:
 
             # add the nodes to the graph
             for j, node in enumerate(sentence.stems):
-                if sentence.pos[j][:2] in pos:
+                if sentence.pos[j] in pos:
                     self.graph.add_node(node)
 
             # add the edges between the nodes
@@ -194,11 +203,22 @@ class SingleRank(LoadFile):
                                   '-rsb-'])
 
 
-    def candidate_weighting(self):
-        """ Candidate weight calculation using random walk. """
+    def candidate_weighting(self,
+                            window=10,
+                            pos=set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR',
+                                     'JJS'])):
+        """ Candidate weight calculation using random walk.
+
+            Args:
+                window (int): the window within the sentence for connecting two
+                    words in the graph, defaults to 10.
+                pos (set): the set of valid pos for words to be considered as
+                    nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
+                    JJR, JJS).
+        """
 
         # build the word graph
-        self.build_word_graph(window=10, pos=['JJ', 'NN'])
+        self.build_word_graph(window=window, pos=pos)
 
         # compute the word scores using random walk
         w = nx.pagerank_scipy(self.graph)

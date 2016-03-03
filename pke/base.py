@@ -72,14 +72,14 @@ class LoadFile(object):
         """ The weight container (can be either word or candidate weights). """
 
 
-    def read_corenlp_document(self, use_lemmas=False, language='porter'):
+    def read_corenlp_document(self, use_lemmas=False, stemmer='porter'):
         """ Read the input file in CoreNLP XML format and populate the sentence
             list.
 
             Args:
                 use_lemmas (bool): weither lemmas from stanford corenlp are used
                     instead of stems (computed by nltk), defaults to False.
-                language (str): the language of the stemming (if used), defaults
+                stemmer (str): the stemmer in nltk to used (if used), defaults
                     to porter.
         """
 
@@ -101,7 +101,7 @@ class LoadFile(object):
             # flatten with the stems if required
             if not use_lemmas:
                 for j, word in enumerate(self.sentences[i].words):
-                    self.sentences[i].stems[j] = Stemmer(language).stem(word)
+                    self.sentences[i].stems[j] = Stemmer(stemmer).stem(word)
 
             # lowercase the stems/lemmas
             for j, stem in enumerate(self.sentences[i].stems):
