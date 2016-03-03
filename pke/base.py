@@ -4,7 +4,7 @@
 
 from .readers import MinimalCoreNLPParser
 from collections import defaultdict
-from nltk.stem.snowball import SnowballStemmer
+from nltk.stem.snowball import SnowballStemmer as Stemmer
 from string import letters, digits
 import re
 
@@ -52,6 +52,8 @@ class LoadFile(object):
 
             Args:
                 input_file (str): the path of the input file.
+                language (str): the language of the input file (used for 
+                    stoplist), defaults to english.
         """
 
         self.input_file = input_file
@@ -70,13 +72,13 @@ class LoadFile(object):
         """ The weight container (can be either word or candidate weights). """
 
 
-    def read_corenlp_document(self, use_lemmas=True, language="porter"):
+    def read_corenlp_document(self, use_lemmas=False, language='porter'):
         """ Read the input file in CoreNLP XML format and populate the sentence
             list.
 
             Args:
                 use_lemmas (bool): weither lemmas from stanford corenlp are used
-                    instead of stems (computed by nltk), defaults to True.
+                    instead of stems (computed by nltk), defaults to False.
                 language (str): the language of the stemming (if used), defaults
                     to porter.
         """
@@ -84,21 +86,26 @@ class LoadFile(object):
         # parse the document using the Minimal CoreNLP parser
         parse = MinimalCoreNLPParser(self.input_file)
 
-        # populate the sentence container
-        for sentence in parse.sentences:
+        # loop through the parsed sentences
+        for i, sentence in enumerate(parse.sentences):
 
-            new_sentence = Sentence(words=sentence["words"])
-            new_sentence.pos = sentence["POS"]
+            # add the sentence to the container
+            self.sentences.append(Sentence(words=sentence['words']))
 
-            if use_lemmas:
-                new_sentence.stems = [t.lower() for t in sentence["lemmas"]]
-            else:
-                for word in new_sentence.words:
-                    new_sentence.stems.append(
-                        SnowballStemmer(language).stem(word.lower())
-                    )
+            # add the POS
+            self.sentences[i].pos = sentence['POS']
 
-            self.sentences.append(new_sentence)
+            # add the lemmas
+            self.sentences[i].stems = sentence['lemmas']
+
+            # flatten with the stems if required
+            if not use_lemmas:
+                for j, word in enumerate(self.sentences[i].words):
+                    self.sentences[i].stems[j] = Stemmer(language).stem(word)
+
+            # lowercase the stems/lemmas
+            for j, stem in enumerate(self.sentences[i].stems):
+                self.sentences[i].stems[j] = stem.lower()
 
 
     def get_n_best(self, n=10, redundancy_removal=False):
@@ -129,6 +136,32 @@ class LoadFile(object):
         return [(u, self.weights[u]) for u in best[:min(n, len(best))]]
 
 
+    def add_candidate(self, words, stems, pos, offset):
+        """ Add a keyphrase candidate to the candidates container.
+
+            Args:
+                words (list): the words (surface form) of the candidate.
+                stems (list): the stemmed words of the candidate.
+                pos (list): the Part-Of-Speeches of the words in the candidate.
+                offset (int): the offset of the first word of the candidate.
+        """
+
+        # build the lexical (canonical) form of the candidate using stems
+        lexical_form = ' '.join(stems)
+
+        # add/update the surface forms
+        self.candidates[lexical_form].surface_forms.append(words)
+
+        # add/update the lexical_form
+        self.candidates[lexical_form].lexical_form = stems
+
+        # add/update the POS patterns
+        self.candidates[lexical_form].pos_patterns.append(pos)
+
+        # add/update the offsets
+        self.candidates[lexical_form].offsets.append(offset)
+
+
     def ngram_selection(self, n=3):
         """ Select all the n-grams and populate the candidate container.
 
@@ -136,34 +169,75 @@ class LoadFile(object):
                 n (int): the n-gram length, defaults to 3.
         """
 
+        # loop through the sentences
         for i, sentence in enumerate(self.sentences):
 
+            # limit the maximum n for short sentence
             skip = min(n, sentence.length)
+
+            # compute the offset shift for the sentence
             shift = sum([s.length for s in self.sentences[0:i]])
 
+            # generate the ngrams
             for j in range(sentence.length):
                 for k in range(j+1, min(j+1+skip, sentence.length+1)):
 
-                    surface_form = sentence.words[j:k]
-                    norm_form = sentence.stems[j:k]
-                    key = ' '.join(norm_form)
-                    pos_pattern = sentence.pos[j:k]
+                    # add the ngram to the candidate container
+                    self.add_candidate(words=sentence.words[j:k],
+                                       stems=sentence.stems[j:k],
+                                       pos=sentence.pos[j:k],
+                                       offset=shift+j)
 
-                    self.candidates[key].surface_forms.append(surface_form)
-                    self.candidates[key].lexical_form = norm_form
-                    self.candidates[key].offsets.append(shift+j)
-                    self.candidates[key].pos_patterns.append(pos_pattern)
+
+    def longest_pos_sequence_selection(self, valid_pos=None):
+        """ Select the longest sequences of given POS tags as candidates.
+
+            Args:
+                valid_pos (set): the set of valid POS tags, defaults to None.
+        """
+
+        # loop through the sentences
+        for i, sentence in enumerate(self.sentences):
+
+            # compute the offset shift for the sentence
+            shift = sum([s.length for s in self.sentences[0:i]])
+
+            # container for the sequence (defined as list of offsets)
+            seq = []
+
+            # loop through the 
+            for j, pos in enumerate(self.sentences[i].pos):
+
+                # add candidate offset in sequence and continue if not last word
+                if pos in valid_pos:
+                    seq.append(j)
+                    if j < (sentence.length - 1):
+                        continue
+
+                # add sequence as candidate if non empty
+                if seq:
+
+                    # add the ngram to the candidate container
+                    self.add_candidate(words=sentence.words[seq[0]:seq[-1]+1],
+                                       stems=sentence.stems[seq[0]:seq[-1]+1],
+                                       pos=sentence.pos[seq[0]:seq[-1]+1],
+                                       offset=shift+j)
+
+                # flush sequence container
+                seq = []
 
 
     def sequence_selection(self, pos=None):
         """ Select all the n-grams and populate the candidate container.
 
             Args:
-                pos (list): the set of valid POS tags, defaults to None.
+                pos (set): the set of valid POS tags, defaults to None.
         """
 
+        # loop through the sentences
         for i, sentence in enumerate(self.sentences):
 
+            # compute the offset shift for the sentence
             shift = sum([s.length for s in self.sentences[0:i]])
             seq = []
 

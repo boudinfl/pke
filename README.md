@@ -22,11 +22,11 @@ pke currently implements the following keyphrase extraction models:
 
 To install this module:
 
-    pip install git+https://github.com/ANONYMOUS/pke.git
+    pip install git+https://github.com/boudinfl/pke.git
 
 ## Usage
 
-Note that all input file muste be in Stanford XML CoreNLP format.
+Note that all input file must be in Stanford XML CoreNLP format.
 
 Before using some keyphrase extraction algorithms (e.g. TfIdf, KP-Miner), one 
 need to compute DF weights from a collection of documents. Such weights can

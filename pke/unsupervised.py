@@ -145,10 +145,11 @@ class SingleRank(LoadFile):
             (Coling 2008)*, pages 969-976, 2008.
     """
 
-    def __init__(self, input_file):
+    def __init__(self, input_file, language='english'):
         """ Redefining initializer for SingleRank. """
 
-        super(SingleRank, self).__init__(input_file)
+        super(SingleRank, self).__init__(input_file=input_file,
+                                         language=language)
 
         self.graph = nx.Graph()
         """ The word graph. """
@@ -174,12 +175,17 @@ class SingleRank(LoadFile):
                     self.graph[node_1][node_2]['weight'] += 1.0
 
 
-    def candidate_selection(self):
-        """ The candidate selection as described in the SingleRank paper. """
+    def candidate_selection(self, pos=set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ',
+                                           'JJR', 'JJS'])):
+        """ The candidate selection as described in the SingleRank paper.
+
+            Args:
+                pos (set): the set of valid POS tags, defaults to (NN, NNS, NNP,
+                    NNPS, JJ, JJR, JJS).
+        """
 
         # select sequence of adjectives and nouns
-        self.sequence_selection(pos=['NN', 'NNS', 'NNP', 'NNPS',
-                                     'JJ', 'JJR', 'JJS'])
+        self.longest_pos_sequence_selection(valid_pos=pos)
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=stopwords.words(self.language) +
@@ -214,10 +220,11 @@ class TopicRank(LoadFile):
             Processing*, pages 543-551, 2013.
     """
 
-    def __init__(self, input_file):
+    def __init__(self, input_file, language='english'):
         """ Redefining initializer for TopicRank. """
 
-        super(TopicRank, self).__init__(input_file)
+        super(TopicRank, self).__init__(input_file=input_file,
+                                        language=language)
 
         self.graph = nx.Graph()
         """ The topic graph. """
@@ -226,12 +233,18 @@ class TopicRank(LoadFile):
         """ The topic container. """
 
 
-    def candidate_selection(self):
-        """ The candidate selection as described in the TopicRank paper. """
+    def candidate_selection(self, pos=set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ',
+                                           'JJR', 'JJS'])):
+        """ The candidate selection as described in the TopicRank paper.
+
+            Args:
+                pos (set): the set of valid POS tags, defaults to (NN, NNS, NNP,
+                    NNPS, JJ, JJR, JJS).
+
+        """
 
         # select sequence of adjectives and nouns
-        self.sequence_selection(pos=['NN', 'NNS', 'NNP', 'NNPS',
-                                     'JJ', 'JJR', 'JJS'])
+        self.longest_pos_sequence_selection(valid_pos=pos)
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=stopwords.words(self.language) +

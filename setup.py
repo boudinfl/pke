@@ -11,7 +11,8 @@ setup(name='pke',
       	'nltk',
       	'networkx',
       	'numpy',
-      	'scipy'
+      	'scipy',
+            'sklearn'
       ]
      )
 

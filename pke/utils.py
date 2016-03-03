@@ -16,7 +16,6 @@ from .readers import MinimalCoreNLPParser
 from .base import LoadFile
 from supervised import Kea, WINGNUS
 from sklearn.naive_bayes import MultinomialNB
-# from sklearn.linear_model import LogisticRegression
 from sklearn.externals import joblib
 from sklearn import preprocessing
 
@@ -60,7 +59,7 @@ def compute_document_frequency(input_dir,
     df = defaultdict(set)
 
     # loop throught the documents
-    for input_file in glob.glob(input_dir+'/*.xml'):
+    for input_file in glob.glob(input_dir+'/*.'+extension):
 
         logging.info('reading file '+input_file)
 
@@ -118,7 +117,7 @@ def train_supervised_model(input_dir,
     references = load_references(reference_file)
     training_instances = []
     training_classes = []
-    files = glob.glob(input_dir+'/*.xml')
+    files = glob.glob(input_dir+'/*.'+extension)
 
     # get the input files from the input directory
     for input_file in files:
@@ -151,10 +150,6 @@ def train_supervised_model(input_dir,
             training_instances.append(model.instances[candidate])
 
     clf = MultinomialNB()
-    # clf = LogisticRegression(class_weight='auto', 
-    #                          solver='liblinear', 
-    #                          dual=False,
-    #                          penalty='l2')
     clf.fit(training_instances, training_classes)
     logging.info('writing model to '+model_file)
     joblib.dump(clf, model_file)
