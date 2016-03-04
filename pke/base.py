@@ -108,31 +108,72 @@ class LoadFile(object):
                 self.sentences[i].stems[j] = stem.lower()
 
 
+    def is_redundant(self, candidate, prev, mininum_length=2):
+        """ Test if one candidate is redundant with respect to a list of already
+            selected candidates.
+
+            Args:
+                candidate (str): the lexical form of the candidate.
+                prev (list): the list of already selected candidates (lexical
+                    forms).
+                mininum_length (int): minimum length (in words) of the candidate
+                    to be considered, defaults to 2.
+        """
+
+        # get the tokenized lexical form from the candidate
+        candidate = self.candidates[candidate].lexical_form
+
+        # only consider candidate greater than one word
+        if len(candidate) < mininum_length:
+            return False
+
+        # get the tokenized lexical forms from the selected candidates
+        prev = [self.candidates[u].lexical_form for u in prev]
+
+        # loop through the already selected candidates
+        for p in  prev:
+            for i in range(len(p)-len(candidate)+1):
+                if candidate == p[i:i+len(candidate)]:
+                    return True
+        return False
+
+
     def get_n_best(self, n=10, redundancy_removal=False):
         """ Returns the n-best candidates given the weights. 
 
             Args:
                 n (int): the number of candidates, defaults to 10.
                 redundancy_removal (bool): whether redundant keyphrases are 
-                    filtered out from the n-best list, defaults to False:
+                    filtered out from the n-best list, defaults to False.
         """
 
+        # sort candidates by descending weight
         best = sorted(self.weights, key=self.weights.get, reverse=True)
 
+        # remove redundant candidates
         if redundancy_removal:
-            l = []
-            for i in range(len(best)):
-                is_redundant = False
-                for c in best[:i]:
-                    if len(self.candidates[best[i]].lexical_form) > 1 and\
-                        re.search('(^|\s)'+best[i]+'($|\s)', c):
-                        is_redundant = True
-                if not is_redundant:
-                    l.append(best[i])
-                if len(l) >= n:
-                    break
-            best = l
 
+            # initialize a new container for non redundant candidates
+            non_redundant_best = []
+
+            # loop through the best candidates
+            for i, candidate in enumerate(best):
+
+                # test wether candidate is redundant
+                if self.is_redundant(candidate, non_redundant_best):
+                    continue
+
+                # add the candidate otherwise
+                non_redundant_best.append(candidate)
+
+                # break computation if the n-best are found
+                if len(non_redundant_best) >= n:
+                    break
+
+            # copy non redundant candidates in best container
+            best = non_redundant_best
+            
+        # return the list of best candidates as (lexical form, weight) tuples
         return [(u, self.weights[u]) for u in best[:min(n, len(best))]]
 
 
