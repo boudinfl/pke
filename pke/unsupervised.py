@@ -30,6 +30,7 @@ class TfIdf(LoadFile):
 
     def candidate_weighting(self, df=None, N=144):
         """ Candidate weighting function using document frequencies.
+        
             Args:
                 df (dict): document frequencies.
                 N (int): the number of documents for computing IDF, defaults to
@@ -184,17 +185,17 @@ class SingleRank(LoadFile):
                     self.graph[node_1][node_2]['weight'] += 1.0
 
 
-    def candidate_selection(self, pos=set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ',
-                                           'JJR', 'JJS'])):
+    def candidate_selection(self, pos=['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR',
+                                       'JJS']):
         """ The candidate selection as described in the SingleRank paper.
 
             Args:
-                pos (set): the set of valid POS tags, defaults to (NN, NNS, NNP,
-                    NNPS, JJ, JJR, JJS).
+                pos (list): the set of valid POS tags, defaults to (NN, NNS,
+                    NNP, NNPS, JJ, JJR, JJS).
         """
 
         # select sequence of adjectives and nouns
-        self.longest_pos_sequence_selection(valid_pos=pos)
+        self.longest_pos_sequence_selection(valid_pos=set(pos))
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=stopwords.words(self.language) +
@@ -205,20 +206,20 @@ class SingleRank(LoadFile):
 
     def candidate_weighting(self,
                             window=10,
-                            pos=set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR',
-                                     'JJS'])):
+                            pos=['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR',
+                                 'JJS']):
         """ Candidate weight calculation using random walk.
 
             Args:
                 window (int): the window within the sentence for connecting two
                     words in the graph, defaults to 10.
-                pos (set): the set of valid pos for words to be considered as
+                pos (list): the set of valid pos for words to be considered as
                     nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
                     JJR, JJS).
         """
 
         # build the word graph
-        self.build_word_graph(window=window, pos=pos)
+        self.build_word_graph(window=window, pos=set(pos))
 
         # compute the word scores using random walk
         w = nx.pagerank_scipy(self.graph)
@@ -253,18 +254,17 @@ class TopicRank(LoadFile):
         """ The topic container. """
 
 
-    def candidate_selection(self, pos=set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ',
-                                           'JJR', 'JJS'])):
+    def candidate_selection(self, pos=['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR',
+                                       'JJS']):
         """ The candidate selection as described in the TopicRank paper.
 
             Args:
-                pos (set): the set of valid POS tags, defaults to (NN, NNS, NNP,
-                    NNPS, JJ, JJR, JJS).
-
+                pos (list): the set of valid POS tags, defaults to (NN, NNS,
+                    NNP, NNPS, JJ, JJR, JJS).
         """
 
         # select sequence of adjectives and nouns
-        self.longest_pos_sequence_selection(valid_pos=pos)
+        self.longest_pos_sequence_selection(valid_pos=set(pos))
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=stopwords.words(self.language) +
@@ -341,8 +341,14 @@ class TopicRank(LoadFile):
                             self.graph[i][j]['weight'] += 1.0 / abs(p_i-p_j)
 
 
-    def candidate_weighting(self):
-        """ Candidate weight calculation using random walk. """
+    def candidate_weighting(self, threshold=0.25, method='average'):
+        """ Candidate weight calculation using random walk.
+
+            Args:
+                threshold (int): the minimum similarity for clustering, defaults
+                    to 0.25.
+                method (str): the linkage method, defaults to average.
+        """
 
         # cluster the candidates
         self.topic_clustering()

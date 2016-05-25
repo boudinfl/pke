@@ -17,10 +17,10 @@ import numpy as np
 class Kea(LoadFile):
     """ Kea keyphrase extraction model. """
 
-    def __init__(self, input_file=None):
+    def __init__(self, input_file=None, language='english'):
         """ Redefining initializer for Kea. """
 
-        super(Kea, self).__init__(input_file)
+        super(Kea, self).__init__(input_file=input_file, language=language)
 
         self.instances = {}
         """ The instances container. """
@@ -55,6 +55,18 @@ class Kea(LoadFile):
             words = [u.lower() for u in v.surface_forms[0]]
             if words[0] in stoplist or words[-1] in stoplist:
                 del self.candidates[k]
+
+
+    @classmethod
+    def fit(cls, labeled_featuresets):
+        """ Fit the training data.
+
+            Args:
+                labeled_featuresets (list): a list of classified featuresets,
+                    i.e., a list of tuples ``(featureset, label)``.
+
+        """
+        pass
 
 
     def feature_extraction(self, df=None, N=144, training=False):
@@ -126,10 +138,10 @@ class Kea(LoadFile):
 class WINGNUS(LoadFile):
     """ WINGNUS keyphrase extraction model. """
 
-    def __init__(self, input_file=None):
+    def __init__(self, input_file=None, language='english'):
         """ Redefining initializer for WINGNUS. """
 
-        super(WINGNUS, self).__init__(input_file)
+        super(WINGNUS, self).__init__(input_file=input_file, language=language)
 
         self.instances = {}
         """ The instances container. """
