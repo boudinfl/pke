@@ -24,6 +24,9 @@ class Sentence(object):
         self.length = len(words)
         """ length of the sentence. """
 
+        self.meta = {}
+        """ meta-information of the sentence. """
+
 
 class Candidate(object):
     """ The keyphrase candidate data structure. """
@@ -51,7 +54,7 @@ class LoadFile(object):
 
             Args:
                 input_file (str): the path of the input file.
-                language (str): the language of the input file (used for 
+                language (str): the language of the input file (used for
                     stoplist), defaults to english.
         """
 
@@ -106,6 +109,11 @@ class LoadFile(object):
             for j, stem in enumerate(self.sentences[i].stems):
                 self.sentences[i].stems[j] = stem.lower()
 
+            # add the meta-information
+            for k, v in sentence.iteritems():
+                if k not in set(['POS', 'lemmas', 'words']):
+                    self.sentences[i].meta[k] = v
+
 
     def read_preprocessed_document(self, stemmer='porter', sep='/'):
         """ Read the preprocessed input file and populate the sentence list.
@@ -116,7 +124,7 @@ class LoadFile(object):
                 sep (str): the separator of the tagged word, defaults to /.
         """
 
-        # parse the document using the Minimal CoreNLP parser
+        # parse the document using the preprocessed text parser
         parse = PreProcessedTextReader(self.input_file, sep=sep)
 
         # loop through the parsed sentences
@@ -153,26 +161,26 @@ class LoadFile(object):
         candidate = self.candidates[candidate].lexical_form
 
         # only consider candidate greater than one word
-        if len(candidate) < mininum_length:
-            return False
+        # if len(candidate) < mininum_length:
+        #     return False
 
         # get the tokenized lexical forms from the selected candidates
         prev = [self.candidates[u].lexical_form for u in prev]
 
         # loop through the already selected candidates
-        for p in  prev:
-            for i in range(len(p)-len(candidate)+1):
-                if candidate == p[i:i+len(candidate)]:
+        for prev_candidate in  prev:
+            for i in range(len(prev_candidate)-len(candidate)+1):
+                if candidate == prev_candidate[i:i+len(candidate)]:
                     return True
         return False
 
 
     def get_n_best(self, n=10, redundancy_removal=False):
-        """ Returns the n-best candidates given the weights. 
+        """ Returns the n-best candidates given the weights.
 
             Args:
                 n (int): the number of candidates, defaults to 10.
-                redundancy_removal (bool): whether redundant keyphrases are 
+                redundancy_removal (bool): whether redundant keyphrases are
                     filtered out from the n-best list, defaults to False.
         """
 
@@ -186,7 +194,7 @@ class LoadFile(object):
             non_redundant_best = []
 
             # loop through the best candidates
-            for i, candidate in enumerate(best):
+            for candidate in best:
 
                 # test wether candidate is redundant
                 if self.is_redundant(candidate, non_redundant_best):
@@ -201,7 +209,7 @@ class LoadFile(object):
 
             # copy non redundant candidates in best container
             best = non_redundant_best
-            
+
         # return the list of best candidates as (lexical form, weight) tuples
         return [(u, self.weights[u]) for u in best[:min(n, len(best))]]
 
@@ -275,7 +283,7 @@ class LoadFile(object):
             # container for the sequence (defined as list of offsets)
             seq = []
 
-            # loop through the 
+            # loop through the tokens
             for j, pos in enumerate(self.sentences[i].pos):
 
                 # add candidate offset in sequence and continue if not last word
@@ -302,13 +310,13 @@ class LoadFile(object):
                             mininum_length=3,
                             mininum_word_size=2,
                             valid_punctuation_marks='-'):
-        """ Filter the candidates containing strings from the stoplist. Only 
-            keep the candidates containing alpha-numeric characters and those 
+        """ Filter the candidates containing strings from the stoplist. Only
+            keep the candidates containing alpha-numeric characters and those
             length exceeds a given number of characters.
 
             Args:
                 stoplist (list): list of strings, defaults to None.
-                mininum_length (int): minimum number of characters for a 
+                mininum_length (int): minimum number of characters for a
                     candidate, defaults to 3.
                 mininum_word_size (int): minimum number of characters for a
                     token to be considered as a valid word, defaults to 2.
@@ -324,7 +332,7 @@ class LoadFile(object):
 
         # loop throught the candidates
         for k, v in self.candidates.items():
-            
+
             # get the words from the first occurring surface form
             words = [u.lower() for u in v.surface_forms[0]]
 

@@ -5,10 +5,10 @@ pke currently implements the following keyphrase extraction models:
 - Unsupervised models
   - SingleRank [(Xiaojun and Jianguo, 2008)][1]
   - TopicRank [(Bougouin et al., 2013)][2]
-  - KP-miner [(El-Beltagy and Rafea, 2010)][3]
+  - KP-Miner [(El-Beltagy and Rafea, 2010)][3]
   - TF*IDF
 - Supervised models
-  - Kea [(Witten et al., 1999)][5]
+  - Kea [(Witten et al., 1999)][4]
   - WINGNUS [(Nguyen and Luong, 2010)][5]
 
 ## Requirements
@@ -26,14 +26,16 @@ To install this module:
 
 ## Usage
 
-Note that all input file must be in Stanford XML CoreNLP format.
+Note that input files must be either in Stanford XML CoreNLP format
+(format=corenlp) or one tokenized/POS_tag sentence per line format (format=pre).
+
+### Computing DF weights (required for some models)
 
 Before using some keyphrase extraction algorithms (e.g. TfIdf, KP-Miner), one 
 need to compute DF weights from a collection of documents. Such weights can
 be computed as:
 
     from pke import compute_document_frequency
-    from nltk.corpus import stopwords
     from string import punctuation
 
     # path to the collection of documents
@@ -42,16 +44,18 @@ be computed as:
     # path to the DF weights dictionary, saved as a gzip tab separated values
     output_file = '/path/to/output/'
 
-    # stoplist, candidates containing stopwords are filtered
-    stoplist = stopwords.words('english') + list(punctuation)
-
     # compute df weights and store stem -> weigth values
     compute_document_frequency(input_dir=input_dir,
                                output_file=output_file,
-                               format="corenlp",
-                               stoplist=stoplist,
-                               delimiter='\t',
-                               n=5)
+                               format="corenlp",            # input files format
+                               use_lemmas=False,    # do not use Stanford lemmas
+                               stemmer="porter",            # use porter stemmer
+                               stoplist=list(punctuation),            # stoplist
+                               delimiter='\t',            # tab separated output
+                               extension='xml',          # input files extension
+                               n=5)              # compute n-grams up to 5-grams
+
+### Training supervised models
 
 For supervised models, one need to build their classification model first 
 (example for Kea):

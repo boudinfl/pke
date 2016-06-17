@@ -14,15 +14,6 @@ from .supervised import Kea, WINGNUS
 
 from nltk.stem.snowball import SnowballStemmer as Stemmer
 
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.externals import joblib
-from sklearn import preprocessing
-
-# from .readers import MinimalCoreNLPParser
-# import cPickle
-# import math
-# from os import listdir
-
 
 def load_document_frequency_file(input_file,
                                  delimiter='\t'):
@@ -133,7 +124,8 @@ def train_supervised_model(input_dir,
                            extension="xml",
                            sep_doc_id=':',
                            sep_ref_keyphrases=',',
-                           reference_stemming=False):
+                           reference_stemming=False,
+                           dblp_candidates=None):
     """ Build a supervised keyphrase extraction model from a set of documents
         and a reference file.
 
@@ -155,6 +147,8 @@ def train_supervised_model(input_dir,
                 defaults to ':'.
             sep_ref_keyphrases (str): the separator used for keyphrases in 
                 reference file, defaults to ','.
+            dblp_candidates (list): valid candidates according to the list of
+                candidates extracted from the dblp titles.
     """
 
     logging.info('building model '+str(model)+' from '+input_dir)
@@ -167,6 +161,9 @@ def train_supervised_model(input_dir,
     training_instances = []
     training_classes = []
     files = glob.glob(input_dir+'/*.'+extension)
+
+    # number of files for IDF computation
+    N = len(files)-1
 
     # get the input files from the input directory
     for input_file in files:
@@ -185,12 +182,14 @@ def train_supervised_model(input_dir,
             model.read_preprocessed_document(stemmer=stemmer)
 
         # select candidates using default method
-        model.candidate_selection()
+        if dblp_candidates is not None:
+            model.candidate_selection(dblp_candidates=dblp_candidates)
+            N = 5082856
+        else:
+            model.candidate_selection()
 
         # extract features
-        model.feature_extraction(df=df, 
-                                 N=len(files)-1,
-                                 training=True)
+        model.feature_extraction(df=df, N=N, training=True)
         
         # annotate the reference keyphrases in the instances
         for candidate in model.instances:
@@ -200,10 +199,10 @@ def train_supervised_model(input_dir,
                 training_classes.append(0)
             training_instances.append(model.instances[candidate])
 
-    clf = MultinomialNB()
-    clf.fit(training_instances, training_classes)
     logging.info('writing model to '+model_file)
-    joblib.dump(clf, model_file)
+    model.train(training_instances=training_instances,
+                training_classes=training_classes,
+                model_file=model_file)
 
         
 def load_references(input_file,
