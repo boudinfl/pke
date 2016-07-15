@@ -45,6 +45,9 @@ class Candidate(object):
         self.lexical_form = []
         """ the lexical form of the candidate. """
 
+        self.meta = []
+        """ meta-information of the candidate. """
+
 
 class LoadFile(object):
     """ The LoadFile class that provides base functions. """
@@ -214,7 +217,7 @@ class LoadFile(object):
         return [(u, self.weights[u]) for u in best[:min(n, len(best))]]
 
 
-    def add_candidate(self, words, stems, pos, offset):
+    def add_candidate(self, words, stems, pos, offset, meta):
         """ Add a keyphrase candidate to the candidates container.
 
             Args:
@@ -222,6 +225,7 @@ class LoadFile(object):
                 stems (list): the stemmed words of the candidate.
                 pos (list): the Part-Of-Speeches of the words in the candidate.
                 offset (int): the offset of the first word of the candidate.
+                meta (dict): the meta-information from the sentence.
         """
 
         # build the lexical (canonical) form of the candidate using stems
@@ -238,6 +242,9 @@ class LoadFile(object):
 
         # add/update the offsets
         self.candidates[lexical_form].offsets.append(offset)
+
+        # add/update the meta information
+        self.candidates[lexical_form].meta.append(meta)
 
 
     def ngram_selection(self, n=3):
@@ -264,7 +271,8 @@ class LoadFile(object):
                     self.add_candidate(words=sentence.words[j:k],
                                        stems=sentence.stems[j:k],
                                        pos=sentence.pos[j:k],
-                                       offset=shift+j)
+                                       offset=shift+j,
+                                       meta=sentence.meta)
 
 
     def longest_pos_sequence_selection(self, valid_pos=None):
@@ -299,7 +307,8 @@ class LoadFile(object):
                     self.add_candidate(words=sentence.words[seq[0]:seq[-1]+1],
                                        stems=sentence.stems[seq[0]:seq[-1]+1],
                                        pos=sentence.pos[seq[0]:seq[-1]+1],
-                                       offset=shift+j)
+                                       offset=shift+j,
+                                       meta=sentence.meta)
 
                 # flush sequence container
                 seq = []

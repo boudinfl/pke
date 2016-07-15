@@ -6,10 +6,11 @@ pke currently implements the following keyphrase extraction models:
   - SingleRank [(Xiaojun and Jianguo, 2008)][1]
   - TopicRank [(Bougouin et al., 2013)][2]
   - KP-Miner [(El-Beltagy and Rafea, 2010)][3]
-  - TF*IDF
+  - TF*IDF [(Spärck Jones, 1972)][4]
+
 - Supervised models
-  - Kea [(Witten et al., 1999)][4]
-  - WINGNUS [(Nguyen and Luong, 2010)][5]
+  - Kea [(Witten et al., 1999)][5]
+  - WINGNUS [(Nguyen and Luong, 2010)][6]
 
 ## Requirements
 
@@ -17,6 +18,7 @@ pke currently implements the following keyphrase extraction models:
     scipy
     nltk
     networkx
+    lxml
 
 ## Installation
 
@@ -146,5 +148,6 @@ Here is an example of supervised model (Kea):
 [1]: http://aclweb.org/anthology/C08-1122.pdf
 [2]: http://aclweb.org/anthology/I13-1062.pdf
 [3]: http://aclweb.org/anthology/S10-1041.pdf
-[4]: http://arxiv.org/ftp/cs/papers/9902/9902007.pdf
-[5]: http://aclweb.org/anthology/S10-1035.pdf
+[4]: https://www.cl.cam.ac.uk/archive/ksj21/ksjdigipapers/jdoc72.pdf
+[5]: http://arxiv.org/ftp/cs/papers/9902/9902007.pdf
+[6]: http://aclweb.org/anthology/S10-1035.pdf

@@ -19,10 +19,8 @@ import pickle
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_selection import RFE
 from sklearn.utils import shuffle
 from sklearn.linear_model import LogisticRegression
-
 
 class Kea(LoadFile):
     """ Kea keyphrase extraction model. """
@@ -218,9 +216,9 @@ class WINGNUS(LoadFile):
     def feature_extraction(self,
                            df=None,
                            N=144,
-                           training=False):
-        """ Extract features (tf*idf, first occurrence and length) for each 
-            candidate.
+                           training=False,
+                           features_set=[1, 4, 6]):
+        """ Extract features for each candidate.
 
             Args:
                 df (dict): document frequencies.
@@ -235,6 +233,9 @@ class WINGNUS(LoadFile):
 
         for k, v in self.candidates.iteritems():
 
+            # initialize features array
+            feature_array = []
+
             # get candidate document frequency
             candidate_df = 1 + df.get(k, 0)
 
@@ -245,43 +246,102 @@ class WINGNUS(LoadFile):
             # compute the tf*idf of the candidate
             idf = math.log(float(N+1) / float(candidate_df), 2)
 
-            # # term frequency of substrings
-            # tf_substrings = len(v.lexical_form)
-            # stoplist = stopwords.words(self.language)
-            # size = len(v.lexical_form)
-            # full_string = ' '.join(v.lexical_form)
-            # for i in range(size):
-            #     for j in range(i, min(size, i+3)):
+            # [F1] TF*IDF
+            feature_array.append(len(v.surface_forms) * idf)
 
-            #         sub_words = v.lexical_form[i:j+1]
-            #         sub_string = ' '.join(sub_words)
+            # [F2] -> TF
+            feature_array.append(len(v.surface_forms))
+
+            # [F3] -> term frequency of substrings
+            tf_of_substrings = 0
+            stoplist = stopwords.words(self.language)
+            for i in range(len(v.lexical_form)):
+                for j in range(i, min(len(v.lexical_form), i+3)):
+                    sub_words = v.lexical_form[i:j+1]
+                    sub_string = ' '.join(sub_words)
 
                     # skip if substring is fullstring
-                    # if sub_string == full_string:
-                    #     continue
+                    if sub_string == ' '.join(v.lexical_form):
+                        continue
 
-                    # # skip if substring contains a stopword
-                    # if set(sub_words).intersection(stoplist):
-                    #     continue
+                    # skip if substring contains a stopword
+                    if set(sub_words).intersection(stoplist):
+                        continue
                     
-                    # check whether the substring occurs
-                    # if self.candidates.has_key(sub_string):
-                    #     tf_substrings += len(self.candidates[sub_string].surface_forms)
+                    # check whether the substring occurs "as it"
+                    if self.candidates.has_key(sub_string):
 
-                        # # loop throught substring offsets
-                        # for offset_1 in self.candidates[sub_string].offsets:
-                        #     is_included = False
-                        #     for offset_2 in v.offsets:
-                        #         if offset_1 >= offset_2 and \
-                        #            offset_1 <= offset_2 + len(v.lexical_form):
-                        #            is_included = True
-                        #     if not is_included:
-                        #         tf_substrings += 1
+                        # loop throught substring offsets
+                        for offset_1 in self.candidates[sub_string].offsets:
+                            is_included = False
+                            for offset_2 in v.offsets:
+                                if offset_1 >= offset_2 and \
+                                   offset_1 <= offset_2 + len(v.lexical_form):
+                                   is_included = True
+                            if not is_included:
+                                tf_of_substrings += 1
+
+            feature_array.append(tf_of_substrings)
+
+            # [F4] -> relative first occurrence
+            feature_array.append(v.offsets[0]/maximum_offset)
+
+            # [F5] -> relative last occurrence
+            feature_array.append(v.offsets[-1]/maximum_offset)
+
+            # [F6] -> length of phrases in words
+            feature_array.append(len(v.lexical_form))
+
+            # [F7] -> typeface
+            feature_array.append(0)
+
+            # extract information from candidate meta information
+            sections = [u['section'] for u in v.meta]
+            types = [u['type'] for u in v.meta]
+
+            # [F8] -> Is in title
+            feature_array.append('title' in sections)
+
+            # [F9] -> TitleOverlap
+            feature_array.append(0)
+
+            # [F10] -> Header
+            feature_array.append('sectionHeader' in types or 
+                                 'subsectionHeader' in types or
+                                 'subsubsectionHeader' in types)
+
+            # [F11] -> abstract
+            feature_array.append('abstract' in sections)
+
+            # [F12] -> introduction
+            feature_array.append('introduction' in sections)
+
+            # [F13] -> related work
+            feature_array.append('related work' in sections)
+
+            # [F14] -> conclusions
+            feature_array.append('conclusions' in sections)
+
+            # [F15] -> HeaderF
+            feature_array.append(types.count('sectionHeader')+
+                                 types.count('subsectionHeader')+
+                                 types.count('subsubsectionHeader'))
+
+            # [F11] -> abstractF
+            feature_array.append(sections.count('abstract'))
+
+            # [F12] -> introductionF
+            feature_array.append(sections.count('introduction'))
+
+            # [F13] -> related workF
+            feature_array.append(sections.count('related work'))
+
+            # [F14] -> conclusionsF
+            feature_array.append(sections.count('conclusions'))
 
             # add the features to the instance container
-            self.instances[k] = np.array([len(v.surface_forms) * idf,
-                                 v.offsets[0]/maximum_offset,
-                                 len(v.lexical_form)])
+            self.instances[k] = np.array([feature_array[i-1] for i \
+                                          in features_set])
 
         # scale features
         self.feature_scaling()
@@ -576,124 +636,3 @@ class SEERLAB(LoadFile):
 
         # print selector.support_ 
         # print selector.ranking_
-
-        
-class SupTfIdf(LoadFile):
-    """ SupTfIdf keyphrase extraction model. """
-
-    def __init__(self, input_file=None, language='english'):
-        """ Redefining initializer for SupTfIdf. """
-
-        super(SupTfIdf, self).__init__(input_file=input_file, language=language)
-
-        self.instances = {}
-        """ The instances container. """
-
-
-    def __str__(self):
-        """ Defining string representation. """
-
-        return "SupTfIdf"
-
-
-    def candidate_selection(self):
-        """ Select 1-3 grams as keyphrase candidates. Candidates that start or 
-            end with a stopword are discarded.
-        """
-
-        # select ngrams from 1 to 3 grams
-        self.ngram_selection(n=3)
-
-        # filter candidates containing punctuation marks
-        self.candidate_filtering(list(string.punctuation) +
-                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'])
-
-
-    def feature_extraction(self, df=None, N=144, training=False):
-        """ Extract features (tf*idf) for each 
-            candidate.
-
-            Args:
-                df (dict): document frequencies.
-                N (int): the number of documents for computing IDF, defaults to
-                    144 as in the SemEval dataset.
-                training (bool): indicates whether features are computed for the
-                    training set for computing IDF weights, defaults to false.
-        """
-
-        # find the maximum offset
-        maximum_offset = float(sum([s.length for s in self.sentences]))
-
-        for k, v in self.candidates.iteritems():
-
-            # get candidate document frequency
-            candidate_df = 1 + df.get(k, 0)
-
-            # hack for handling training documents
-            if training and candidate_df != 1:
-                candidate_df -= 1
-
-            # compute the tf*idf of the candidate
-            idf = math.log(float(N+1) / float(candidate_df), 2)
-
-            # add the features to the instance container
-            self.instances[k] = np.array([len(v.surface_forms) * idf])
-
-        # scale features
-        self.feature_scaling()
-
-
-    def feature_scaling(self):
-        """ Scale features to [0,1]. """
-
-        candidates = self.instances.keys()
-        X = [self.instances[u] for u in candidates]
-        X = MinMaxScaler().fit_transform(X)
-        for i, candidate in enumerate(candidates):
-            self.instances[candidate] = X[i]
-
-
-    def classify_candidates(self, model):
-        """ Classify the candidates as keyphrase or not keyphrase.
-
-            Args:
-                model (str): the path to load the model.
-        """
-
-        # load the model
-        with open(model, 'rb') as f:
-            clf = pickle.load(f)
-
-        # get matrix of instances
-        candidates = self.instances.keys()
-        X = [self.instances[u] for u in candidates]
-
-        # classify candidates
-        y = clf.predict_proba(X)
-
-        for i, candidate in enumerate(candidates):
-            self.weights[candidate] = y[i][1]
-
-
-    @staticmethod
-    def train(training_instances, training_classes, model_file):
-        """ Train a Naive Bayes classifier and store the model in a file.
-
-            Args:
-                training_instances (list): list of features.
-                training_classes (list): list of binary values.
-                model_file (str): the model output file.
-        """
-
-        clf = LogisticRegression()
-        clf.fit(training_instances, training_classes)
-        with open(model_file, 'wb') as f:
-            pickle.dump(clf, f)
-
-
-
-
-
-
-
