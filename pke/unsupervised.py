@@ -6,9 +6,13 @@ import string
 import networkx as nx
 import numpy as np
 import math
+
 from .base import LoadFile
+
 from itertools import combinations
+
 from nltk.corpus import stopwords
+
 from scipy.cluster.hierarchy import linkage, fcluster
 from scipy.spatial.distance import pdist
 
@@ -366,6 +370,3 @@ class TopicRank(LoadFile):
             offsets = [self.candidates[t].offsets[0] for t in topic]
             first = offsets.index(min(offsets))
             self.weights[topic[first]] = w[i]
-
-
-

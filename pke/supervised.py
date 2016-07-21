@@ -22,22 +22,60 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.utils import shuffle
 from sklearn.linear_model import LogisticRegression
 
-class Kea(LoadFile):
+
+class SupervisedLoadFile(LoadFile):
+    """ The SupervisedLoadFile class that provides extra base functions for 
+        supervised models. """
+
+    def __init__(self, input_file=None, language='english'):
+        """ Redefining initializer. """
+
+        super(SupervisedLoadFile, self).__init__(input_file=input_file,
+                                                 language=language)
+
+        self.instances = {}
+        """ The instances container. """
+
+
+    def feature_scaling(self):
+        """ Scale features to [0,1]. """
+
+        candidates = self.instances.keys()
+        X = [self.instances[u] for u in candidates]
+        X = MinMaxScaler().fit_transform(X)
+        for i, candidate in enumerate(candidates):
+            self.instances[candidate] = X[i]
+
+
+    def classify_candidates(self, model):
+        """ Classify the candidates as keyphrase or not keyphrase.
+
+            Args:
+                model (str): the path to load the model in pickle format.
+        """
+
+        # load the model
+        with open(model, 'rb') as f:
+            clf = pickle.load(f)
+
+        # get matrix of instances
+        candidates = self.instances.keys()
+        X = [self.instances[u] for u in candidates]
+
+        # classify candidates
+        y = clf.predict_proba(X)
+
+        for i, candidate in enumerate(candidates):
+            self.weights[candidate] = y[i][1]
+
+
+class Kea(SupervisedLoadFile):
     """ Kea keyphrase extraction model. """
 
     def __init__(self, input_file=None, language='english'):
         """ Redefining initializer for Kea. """
 
         super(Kea, self).__init__(input_file=input_file, language=language)
-
-        self.instances = {}
-        """ The instances container. """
-
-
-    def __str__(self):
-        """ Defining string representation. """
-
-        return "Kea"
 
 
     def candidate_selection(self):
@@ -100,38 +138,6 @@ class Kea(LoadFile):
         self.feature_scaling()
 
 
-    def feature_scaling(self):
-        """ Scale features to [0,1]. """
-
-        candidates = self.instances.keys()
-        X = [self.instances[u] for u in candidates]
-        X = MinMaxScaler().fit_transform(X)
-        for i, candidate in enumerate(candidates):
-            self.instances[candidate] = X[i]
-
-
-    def classify_candidates(self, model):
-        """ Classify the candidates as keyphrase or not keyphrase.
-
-            Args:
-                model (str): the path to load the model.
-        """
-
-        # load the model
-        with open(model, 'rb') as f:
-            clf = pickle.load(f)
-
-        # get matrix of instances
-        candidates = self.instances.keys()
-        X = [self.instances[u] for u in candidates]
-
-        # classify candidates
-        y = clf.predict_proba(X)
-
-        for i, candidate in enumerate(candidates):
-            self.weights[candidate] = y[i][1]
-
-
     @staticmethod
     def train(training_instances, training_classes, model_file):
         """ Train a Naive Bayes classifier and store the model in a file.
@@ -148,22 +154,14 @@ class Kea(LoadFile):
             pickle.dump(clf, f)
        
 
-class WINGNUS(LoadFile):
+class WINGNUS(SupervisedLoadFile):
     """ WINGNUS keyphrase extraction model. """
+
 
     def __init__(self, input_file=None, language='english'):
         """ Redefining initializer for WINGNUS. """
 
         super(WINGNUS, self).__init__(input_file=input_file, language=language)
-
-        self.instances = {}
-        """ The instances container. """
-
-
-    def __str__(self):
-        """ Defining string representation. """
-
-        return "WINGNUS"
 
 
     def candidate_selection(self,
@@ -347,38 +345,6 @@ class WINGNUS(LoadFile):
         self.feature_scaling()
 
 
-    def feature_scaling(self):
-        """ Scale features to [0,1]. """
-
-        candidates = self.instances.keys()
-        X = [self.instances[u] for u in candidates]
-        X = MinMaxScaler().fit_transform(X)
-        for i, candidate in enumerate(candidates):
-            self.instances[candidate] = X[i]
-
-
-    def classify_candidates(self, model):
-        """ Classify the candidates as keyphrase or not keyphrase.
-
-            Args:
-                model (str): the path to load the model.
-        """
-
-        # load the model
-        with open(model, 'rb') as f:
-            clf = pickle.load(f)
-
-        # get matrix of instances
-        candidates = self.instances.keys()
-        X = [self.instances[u] for u in candidates]
-
-        # classify candidates
-        y = clf.predict_proba(X)
-
-        for i, candidate in enumerate(candidates):
-            self.weights[candidate] = y[i][1]
-
-
     @staticmethod
     def train(training_instances, training_classes, model_file):
         """ Train a Naive Bayes classifier and store the model in a file.
@@ -395,22 +361,13 @@ class WINGNUS(LoadFile):
             pickle.dump(clf, f)
 
 
-class SEERLAB(LoadFile):
+class SEERLAB(SupervisedLoadFile):
     """ SEERLAB keyphrase extraction model. """
 
     def __init__(self, input_file=None, language='english'):
         """ Redefining initializer for SEERLAB. """
 
         super(SEERLAB, self).__init__(input_file=input_file, language=language)
-
-        self.instances = {}
-        """ The instances container. """
-
-
-    def __str__(self):
-        """ Defining string representation. """
-
-        return "SEERLAB"
 
 
     def candidate_selection(self,
@@ -548,40 +505,8 @@ class SEERLAB(LoadFile):
                                           len(v.surface_forms) * idf])   # TFIDF
 
 
-        # # scale features
+        # scale features
         # self.feature_scaling()
-
-
-    def classify_candidates(self, model):
-        """ Classify the candidates as keyphrase or not keyphrase.
-
-            Args:
-                model (str): the path to load the model.
-        """
-
-        # load the model
-        with open(model, 'rb') as f:
-            clf = pickle.load(f)
-
-        # get matrix of instances
-        candidates = self.instances.keys()
-        X = [self.instances[u] for u in candidates]
-
-        # classify candidates
-        y = clf.predict_proba(X)
-
-        for i, candidate in enumerate(candidates):
-            self.weights[candidate] = y[i][1]
-
-
-    def feature_scaling(self):
-        """ Scale features to [0,1]. """
-
-        candidates = self.instances.keys()
-        X = [self.instances[u] for u in candidates]
-        X = MinMaxScaler().fit_transform(X)
-        for i, candidate in enumerate(candidates):
-            self.instances[candidate] = X[i]
 
 
     @staticmethod
@@ -594,13 +519,10 @@ class SEERLAB(LoadFile):
                 model_file (str): the model output file.
         """
 
-        clf = LogisticRegression()
-        # clf = MultinomialNB()
-        # clf = RandomForestClassifier(n_estimators=200,
-        #                              max_features=3,
-        #                              class_weight='balanced')
-        # clf = RandomForestClassifier()
-
+        clf = RandomForestClassifier(n_estimators=200,
+                                     max_features=3,
+                                     class_weight='balanced')
+    
         # Down sampling the instances to 1:7
 
         # decompose instances into positives/negatives
@@ -629,10 +551,5 @@ class SEERLAB(LoadFile):
             pickle.dump(clf, f)
 
         # print clf.feature_importances_
-
-        # estimator = RandomForestClassifier(n_estimators=200, max_features=3)
-        # selector = RFE(estimator, None, step=1)
-        # selector = selector.fit(training_instances, training_classes)
-
         # print selector.support_ 
         # print selector.ranking_
