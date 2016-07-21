@@ -7,6 +7,7 @@ from collections import defaultdict
 from nltk.stem.snowball import SnowballStemmer as Stemmer
 from string import letters, digits
 
+
 class Sentence(object):
     """ The sentence data structure. """
 
@@ -148,24 +149,25 @@ class LoadFile(object):
                 self.sentences[i].stems[j] = stem.lower()
 
 
-    def is_redundant(self, candidate, prev, mininum_length=2):
+    def is_redundant(self, candidate, prev, mininum_length=1):
         """ Test if one candidate is redundant with respect to a list of already
-            selected candidates.
+            selected candidates. A candidate is considered redundant if it is
+            included in another candidate that is ranked higher in the list.
 
             Args:
                 candidate (str): the lexical form of the candidate.
                 prev (list): the list of already selected candidates (lexical
                     forms).
                 mininum_length (int): minimum length (in words) of the candidate
-                    to be considered, defaults to 2.
+                    to be considered, defaults to 1.
         """
 
         # get the tokenized lexical form from the candidate
         candidate = self.candidates[candidate].lexical_form
 
         # only consider candidate greater than one word
-        # if len(candidate) < mininum_length:
-        #     return False
+        if len(candidate) < mininum_length:
+            return False
 
         # get the tokenized lexical forms from the selected candidates
         prev = [self.candidates[u].lexical_form for u in prev]
