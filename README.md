@@ -71,7 +71,7 @@ another model, simply replace TopicRank with SingleRank, KPMiner, TfIdf, etc.
     extractor = pke.Kea(input_file='/path/to/input')
 
     # load the Document Frequency (DF) weights file
-    df = load_document_frequency_file(input_file='/path/to/file')
+    df = pke.load_document_frequency_file(input_file='/path/to/file')
 
     # load the content of the document, preprocessing is carried out using nltk
     extractor.read_raw_document()
@@ -91,9 +91,9 @@ another model, simply replace TopicRank with SingleRank, KPMiner, TfIdf, etc.
 
 ### Computing Document Frequency (DF) weights (required for some models)
 
-Before using some keyphrase extraction algorithms (e.g. TfIdf, KP-Miner), one 
-need to compute DF weights from a collection of documents. Such weights can
-be computed as:
+Before using some keyphrase extraction algorithms (i.e. TfIdf, KP-Miner, Kea,
+WINGNUS), one need to compute DF weights from a collection of documents. Such
+weights can be computed as:
 
     from pke import compute_document_frequency
     from string import punctuation
@@ -117,31 +117,19 @@ be computed as:
 
 ### Training supervised models
 
-For supervised models, one need to build their classification model first 
-(example for Kea):
+Here is a minimal example for training a new Kea model:
 
-    from pke import train_supervised_model
-    from pke import load_document_frequency_file
-    from pke import Kea
+    import pke
 
-    # loads the DF weights file
-    df = load_document_frequency_file('/path/to/file', delimiter='\t')
+    # load the Document Frequency (DF) weights file
+    df = pke.load_document_frequency_file('/path/to/file')
 
-    # path to the collection of documents
-    input_dir = '/path/to/input/documents'
-
-    # path to the keyphrase reference file
-    reference_file = '/path/to/reference/file'
-
-    # path to the stored model file
-    model_file = '/path/to/model/file'
-
-    # build classification model
-    train_supervised_model(input_dir=input_dir,
-                           reference_file=reference_file,
-                           model_file=model_file,
-                           df=df,
-                           model=Kea())
+    # train a new Kea model
+    pke.train_supervised_model(input_dir='/path/to/input/documents/',
+                               reference_file='/path/to/reference/file',
+                               model_file='/path/to/model/file',
+                               df=df,
+                               model=pke.Kea())
 
 
 [1]: http://aclweb.org/anthology/C08-1122.pdf
