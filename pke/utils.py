@@ -89,6 +89,8 @@ def compute_document_frequency(input_dir,
             doc.read_corenlp_document(use_lemmas=use_lemmas, stemmer=stemmer)
         elif format == "pre":
             doc.read_preprocessed_document(stemmer=stemmer)
+        elif format == "raw":
+            doc.read_raw_document(stemmer=stemmer)
 
         for i, sentence in enumerate(doc.sentences):
 
@@ -180,6 +182,8 @@ def train_supervised_model(input_dir,
             model.read_corenlp_document(use_lemmas=use_lemmas, stemmer=stemmer)
         elif format == "pre":
             model.read_preprocessed_document(stemmer=stemmer)
+        elif format == "raw":
+            doc.read_raw_document(stemmer=stemmer)
 
         # select candidates using default method
         if dblp_candidates is not None:
