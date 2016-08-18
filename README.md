@@ -63,36 +63,30 @@ another model, simply replace TopicRank with SingleRank, KPMiner, TfIdf, etc.
     keyphrases = extractor.get_n_best(n=10)
 
 
-### Supervised models
+### Minimal example: supervised keyphrase extraction using Kea
 
-Here is an example of supervised model (Kea):
+    import pke
 
+    # initialize Kea
+    extractor = pke.Kea(input_file='/path/to/input')
 
-    # this example uses SingleRank
-    from pke import Kea 
+    # load the Document Frequency (DF) weights file
+    df = load_document_frequency_file(input_file='/path/to/file')
 
-    # loads the DF weights file
-    df = load_document_frequency_file('/path/to/file', delimiter='\t')
+    # load the content of the document, preprocessing is carried out using nltk
+    extractor.read_raw_document()
 
-    # create an supervised object
-    extractor = Kea(input_file='/path/to/input')
-
-    # load the content of the document, here in CoreNLP XML format
-    # the use_lemmas parameter allows to choose using CoreNLP lemmas or stems 
-    # computed using nltk
-    extractor.read_corenlp_document(use_lemmas=False)
-
-    # select the keyphrase candidates
+    # candidate selection, here 1-3-grams that do not begin/end with a stopword
     extractor.candidate_selection()
 
-    # extract candidate features
+    # feature extraction, here TF*IDF and relative position of first occurrence
     extractor.feature_extraction(df=df)
 
-    # classifify candidates
+    # candidate classification, here using a Naïve Bayes classifier
     extractor.classify_candidates(model='/path/to/model/file')
 
-    # print the n-highest (10) scored candidates
-    print (';'.join([u for u, v in extractor.get_n_best(n=10)])).encode('utf-8')
+    # N-best selection, here the 10 highest scored candidates
+    keyphrases = extractor.get_n_best(n=10)
 
 
 ### Computing Document Frequency (DF) weights (required for some models)
