@@ -2,7 +2,7 @@
 
 """ Base classes for the pke module. """
 
-from .readers import MinimalCoreNLPParser, PreProcessedTextReader
+from .readers import MinimalCoreNLPParser, PreProcessedTextReader, RawTextReader
 from collections import defaultdict
 from nltk.stem.snowball import SnowballStemmer as Stemmer
 from string import letters, digits
@@ -123,13 +123,40 @@ class LoadFile(object):
         """ Read the preprocessed input file and populate the sentence list.
 
             Args:
-                stemmer (str): the stemmer in nltk to used (if used), defaults
-                    to porter.
+                stemmer (str): the stemmer in nltk to used, defaults to porter.
                 sep (str): the separator of the tagged word, defaults to /.
         """
 
         # parse the document using the preprocessed text parser
         parse = PreProcessedTextReader(self.input_file, sep=sep)
+
+        # loop through the parsed sentences
+        for i, sentence in enumerate(parse.sentences):
+
+            # add the sentence to the container
+            self.sentences.append(Sentence(words=sentence['words']))
+
+            # add the POS
+            self.sentences[i].pos = sentence['POS']
+
+            # add the stems
+            for j, word in enumerate(self.sentences[i].words):
+                self.sentences[i].stems.append(Stemmer(stemmer).stem(word))
+
+            # lowercase the stems/lemmas
+            for j, stem in enumerate(self.sentences[i].stems):
+                self.sentences[i].stems[j] = stem.lower()
+
+
+    def read_raw_document(self, stemmer='porter'):
+        """ Read the raw input file and populate the sentence list.
+
+            Args:
+                stemmer (str): the stemmer in nltk to used, defaults to porter.
+        """
+
+        # parse the document using the preprocessed text parser
+        parse = RawTextReader(self.input_file)
 
         # loop through the parsed sentences
         for i, sentence in enumerate(parse.sentences):

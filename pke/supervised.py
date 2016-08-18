@@ -135,7 +135,7 @@ class Kea(SupervisedLoadFile):
                                  v.offsets[0]/maximum_offset])
 
         # scale features
-        self.feature_scaling()
+        # self.feature_scaling()
 
 
     @staticmethod
@@ -341,8 +341,8 @@ class WINGNUS(SupervisedLoadFile):
             self.instances[k] = np.array([feature_array[i-1] for i \
                                           in features_set])
 
-        # scale features
-        self.feature_scaling()
+        # # scale features
+        # self.feature_scaling()
 
 
     @staticmethod

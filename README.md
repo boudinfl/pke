@@ -18,7 +18,6 @@ pke currently implements the following keyphrase extraction models:
     scipy
     nltk
     networkx
-    lxml
 
 ## Installation
 
@@ -28,8 +27,18 @@ To install this module:
 
 ## Usage
 
-Note that input files must be either in Stanford XML CoreNLP format
-(format=corenlp) or one tokenized/POS_tag sentence per line format (format=pre).
+### Input formats
+
+Three input formats are currently supported:
+  - raw text: text preprocessing (i.e. tokenization, sentence splitting and
+    POS-tagging) is carried out using nltk.
+  - preprocessed text: whitespace-separated POS-tagged tokens, one sentence per
+    line.
+  - Stanford XML CoreNLP format: output file produced using the annotators
+    tokenize, ssplit, pos and lemma.
+
+Default language in pke is English and default candidate selection methods are
+based on the PTB tagset.
 
 ### Computing DF weights (required for some models)
 

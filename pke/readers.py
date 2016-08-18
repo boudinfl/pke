@@ -4,9 +4,9 @@
 """ Readers for the pke module. """
 
 import codecs
-# from lxml import etree
 import xml.etree.ElementTree as etree
-from nltk.tag import str2tuple
+from nltk.tag import str2tuple, pos_tag_sents
+from nltk.tokenize import sent_tokenize, word_tokenize
 
 class MinimalCoreNLPParser(object):
     """ Minimal CoreNLP XML Parser in Python. """
@@ -33,3 +33,17 @@ class PreProcessedTextReader(object):
                 "words" : [str2tuple(u, sep=sep)[0] for u in tuples],
                 "POS" : [str2tuple(u, sep=sep)[1] for u in tuples]
             })
+
+
+class RawTextReader(object):
+    """ Reader for raw text. """
+    def __init__(self, path):
+        self.sentences = []
+        with codecs.open(path, 'r', 'utf-8') as f:
+            sentences = [word_tokenize(s) for s in sent_tokenize(f.read())]
+            tuples = pos_tag_sents(sentences)
+            for sentence in tuples:
+                self.sentences.append({
+                    "words" : [u[0] for u in sentence],
+                    "POS" : [u[1] for u in sentence]
+                })
