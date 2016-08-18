@@ -18,6 +18,7 @@ pke currently implements the following keyphrase extraction models:
     scipy
     nltk
     networkx
+    sklearn
 
 ## Installation
 
@@ -88,6 +89,10 @@ another model, simply replace TopicRank with SingleRank, KPMiner, TfIdf, etc.
     # N-best selection, here the 10 highest scored candidates
     keyphrases = extractor.get_n_best(n=10)
 
+### Provided supervised models and Document Frequency (DF) counts
+
+The models/ directory contains already trained models for Kea and WINGNUS as
+well as DF counts computed on the SemEval-2010 benchmark dataset.
 
 ### Computing Document Frequency (DF) weights (required for some models)
 
