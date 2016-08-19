@@ -78,14 +78,39 @@ class LoadFile(object):
         """ The weight container (can be either word or candidate weights). """
 
 
+    def read_document(self,
+                      format='raw',
+                      use_lemmas=False,
+                      stemmer='porter',
+                      sep='/'):
+        """ Read the input file in a given format.
+
+            Args:
+                format (str): the input format, defaults to raw.
+                use_lemmas (bool): whether lemmas from stanford corenlp are used
+                    instead of stems (computed by nltk), defaults to False.
+                stemmer (str): the stemmer in nltk to use (if used), defaults
+                    to porter.
+                sep (str): the separator of the tagged word, defaults to /.
+        """
+
+        if format == 'raw':
+            self.read_raw_document(stemmer=stemmer)
+        elif format == 'preprocessed':
+            self.read_preprocessed_document(stemmer=stemmer, sep=sep)
+        elif format == 'corenlp':
+            self.read_preprocessed_document(use_lemmas=use_lemmas,
+                                            stemmer=stemmer)
+
+
     def read_corenlp_document(self, use_lemmas=False, stemmer='porter'):
         """ Read the input file in CoreNLP XML format and populate the sentence
             list.
 
             Args:
-                use_lemmas (bool): weither lemmas from stanford corenlp are used
+                use_lemmas (bool): whether lemmas from stanford corenlp are used
                     instead of stems (computed by nltk), defaults to False.
-                stemmer (str): the stemmer in nltk to used (if used), defaults
+                stemmer (str): the stemmer in nltk to use (if used), defaults
                     to porter.
         """
 
@@ -123,7 +148,7 @@ class LoadFile(object):
         """ Read the preprocessed input file and populate the sentence list.
 
             Args:
-                stemmer (str): the stemmer in nltk to used, defaults to porter.
+                stemmer (str): the stemmer in nltk to use, defaults to porter.
                 sep (str): the separator of the tagged word, defaults to /.
         """
 
@@ -152,7 +177,7 @@ class LoadFile(object):
         """ Read the raw input file and populate the sentence list.
 
             Args:
-                stemmer (str): the stemmer in nltk to used, defaults to porter.
+                stemmer (str): the stemmer in nltk to use, defaults to porter.
         """
 
         # parse the document using the preprocessed text parser

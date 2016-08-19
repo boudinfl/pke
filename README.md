@@ -36,7 +36,11 @@ Three input formats are currently supported:
   - preprocessed text: whitespace-separated POS-tagged tokens, one sentence per
     line.
   - Stanford XML CoreNLP format: output file produced using the annotators
-    tokenize, ssplit, pos and lemma.
+    tokenize, ssplit, pos and lemma. Document logical structure information can
+    by specified by incorporating attributes into the sentence elements of the
+    CoreNLP XML format.
+
+Detailed examples of input formats are provided in the examples/ directory.
 
 Default language in pke is English and default candidate selection methods are
 based on the PTB tagset.

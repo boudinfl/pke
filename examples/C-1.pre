@@ -1,0 +1,276 @@
+Scalable/JJ Grid/NNP Service/NNP Discovery/NNP Based/VBD on/IN UDDI*/NNP */NNP Authors/NNS are/VBP listed/VBN in/IN alphabetical/JJ order/NN ./.
+Sujata/NNP Banerjee/NNP $/$ ,/, Sujoy/NNP Basu/NNP $/$ ,/, Shishir/NNP Garg/NNP ,/, Sukesh/NNP Garg/NNP ,/, Sung-Ju/NNP Lee/NNP $/$ ,/, Pramila/NNP Mullan/NNP ,/, Puneet/NNP Sharma/NNP $/$ $/$ HP/NNP Labs/NNP 1501/CD Page/NNP Mill/NNP Road/NNP Palo/NNP Alto/NNP ,/, CA/NNP ,/, 94304/CD USA/NNP +1-650-857-2137/JJ {/( sujata.banerjee/NN ,/, sujoy.basu/NN ,/, sungju.lee/NN ,/, puneet.sharma/NN }/) @/NNP hp.com/JJ France/NNP Telecom/NNP R/NNP &/CC D/NNP Division/NNP 801/CD Gateway/NNP Blvd/NNP ,/, #/# 500/CD South/NNP San/NNP Francisco/NNP ,/, CA/NNP ,/, 94080/CD USA/NNP +1/VBD 650/CD -875-1500/NNP {/( shishir.garg/NN ,/, sukesh.garg/NN ,/, pramila.mullan/NN }/) @/NNP francetelecom.com/JJ ABSTRACT/NNP Efficient/NNP discovery/NN of/IN grid/NN services/NNS is/VBZ essential/JJ for/IN the/DT success/NN of/IN grid/JJ computing/NN ./.
+The/DT standardization/NN of/IN grids/NNS based/VBN on/IN web/NN services/NNS has/VBZ resulted/VBN in/IN the/DT need/NN for/IN scalable/JJ web/JJ service/NN discovery/NN mechanisms/NN to/TO be/VB deployed/VBN in/IN grids/NNS Even/RB though/IN UDDI/NNP has/VBZ been/VBN the/DT de/FW facto/FW industry/NN standard/NN for/IN web-services/NNS discovery/NN ,/, imposed/JJ requirements/NNS of/IN tight-replication/NN among/IN registries/NNS and/CC lack/NN of/IN autonomous/JJ control/NN has/VBZ severely/RB hindered/VBN its/PRP$ widespread/JJ deployment/NN and/CC usage/NN ./.
+With/IN the/DT advent/NN of/IN grid/JJ computing/VBG the/DT scalability/NN issue/NN of/IN UDDI/NNP will/MD become/VB a/DT roadblock/NN that/WDT will/MD prevent/VB its/PRP$ deployment/NN in/IN grids/NNS ./.
+In/IN this/DT paper/NN we/PRP present/VBD our/PRP$ distributed/JJ web-service/JJ discovery/NN architecture/NN ,/, called/VBN DUDE/NNP (/( Distributed/NNP UDDI/NNP Deployment/NNP Engine/NNP )/) ./.
+DUDE/NNP leverages/VBZ DHT/NNP (/( Distributed/NNP Hash/NNP Tables/NNP )/) as/IN a/DT rendezvous/JJ mechanism/NN between/IN multiple/JJ UDDI/NNP registries/NNS ./.
+DUDE/NNP enables/VBZ consumers/NNS to/TO query/VB multiple/JJ registries/NNS ,/, still/RB at/IN the/DT same/JJ time/NN allowing/VBG organizations/NNS to/TO have/VB autonomous/JJ control/NN over/IN their/PRP$ registries../NNS Based/VBN on/IN preliminary/JJ prototype/NN on/IN PlanetLab/NNP ,/, we/PRP believe/VBP that/IN DUDE/NNP architecture/NN can/MD support/VB effective/JJ distribution/NN of/IN UDDI/NNP registries/NNS thereby/RB making/VBG UDDI/NNP more/JJR robust/JJ and/CC also/RB addressing/VBG its/PRP$ scaling/NN issues/NNS ./.
+Furthermore/RB ,/, The/DT DUDE/NNP architecture/NN for/IN scalable/JJ distribution/NN can/MD be/VB applied/VBN beyond/IN UDDI/NNP to/TO any/DT Grid/NNP Service/NNP Discovery/NNP mechanism/NN ./.
+Categories/NNS and/CC Subject/JJ Descriptors/NNP C2.4/NNP [/NNP Distributed/NNP Systems/NNPS ]/NNP General/NNP Terms/NNS Design/NNP ,/, Experimentation/NNP ,/, Standardization/NNP ./.
+1/CD ./.
+INTRODUCTION/NNP Efficient/NNP discovery/NN of/IN grid/NN services/NNS is/VBZ essential/JJ for/IN the/DT success/NN of/IN grid/JJ computing/NN ./.
+The/DT standardization/NN of/IN grids/NNS based/VBN on/IN web/NN services/NNS has/VBZ resulted/VBN in/IN the/DT need/NN for/IN scalable/JJ web/JJ service/NN Permission/NN to/TO make/VB digital/JJ or/CC hard/JJ copies/NNS of/IN all/DT or/CC part/NN of/IN this/DT work/NN for/IN personal/JJ or/CC classroom/NN use/NN is/VBZ granted/VBN without/IN fee/NN provided/VBD that/IN copies/NNS are/VBP not/RB made/VBN or/CC distributed/VBN for/IN profit/NN or/CC commercial/JJ advantage/NN and/CC that/IN copies/NNS bear/VBP this/DT notice/NN and/CC the/DT full/JJ citation/NN on/IN the/DT first/JJ page/NN ./.
+To/TO copy/VB otherwise/RB ,/, to/TO republish/VB ,/, to/TO post/VB on/IN servers/NNS or/CC to/TO redistribute/VB to/TO lists/NNS ,/, requires/VBZ prior/JJ specific/JJ permission/NN and/or/IN a/DT fee/NN ./.
+MGC/NNP '05/NNP ,/, November/NNP 28-/JJ December/NNP 2/CD ,/, 2005/CD Grenoble/NNP ,/, France/NNP discovery/NN mechanisms/NN to/TO be/VB deployed/VBN in/IN grids/NNS ./.
+Grid/NNP discovery/NN services/NNS provide/VBP the/DT ability/NN to/TO monitor/VB and/CC discover/VB resources/NNS and/CC services/NNS on/IN grids/NNS ./.
+They/PRP provide/VBP the/DT ability/NN to/TO query/NN and/CC subscribe/NN to/TO resource/service/VB information/NN ./.
+In/IN addition/NN ,/, threshold/JJ traps/NNS might/MD be/VB required/VBN to/TO indicate/VB specific/JJ change/NN in/IN existing/VBG conditions/NNS ./.
+The/DT state/NN of/IN the/DT data/NNS needs/NNS to/TO be/VB maintained/VBN in/IN a/DT soft/JJ state/NN so/IN that/IN the/DT most/RBS recent/JJ information/NN is/VBZ always/RB available/JJ ./.
+The/DT information/NN gathered/VBD needs/NNS to/TO be/VB provided/VBN to/TO variety/NN of/IN systems/NNS for/IN the/DT purpose/NN of/IN either/CC utilizing/VBG the/DT grid/NN or/CC proving/VBG summary/JJ information/NN ./.
+However/RB ,/, the/DT fundamental/JJ problem/NN is/VBZ the/DT need/NN to/TO be/VB scalable/JJ to/TO handle/VB huge/JJ amounts/NNS of/IN data/NNS from/IN multiple/JJ sources/NNS ./.
+The/DT web/NN services/NNS community/NN has/VBZ addressed/VBN the/DT need/NN for/IN service/NN discovery/NN ,/, before/IN grids/NNS were/VBD anticipated/VBN ,/, via/IN an/DT industry/NN standard/NN called/VBN UDDI/NNP ./.
+However/RB ,/, even/RB though/IN UDDI/NNP has/VBZ been/VBN the/DT de/FW facto/FW industry/NN standard/NN for/IN web-services/NNS discovery/NN ,/, imposed/JJ requirements/NNS of/IN tight-replication/NN among/IN registries/NNS and/CC lack/NN of/IN autonomous/JJ control/NN ,/, among/IN other/JJ things/NNS has/VBZ severely/RB hindered/VBN its/PRP$ widespread/JJ deployment/NN and/CC usage/JJ [/NN 7/CD ]/NN ./.
+With/IN the/DT advent/NN of/IN grid/JJ computing/VBG the/DT scalability/NN issue/NN with/IN UDDI/NNP will/MD become/VB a/DT roadblock/NN that/WDT will/MD prevent/VB its/PRP$ deployment/NN in/IN grids/NNS ./.
+This/DT paper/NN tackles/VBZ the/DT scalability/NN issue/NN and/CC a/DT way/NN to/TO find/VB services/NNS across/IN multiple/JJ registries/NNS in/IN UDDI/NNP by/IN developing/VBG a/DT distributed/VBN web/NN services/NNS discovery/NN architecture/NN ./.
+Distributing/VBG UDDI/NNP functionality/NN can/MD be/VB achieved/VBN in/IN multiple/JJ ways/NNS and/CC perhaps/RB using/VBG different/JJ distributed/VBN computing/NN infrastructure/platforms/NNS (/( e.g./NN ,/, CORBA/NNP ,/, DCE/NNP ,/, etc/FW ./. )/) ./.
+In/IN this/DT paper/NN we/PRP explore/VBP how/WRB Distributed/JJ Hash/NNP Table/NNP (/( DHT/NNP )/) technology/NN can/MD be/VB leveraged/VBN to/TO develop/VB a/DT scalable/JJ distributed/VBN web/NN services/NNS discovery/NN architecture/NN ./.
+A/DT DHT/NNP is/VBZ a/DT peer-to-peer/NN (/( P2P/NNP )/) distributed/VBD system/NN that/IN forms/VBZ a/DT structured/JJ overlay/NN allowing/VBG more/RBR efficient/JJ routing/VBG than/IN the/DT underlying/JJ network/NN ./.
+This/DT crucial/JJ design/NN choice/NN is/VBZ motivated/VBN by/IN two/CD factors/NNS ./.
+The/DT first/JJ motivating/NN factor/NN is/VBZ the/DT inherent/JJ simplicity/NN of/IN the/DT put/get/NN abstraction/NN that/WDT DHTs/NNP provide/NN ,/, which/WDT makes/VBZ it/PRP easy/JJ to/TO rapidly/RB build/VB applications/NNS on/IN top/NN of/IN DHTs/NNP ./.
+We/PRP recognize/VBP that/IN having/VBG just/RB this/DT abstraction/NN may/MD not/RB suffice/VB for/IN all/DT distributed/VBN applications/NNS ,/, but/CC for/IN the/DT objective/NN at/IN hand/NN ,/, works/VBZ very/RB well/RB as/IN will/MD become/VB clear/JJ later/RB ./.
+Other/JJ distributed/VBD computing/VBG platforms/middleware/NN while/IN providing/VBG more/JJR functionality/NN have/VBP much/RB higher/JJR overhead/NN and/CC complexity/NN ./.
+The/DT second/JJ motivating/NN factor/NN stems/VBZ from/IN the/DT fact/NN that/IN DHTs/NNP are/VBP relatively/RB new/JJ tool/NN for/IN building/NN distributed/VBN applications/NNS and/CC we/PRP would/MD like/VB to/TO test/VB its/PRP$ potential/JJ by/IN applying/VBG it/PRP to/TO the/DT problem/NN of/IN distributing/VBG UDDI/NNP ./.
+In/IN the/DT next/JJ section/NN ,/, we/PRP provide/VBP a/DT brief/JJ overview/NN of/IN grid/JJ information/NN services/NNS ,/, UDDI/NNP and/CC its/PRP$ limitations/NNS ,/, which/WDT is/VBZ followed/VBN by/IN an/DT overview/NN of/IN DHTs/NNP in/IN Section/NNP 3/CD ./.
+Section/NN 4/CD describes/VBZ our/PRP$ proposed/JJ architecture/NN with/IN details/NNS on/IN use/NN cases/NNS ./.
+In/IN Section/NNP 5/CD ,/, we/PRP Article/VBP 2/CD describe/IN our/PRP$ current/JJ implementation/NN ,/, followed/VBN by/IN our/PRP$ findings/NNS in/IN Section/NN 6/CD ./.
+Section/NN 7/CD discusses/VBZ the/DT related/JJ work/NN in/IN this/DT area/NN and/CC Section/NN 8/CD contains/VBZ our/PRP$ concluding/VBG remarks/NNS ./.
+2/CD ./.
+BACKGROUND/NNP 2.1/CD Grid/NNP Service/NNP Discovery/NNP Grid/NNP computing/NN is/VBZ based/VBN on/IN standards/NNS which/WDT use/VBP web/NN services/NNS technology/NN ./.
+In/IN the/DT architecture/NN presented/VBN in/IN [/JJ 6/CD ]/NN ,/, the/DT service/NN discovery/NN function/NN is/VBZ assigned/VBN to/TO a/DT specialized/JJ Grid/NNP service/NN called/VBD Registry/NNP ./.
+The/DT implementation/NN of/IN the/DT web/NN service/NN version/NN of/IN the/DT Monitoring/NNP and/CC Discovery/NNP Service/NNP (/( WS/NNP MDS/NNP )/) ,/, also/RB known/VBN as/IN the/DT MDS4/NNP component/NN of/IN the/DT Globus/NNP Toolkit/NNP version/NN 4/CD (/( GT4/NNP )/) ,/, includes/VBZ such/PDT a/DT registry/NN in/IN the/DT form/NN of/IN the/DT Index/NNP service/NN Resource/NNP and/CC service/NN properties/NNS are/VBP collected/VBN and/CC indexed/VBN by/IN this/DT service/NN ./.
+Its/PRP$ basic/JJ function/NN makes/VBZ it/PRP similar/JJ to/TO UDDI/NNP registry/NN ./.
+To/TO attain/VB scalability/NN ,/, Index/NNP services/NNS from/IN different/JJ Globus/NNP containers/NNS can/MD register/VB with/IN each/DT other/JJ in/IN a/DT hierarchical/JJ fashion/NN to/TO aggregate/VB data/NNS ./.
+This/DT approach/NN for/IN attaining/VBG scalability/NN works/VBZ best/JJS in/IN hierarchical/JJ Virtual/NNP Organizations/NNP (/( VO/NNP )/) ,/, and/CC expanding/VBG a/DT search/NN to/TO find/VB sufficient/JJ number/NN of/IN matches/NNS involves/NNS traversing/VBG the/DT hierarchy/NN ./.
+Specifically/RB ,/, this/DT approach/NN is/VBZ not/RB a/DT good/JJ match/NN for/IN systems/NNS that/WDT try/VBP to/TO exploit/VB the/DT convergence/NN of/IN grid/JJ and/CC peer-to-peer/JJ computing/VBG [/JJ 5/CD ]/NN ./.
+2.2/CD UDDI/NNP Beyond/NNP grid/NN computing/NN ,/, the/DT problem/NN of/IN service/NN discovery/NN needs/VBZ to/TO be/VB addressed/VBN more/RBR generally/RB in/IN the/DT web/NN services/NNS community/NN ./.
+Again/RB ,/, scalability/NN is/VBZ a/DT major/JJ concern/NN since/IN millions/NNS of/IN buyers/NNS looking/VBG for/IN specific/JJ services/NNS need/VBP to/TO find/VB all/PDT the/DT potential/JJ sellers/NNS of/IN the/DT service/NN who/WP can/MD meet/VB their/PRP$ needs/NNS ./.
+Although/IN there/EX are/VBP different/JJ ways/NNS of/IN doing/VBG this/DT ,/, the/DT web/NN services/NNS standards/NNS committees/NNS address/VBP this/DT requirement/NN through/IN a/DT specification/NN called/VBN UDDI/NNP (/( Universal/NNP Description/NNP ,/, Discovery/NNP ,/, and/CC Integration/NNP )/) ./.
+A/DT UDDI/NNP registry/NN enables/VBZ a/DT business/NN to/TO enter/VB three/CD types/NNS of/IN information/NN in/IN a/DT UDDI/NNP registry/NN -/: white/JJ pages/NNS ,/, yellow/JJ pages/NNS and/CC green/JJ pages/NNS ./.
+UDDI/NN ''/'' s/JJ intent/NN is/VBZ to/TO function/VB as/IN a/DT registry/NN for/IN services/NNS just/RB as/IN the/DT yellow/JJ pages/NNS is/VBZ a/DT registry/NN for/IN businesses/NNS ./.
+Just/RB like/IN in/IN Yellow/NNP pages/NNS ,/, companies/NNS register/VBP themselves/PRP and/CC their/PRP$ services/NNS under/IN different/JJ categories/NNS ./.
+In/IN UDDI/NNP ,/, White/NNP Pages/NNPS are/VBP a/DT listing/NN of/IN the/DT business/NN entities/NNS ./.
+Green/JJ pages/NNS represent/VBP the/DT technical/JJ information/NN that/WDT is/VBZ necessary/JJ to/TO invoke/VB a/DT given/VBN service/NN ./.
+Thus/RB ,/, by/IN browsing/VBG a/DT UDDI/NNP registry/NN ,/, a/DT developer/NN should/MD be/VB able/JJ to/TO locate/VB a/DT service/NN and/CC a/DT company/NN and/CC find/VB out/RP how/WRB to/TO invoke/VB the/DT service/NN ./.
+When/WRB UDDI/NNP was/VBD initially/RB offered/VBN ,/, it/PRP provided/VBD a/DT lot/NN of/IN potential/JJ ./.
+However/RB ,/, today/NN we/PRP find/VBP that/DT UDDI/NNP has/VBZ not/RB been/VBN widely/RB deployed/VBN in/IN the/DT Internet/NNP ./.
+In/IN fact/NN ,/, the/DT only/JJ known/JJ uses/NNS of/IN UDDI/NNP are/VBP what/WP are/VBP known/VBN as/IN private/JJ UDDI/NNP registries/NNS within/IN an/DT enterprise/NN ''/'' s/JJ boundaries/NNS ./.
+The/DT readers/NNS can/MD refer/VB to/TO [/VB 7/CD ]/NN for/IN a/DT recent/JJ article/NN that/WDT discusses/VBZ the/DT shortcomings/NNS of/IN UDDI/NNP and/CC the/DT properties/NNS of/IN an/DT ideal/JJ service/NN registry/NN ./.
+Improvement/NN of/IN the/DT UDDI/NNP standard/NN is/VBZ continuing/VBG in/IN full/JJ force/NN and/CC UDDI/NNP version/NN 3/CD (/( V3/NNP )/) was/VBD recently/RB approved/VBN as/IN an/DT OASIS/NNP Standard/NNP ./.
+However/RB ,/, UDDI/NNP today/NN has/VBZ issues/NNS that/WDT have/VBP not/RB been/VBN addressed/VBN ,/, such/JJ as/IN scalability/NN and/CC autonomy/NN of/IN individual/JJ registries/NNS ./.
+UDDI/NNP V3/NNP provides/VBZ larger/JJR support/NN for/IN multi-registry/NN environments/NNS based/VBN on/IN portability/NN of/IN keys/NNS By/IN allowing/VBG keys/NNS to/TO be/VB re-registered/JJ in/IN multiple/JJ registries/NNS ,/, the/DT ability/NN to/TO link/VB registries/NNS in/IN various/JJ topologies/NNS is/VBZ effectively/RB enabled/VBN ./.
+However/RB ,/, no/DT normative/JJ description/NN of/IN these/DT topologies/NNS is/VBZ provided/VBN in/IN the/DT UDDI/NNP specification/NN at/IN this/DT point/NN ./.
+The/DT improvements/NNS within/IN UDDI/NNP V3/NNP that/IN allow/JJ support/NN for/IN multi-registry/NN environments/NNS are/VBP significant/JJ and/CC open/VB the/DT possibility/NN for/IN additional/JJ research/NN around/IN how/WRB multiregistry/JJ environments/NNS may/MD be/VB deployed/VBN ./.
+A/DT recommended/JJ deployment/NN scenario/NN proposed/VBN by/IN the/DT UDDI/NNP V3.0.2/NNP Specification/NNP is/VBZ to/TO use/VB the/DT UDDI/NNP Business/NNP Registries/NNPS as/IN root/NN registries/NNS ,/, and/CC it/PRP is/VBZ possible/JJ to/TO enable/VB this/DT using/VBG our/PRP$ solution/NN ./.
+2.3/CD Distributed/NNP Hash/NNP Tables/NNP A/NNP Distributed/NNP Hash/NNP Table/NNP (/( DHT/NNP )/) is/VBZ a/DT peer-to-peer/NN (/( P2P/NNP )/) distributed/VBD system/NN that/IN forms/VBZ a/DT structured/JJ overlay/NN allowing/VBG more/RBR efficient/JJ routing/VBG than/IN the/DT underlying/JJ network/NN ./.
+It/PRP maintains/VBZ a/DT collection/NN of/IN key-value/JJ pairs/NNS on/IN the/DT nodes/NNS participating/VBG in/IN this/DT graph/NN structure/NN ./.
+For/IN our/PRP$ deployment/NN ,/, a/DT key/NN is/VBZ the/DT hash/NN of/IN a/DT keyword/NN from/IN a/DT service/NN name/NN or/CC description/NN ./.
+There/EX will/MD be/VB multiple/JJ values/NNS for/IN this/DT key/NN ,/, one/CD for/IN each/DT service/NN containing/VBG the/DT keyword/NN ./.
+Just/RB like/IN any/DT other/JJ hash/NN table/JJ data/NN structure/NN ,/, it/PRP provides/VBZ a/DT simple/JJ interface/NN consisting/VBG of/IN put/NN (/( )/) and/CC get/VB (/( )/) operations/NNS ./.
+This/DT has/VBZ to/TO be/VB done/VBN with/IN robustness/NN because/IN of/IN the/DT transient/JJ nature/NN of/IN nodes/NNS in/IN P2P/NNP systems/NNS ./.
+The/DT value/NN stored/VBN in/IN the/DT DHT/NNP can/MD be/VB any/DT object/JJ or/CC a/DT copy/NN or/CC reference/NN to/TO it/PRP ./.
+The/DT DHT/NNP keys/NNS are/VBP obtained/VBN from/IN a/DT large/JJ identifier/JJ space/NN ./.
+A/DT hash/NN function/NN ,/, such/JJ as/IN MD5/NNP or/CC SHA-1/NNP ,/, is/VBZ applied/VBN to/TO an/DT object/JJ name/NN to/TO obtain/VB its/PRP$ DHT/NNP key/NN ./.
+Nodes/NNS in/IN a/DT DHT/NNP are/VBP also/RB mapped/VBN into/IN the/DT same/JJ identifier/NN space/NN by/IN applying/VBG the/DT hash/NN function/NN to/TO their/PRP$ identifier/NN ,/, such/JJ as/IN IP/NNP address/NN and/CC port/NN number/NN ,/, or/CC public/JJ key/NN ./.
+The/DT identifier/JJ space/NN is/VBZ assigned/VBN to/TO the/DT nodes/NNS in/IN a/DT distributed/JJ and/CC deterministic/JJ fashion/NN ,/, so/IN that/IN routing/VBG and/CC lookup/NN can/MD be/VB performed/VBN efficiently/RB ./.
+The/DT nodes/NNS of/IN a/DT DHT/NNP maintain/NN links/NNS to/TO some/DT of/IN the/DT other/JJ nodes/NNS in/IN the/DT DHT/NNP ./.
+The/DT pattern/NN of/IN these/DT links/NNS is/VBZ known/VBN as/IN the/DT DHT/NNP ''/'' s/NN geometry/NN ./.
+For/IN example/NN ,/, in/IN the/DT Bamboo/NNP DHT/NNP [/VBD 11/CD ]/NN ,/, and/CC in/IN the/DT Pastry/NNP DHT/NNP [/VBD 8/CD ]/NN on/IN which/WDT Bamboo/NNP is/VBZ based/VBN ,/, nodes/NNS maintain/VBP links/NNS to/TO neighboring/VBG nodes/NNS and/CC to/TO other/JJ distant/JJ nodes/NNS found/VBN in/IN a/DT routing/NN table/NN ./.
+The/DT routing/VBG table/JJ entry/NN at/IN row/NN i/NN and/CC column/NN j/NN ,/, denoted/VBD Ri/NNP [/NNP j/NN ]/NN ,/, is/VBZ another/DT node/NN whose/WP$ identifier/JJ matches/VBZ its/PRP$ own/JJ in/IN first/JJ i/NN digits/NNS ,/, and/CC whose/WP$ (/( i/JJ +/VBP 1/CD )/) st/NN digit/NN is/VBZ j/JJ ./.
+The/DT routing/NN table/NN allows/VBZ efficient/JJ overlay/IN routing/VBG ./.
+Bamboo/NNP ,/, like/IN all/DT DHTs/NNP ,/, specifies/VBZ algorithms/VBP to/TO be/VB followed/VBN when/WRB a/DT node/NN joins/VBZ the/DT overlay/NN network/NN ,/, or/CC when/WRB a/DT node/NN fails/VBZ or/CC leaves/VBZ the/DT network/NN The/DT geometry/NN must/MD be/VB maintained/VBN even/RB when/WRB this/DT rate/NN is/VBZ high/JJ ./.
+To/TO attain/VB consistent/JJ routing/NN or/CC lookup/NN ,/, a/DT DHT/NNP key/NN must/MD be/VB routed/VBN to/TO the/DT node/NN with/IN the/DT numerically/RB closest/JJS identifier/NN ./.
+For/IN details/NNS of/IN how/WRB the/DT routing/NN tables/NNS are/VBP constructed/VBN and/CC maintained/VBN ,/, the/DT reader/NN is/VBZ referred/VBN to/TO [/VB 8/CD ,/, 11/CD ]/NN ./.
+3/CD ./.
+PROPOSED/NNP ARCHITECTURE/NNP OF/NNP DHT/NNP BASED/NNP UDDI/NNP REGISTRY/NNP HIERARCHIES/NNP As/IN mentioned/VBN earlier/RBR ,/, we/PRP propose/VBP to/TO build/VB a/DT distributed/VBN UDDI/NNP system/NN on/IN top/NN of/IN a/DT DHT/NNP infrastructure/NN ./.
+This/DT choice/NN is/VBZ primarily/RB motivated/VBN by/IN the/DT simplicity/NN of/IN the/DT put/get/NN abstraction/NN that/WDT DHTs/NNP provide/NN ,/, which/WDT is/VBZ powerful/JJ enough/RB for/IN the/DT task/NN at/IN hand/NN ,/, especially/RB since/IN we/PRP plan/VBP to/TO validate/VB our/PRP$ approach/NN with/IN an/DT implementation/NN running/VBG on/IN PlanetLab/NNP [/NNP 9/CD ]/NN ./.
+A/DT secondary/JJ motivation/NN is/VBZ to/TO understand/VB deployment/JJ issues/NNS with/IN DHT/NNP based/VBN systems/NNS ./.
+Several/JJ applications/NNS have/VBP been/VBN built/VBN as/IN overlays/NNS using/VBG DHTs/NNP ,/, such/JJ as/IN distributed/VBN file/NN storage/NN ,/, databases/NNS ,/, publish-subscribe/JJ systems/NNS and/CC content/JJ distribution/NN networks/NNS ./.
+In/IN our/PRP$ case/NN ,/, we/PRP are/VBP building/VBG a/DT DHT/NNP based/VBN overlay/NN network/NN of/IN UDDI/NNP registries/NNS ,/, where/WRB the/DT DHT/NNP acts/VBZ as/IN a/DT rendezvous/JJ network/NN that/WDT connects/VBZ multiple/JJ registries/NNS ./.
+In/IN the/DT grid/NN computing/VBG scenario/NN ,/, an/DT overlay/NN network/NN of/IN multiple/JJ UDDI/NNP registries/NNS seems/VBZ to/TO an/DT interesting/JJ alternative/NN to/TO the/DT UDDI/NNP public/JJ Article/NNP 2/CD registries/NNS currently/RB maintained/VBN by/IN Microsoft/NNP ,/, IBM/NNP ,/, SAP/NNP and/CC NTT/NNP ./.
+In/IN addition/NN ,/, our/PRP$ aim/NN is/VBZ to/TO not/RB change/VB any/DT of/IN the/DT UDDI/NNP interfaces/NNS for/IN clients/NNS as/RB well/RB as/IN publishers/NNS ./.
+Figure/NN 1/CD highlights/NNS the/DT proposed/VBN architecture/NN for/IN the/DT DHT/NNP based/VBN UDDI/NNP Registry/NNP framework/NN ./.
+UDDI/NNP nodes/NNS are/VBP replicated/VBN in/IN a/DT UDDI/NNP registry/NN as/IN per/IN the/DT current/JJ UDDI/NNP standard/NN ./.
+However/RB ,/, each/DT local/JJ registry/NN has/VBZ a/DT local/JJ proxy/NN registry/NN that/WDT mediates/VBZ between/IN the/DT local/JJ UDDI/NNP registry/NN and/CC the/DT DHT/NNP Service/NNP ./.
+The/DT DHT/NNP service/NN is/VBZ the/DT glue/NN that/WDT connects/VBZ the/DT Proxy/NNP Registries/NNPS together/RB and/CC facilitates/VBZ searching/VBG across/IN registries/NNS ./.
+Figure/NN 1/CD :/: DUDE/NNP Architecture/NNP Service/NNP information/NN can/MD be/VB dispersed/VBN to/TO several/JJ UDDI/NNP registries/NNS to/TO promote/VB scalability/NN ./.
+The/DT proxy/JJ registry/NN publishes/NNS ,/, performs/NNS queries/NNS and/CC deletes/NNS information/NN from/IN the/DT dispersed/JJ UDDI/NNP registries/NNS ./.
+However/RB ,/, the/DT scope/NN of/IN the/DT queries/NNS is/VBZ limited/JJ to/TO relevant/JJ registries/NNS ./.
+The/DT DHT/NNP provides/VBZ information/NN about/IN the/DT relevant/JJ registries/NNS ./.
+The/DT core/NN idea/NN in/IN the/DT architecture/NN is/VBZ to/TO populate/VB DHT/NNP nodes/NNS with/IN the/DT necessary/JJ information/NN from/IN the/DT proxies/NNS which/WDT enables/VBP easy/JJ and/CC ubiquitous/JJ searching/VBG when/WRB queries/NNS are/VBP made/VBN ./.
+When/WRB a/DT new/JJ service/NN is/VBZ added/VBN to/TO a/DT registry/NN ,/, all/DT potential/JJ search/NN terms/NNS are/VBP hashed/VBN by/IN the/DT proxy/NN and/CC used/VBD as/IN DHT/NNP keys/NNS to/TO publish/VB the/DT service/NN in/IN the/DT DHT/NNP ./.
+The/DT value/NN stored/VBN for/IN this/DT service/NN uniquely/RB identifies/VBZ the/DT service/NN ,/, and/CC includes/VBZ the/DT URL/NNP of/IN a/DT registry/NN and/CC the/DT unique/JJ UDDI/NNP key/NN of/IN the/DT service/NN in/IN that/DT registry/NN ./.
+Similarly/RB when/WRB queries/NNS arrive/VBP ,/, they/PRP are/VBP parsed/VBN and/CC a/DT set/NN of/IN search/NN terms/NNS are/VBP identified/VBN ./.
+These/DT search/NN terms/NNS are/VBP hashed/VBN and/CC the/DT values/NNS stored/VBN with/IN those/DT hash/JJ values/NNS are/VBP retrieved/VBN from/IN the/DT DHT/NNP ./.
+Note/NN that/IN a/DT proxy/NN does/VBZ not/RB need/VB to/TO know/VB all/DT DHT/NNP nodes/NNS ;/: it/PRP needs/VBZ to/TO know/VB just/RB one/CD DHT/NNP node/NN (/( this/DT is/VBZ done/VBN as/IN part/NN of/IN the/DT bootstrapping/NN process/NN )/) and/CC as/IN described/VBN in/IN Section/NNP 2.3/CD ,/, this/DT DHT/NNP node/NN can/MD route/VB the/DT query/NN as/IN necessary/JJ to/TO the/DT other/JJ nodes/NNS on/IN the/DT DHT/NNP overlay/NN ./.
+We/PRP describe/VBP three/CD usage/JJ scenarios/NNS later/RB that/IN deal/NN with/IN adding/VBG a/DT new/JJ local/JJ registry/NN ,/, inserting/VBG a/DT new/JJ service/NN ,/, and/CC querying/VBG for/IN a/DT service/NN ./.
+Furthermore/RB ,/, the/DT DHT/NNP optimizes/VBZ the/DT UDDI/NNP query/NN mechanism/NN ./.
+This/DT process/NN becomes/VBZ a/DT lookup/NN using/VBG a/DT UDDI/NNP unique/JJ key/NN rather/RB than/IN a/DT query/NN using/VBG a/DT set/NN of/IN search/NN parameters/NNS ./.
+This/DT key/NN and/CC the/DT URL/NNP of/IN the/DT registry/NN are/VBP obtained/VBN by/IN searching/VBG initially/RB in/IN the/DT DHT/NNP ./.
+The/DT DHT/NNP query/NN can/MD return/VB multiple/JJ values/NNS for/IN matching/VBG services/NNS ,/, and/CC in/IN each/DT of/IN the/DT matching/NN registries/NNS ,/, the/DT proxy/NN performs/NNS lookup/JJ operations/NNS ./.
+The/DT service/NN name/NN is/VBZ used/VBN as/IN a/DT hash/NN for/IN inserting/VBG the/DT service/NN information/NN ./.
+The/DT service/NN information/NN contains/VBZ the/DT query/NN URL/NNP and/CC unique/JJ UDDI/NNP key/NN for/IN the/DT registry/NN containing/VBG the/DT service/NN ./.
+There/EX could/MD be/VB multiple/JJ registries/NNS associated/VBN with/IN a/DT given/VBN service/NN ./.
+The/DT service/NN information/NN conforms/NNS to/TO the/DT following/JJ schema/NN ./.
+</JJ xs/NN :/: schema/NN xmlns/NN :/: xs=/NN ''/'' http/NN :/: //www.w3.org/2001/XMLSchema/NN ''/'' elementFormDefault=/NN ''/'' qualified/VBN ''/'' attributeFormDefault=/NN ''/'' unqualified/JJ ''/'' >/NN </VBD xs/NNS :/: element/NN name=/NN ''/'' registries/NNS ''/'' >/VBP </JJ xs/NN :/: annotation/NN >/VBZ </JJ xs/NN :/: documentation/NN >/NNP Service/NNP Information/NNP </NNP /xs/NN :/: documentation/NN >/VBZ </JJ /xs/NN :/: annotation/NN >/VBZ </JJ xs/NN :/: complexType/NN >/NN </NNP xs/NN :/: sequence/NN >/NN </JJ xs/NN :/: element/NN name=/NN ''/'' registry/NN ''/'' maxOccurs=/NN ''/'' unbounded/JJ ''/'' >/NN </VBD xs/NNS :/: complexType/NN >/NN </NNP xs/NN :/: sequence/NN >/NN </JJ xs/NN :/: element/NN name=/NN ''/'' name/NN ''/'' //CC >/NNP </NNP xs/NN :/: element/NN name=/NN ''/'' key/NN ''/'' maxOccurs=/NN ''/'' unbounded/JJ ''/'' //NN >/NNP </NNP /xs/NN :/: sequence/NN >/NN …/NNP </NNP /xs/NN :/: schema/NN >/IN There/EX can/MD be/VB multiple/JJ proxy/JJ UDDI/NNP registries/NNS in/IN this/DT architecture/NN ./.
+The/DT advantage/NN of/IN this/DT is/VBZ to/TO introduce/VB distributed/JJ interactions/NNS between/IN the/DT UDDI/NNP clients/NNS and/CC registries/NNS ./.
+Organization/NN can/MD also/RB decide/VB what/WP information/NN is/VBZ available/JJ from/IN the/DT local/JJ registries/NNS by/IN implementing/VBG policies/NNS at/IN the/DT proxy/JJ registry/NN ./.
+3.1/CD Sequence/NN of/IN Operations/NNPS In/IN this/DT section/NN ,/, we/PRP demonstrate/VBP what/WP the/DT sequence/NN of/IN operations/NNS should/MD be/VB for/IN three/CD crucial/JJ scenarios/NNS -/: adding/VBG a/DT new/JJ local/JJ registry/NN ,/, inserting/VBG a/DT new/JJ service/NN and/CC querying/VBG a/DT service/NN ./.
+Other/JJ operations/NNS like/IN deleting/VBG a/DT registry/NN ,/, deleting/VBG a/DT service/NN ,/, etc/FW ./.
+are/VBP similar/JJ and/CC for/IN the/DT sake/NN of/IN brevity/NN are/VBP omitted/VBN here/RB ./.
+Figure/NN 2/CD :/: Sequence/NN Diagram-/NNP Add/NNP New/NNP Local/NNP Registry/NNP Add/NNP a/DT New/NNP Local/NNP UDDI/NNP Registry/NNP Figure/NNP 2/CD contains/VBZ a/DT sequence/NN diagram/NN illustrating/VBG how/WRB a/DT new/JJ UDDI/NNP registry/NN is/VBZ added/VBN to/TO the/DT network/NN of/IN UDDI/NNP registries/NNS ./.
+The/DT new/JJ registry/NN registers/NNS itself/PRP with/IN its/PRP$ proxy/JJ registry/NN ./.
+The/DT proxy/JJ registry/NN in/IN turn/NN queries/NNS the/DT new/JJ registry/NN for/IN all/DT services/NNS that/IN it/PRP has/VBZ UDDI/NNP Local/NNP Registry/NNP UDDI/NNP Local/NNP Registry/NNP UDDI/NNP Local/NNP Registry/NNP Proxy/NNP Registry/NNP DHT/NNP Based/VBD Distribution/NNP Proxy/NNP Registry/NNP Proxy/NNP Registry/NNP Article/NNP 2/CD stored/VBD in/IN its/PRP$ databases/NNS and/CC in/IN turn/NN registers/NNS each/DT of/IN those/DT entries/NNS with/IN the/DT DHT/NNP ./.
+Figure/NN 3/CD :/: Sequence/NN Diagram/NNP -/: Add/NNP New/NNP Service/NNP Add/NNP a/DT New/NNP Service/NNP The/DT use/NN case/NN diagram/NN depicted/VBN in/IN Error/NN !/.
+Reference/NNP source/NN not/RB found/VBN ./.
+highlights/NNS how/WRB a/DT client/NN publishes/VBZ a/DT new/JJ service/NN to/TO the/DT UDDI/NNP registry/NN ./.
+In/IN order/NN to/TO interact/VB with/IN the/DT registry/NN a/DT client/NN has/VBZ to/TO know/VB how/WRB to/TO contact/VB its/PRP$ local/JJ proxy/NN registry/NN ./.
+It/PRP then/RB publishes/VBZ a/DT service/NN with/IN the/DT proxy/NN registry/NN which/WDT in/IN turn/NN publishes/VBZ the/DT service/NN with/IN the/DT local/JJ UDDI/NNP registry/NN and/CC receives/VBZ the/DT UDDI/NNP key/NN of/IN the/DT registry/NN entry/NN ./.
+Then/RB new/JJ key-value/JJ pairs/NNS are/VBP published/VBN in/IN the/DT DHT/NNP ,/, where/WRB each/DT key/NN is/VBZ obtained/VBN by/IN hashing/VBG a/DT searchable/JJ keyword/NN of/IN the/DT service/NN and/CC the/DT value/NN consists/VBZ of/IN the/DT query/NN URL/NNP of/IN the/DT registry/NN and/CC the/DT UDDI/NNP key/NN ./.
+Figure/NN 4/CD :/: Sequence/NN Diagram/NNP -/: Query/NN for/IN a/DT Service/NNP Query/NNP a/DT Service/NNP Figure/NNP 4/CD shows/VBZ how/WRB a/DT client/NN queries/VBZ the/DT UDDI/NNP registry/NN for/IN a/DT service/NN ./.
+Once/RB again/RB ,/, the/DT client/NN needs/VBZ to/TO know/VB how/WRB to/TO contact/VB its/PRP$ local/JJ proxy/NN registry/NN and/CC invokes/VBZ the/DT query/NN service/NN request/NN ./.
+The/DT proxy/JJ registry/NN in/IN turn/NN contacts/NNS one/CD of/IN the/DT DHT/NNP nodes/NNS to/TO determine/VB DHT/NNP queries/NNS using/VBG the/DT search/NN terms/NNS ./.
+As/IN explained/VBN earlier/RBR in/IN the/DT context/NN of/IN Figure/NNP 1/CD ,/, multiple/JJ values/NNS might/MD be/VB retrieved/VBN from/IN the/DT DHT/NNP ./.
+Each/DT value/NN includes/VBZ the/DT query/NN URL/NNP of/IN a/DT registry/NN ,/, and/CC the/DT unique/JJ UDDI/NNP key/NN of/IN a/DT matching/JJ service/NN in/IN that/DT registry/NN ./.
+The/DT proxy/NN then/RB contacts/VBZ the/DT matching/JJ registries/NNS and/CC waits/NNS for/IN the/DT response/NN of/IN lookup/NN operations/NNS using/VBG the/DT corresponding/JJ UDDI/NNP keys/NNS ./.
+Upon/IN receiving/VBG the/DT responses/NNS ,/, the/DT proxy/JJ registry/NN collates/VBZ all/DT responses/NNS and/CC returns/VBZ the/DT aggregated/JJ set/NN of/IN services/NNS to/TO the/DT client/NN ./.
+We/PRP will/MD now/RB illustrate/VB these/DT operations/NNS using/VBG an/DT example/NN ./.
+Consider/VB a/DT client/NN contacting/VBG its/PRP$ local/JJ proxy/NN to/TO publish/VB a/DT service/NN called/VBN Computer/NNP Accessories/NNPS ./.
+The/DT proxy/NN follows/VBZ the/DT steps/NNS in/IN Figure/NNP 3/CD to/TO add/VB the/DT service/NN to/TO UDDI/VB 1/CD registry/NN ,/, and/CC also/RB publishes/VBZ two/CD entries/NNS in/IN the/DT DHT/NNP ./.
+The/DT keys/NN of/IN these/DT entries/NNS are/VBP obtained/VBN by/IN hashing/VBG the/DT words/NNS computer/NN and/CC accessories/NNS respectively/RB ./.
+Both/DT entries/NNS have/VBP the/DT same/JJ value/NN consisting/NN of/IN the/DT query/NN URL/NNP of/IN this/DT registry/NN and/CC the/DT unique/JJ UDDI/NNP key/NN returned/VBN by/IN the/DT registry/NN for/IN this/DT service/NN ./.
+Next/IN we/PRP consider/VBP another/DT client/NN publishing/VBG a/DT service/NN called/VBN Computer/NNP Repair/NNP through/IN its/PRP$ proxy/NN to/TO UDDI/VB 2/CD registry/NN ./.
+A/DT similar/JJ process/NN results/NNS in/IN 2/CD more/JJR entries/NNS being/VBG added/VBN to/TO the/DT DHT/NNP ./.
+Recall/NN that/IN our/PRP$ DHT/NNP deployment/NN can/MD have/VB multiple/JJ entries/NNS with/IN the/DT same/JJ key/NN ./.
+If/IN we/PRP follow/VBP the/DT steps/NNS in/IN Figure/NNP 4/CD for/IN a/DT client/NN sending/VBG a/DT query/NN to/TO its/PRP$ proxy/NN using/VBG the/DT word/NN computer/NN ,/, we/PRP see/VBP that/IN the/DT DHT/NNP is/VBZ queried/VBN with/IN the/DT hash/NN of/IN the/DT word/NN computer/NN as/IN key/JJ ./.
+This/DT retrieves/VBZ the/DT query/NN URL/NNP and/CC respective/JJ UDDI/NNP keys/NN of/IN both/DT services/NNS mentioned/VBN before/RB in/IN this/DT example/NN ./.
+The/DT proxy/NN can/MD then/RB do/VB a/DT simple/JJ lookup/NN operation/NN at/IN both/DT UDDI/NNP 1/CD and/CC 2/CD registries/NNS ./.
+It/PRP is/VBZ clear/JJ that/IN as/IN the/DT number/NN of/IN UDDI/NNP registries/NNS and/CC clients/NNS increases/VBZ ,/, this/DT process/NN of/IN lookup/NN at/IN only/RB relevant/JJ UDDI/NNP registries/NNS is/VBZ more/RBR scalable/JJ that/IN doing/VBG a/DT full/JJ search/NN using/VBG the/DT word/NN computer/NN at/IN all/DT UDDI/NNP registries/NNS ./.
+4/CD ./.
+IMPLEMENTATION/NN In/IN this/DT section/NN ,/, we/PRP describe/VBP our/PRP$ implementation/NN which/WDT is/VBZ currently/RB deployed/VBN on/IN PlanetLab/NNP [/NNP 9/CD ]/NN ./.
+PlanetLab/NNP is/VBZ an/DT open/JJ ,/, globally/RB distributed/VBN platform/NN for/IN developing/VBG ,/, deploying/NN ,/, and/CC accessing/VBG network/NN services/NNS ./.
+It/PRP currently/RB has/VBZ 527/CD machines/NNS ,/, hosted/VBN by/IN 249/CD sites/NNS ,/, spanning/VBG over/IN 25/CD countries/NNS ./.
+PlanetLab/NNP machines/NNS are/VBP hosted/VBN by/IN research/academic/JJ institutions/NNS as/RB well/RB as/IN industrial/JJ companies/NNS ./.
+France/NNP Telecom/NNP and/CC HP/NNP are/VBP two/CD of/IN the/DT major/JJ industry/NN supporters/NNS for/IN PlanetLab/NNP ./.
+Every/DT PlanetLab/NNP host/NN machine/NN is/VBZ connected/VBN to/TO the/DT Internet/NNP and/CC runs/VBZ a/DT common/JJ software/NN package/NN including/VBG a/DT Linux/NNP based/VBN operating/NN system/NN that/WDT supports/VBZ server/NN virtualization/NN ./.
+Thus/RB the/DT users/NNS can/MD develop/VB and/CC experiment/VB with/IN new/JJ services/NNS under/IN real-world/JJ conditions/NNS ./.
+The/DT advantage/NN of/IN using/VBG PlanetLab/NNP is/VBZ that/IN we/PRP can/MD test/VB the/DT DUDE/NNP architecture/NN under/IN real-world/JJ conditions/NNS with/IN a/DT large/JJ scale/NN geographically/RB dispersed/VBD node/JJ base/NN ./.
+Due/JJ to/TO the/DT availability/NN of/IN jUDDI/NN ,/, an/DT open/JJ source/NN UDDI/NNP V2/NNP registry/NN (/( http/NN :/: //www.juddi.org/NN )/) and/CC a/DT lack/NN of/IN existing/VBG readily/RB available/JJ UDDI/NNP V3/NNP registry/NN ,/, a/DT decision/NN to/TO use/VB UDDI/NNP V2/NNP was/VBD made/VBN ./.
+The/DT standardization/NN of/IN UDDI/NNP V3/NNP is/VBZ recent/JJ and/CC we/PRP intend/VBP to/TO extend/VB this/DT work/NN to/TO support/VB UDDI/NNP V3/NNP and/CC subsequent/JJ versions/NNS in/IN the/DT future/NN ./.
+The/DT proxy/JJ registry/NN is/VBZ implemented/VBN by/IN modifying/VBG the/DT jUDDI/NN source/NN to/TO enable/VB publishing/NN ,/, querying/VBG and/CC deleting/VBG service/NN information/NN from/IN a/DT DHT/NNP ./.
+Furthermore/RB ,/, it/PRP also/RB allows/VBZ querying/VBG multiple/JJ registries/NNS and/CC collating/VBG the/DT response/NN using/VBG UDDI4j/NNP [/$ 13/CD ]/NN ./.
+For/IN the/DT DHT/NNP implementation/NN ,/, we/PRP use/VBP the/DT Bamboo/NNP DHT/NNP code/NN [/VBD 11/CD ]/NN ./.
+The/DT Bamboo/NNP DHT/NNP allows/VBZ multiple/JJ proxy/JJ registries/NNS to/TO publish/VB and/CC delete/VB service/NN information/NN from/IN their/PRP$ respective/JJ UDDI/NNP registries/NNS ,/, as/RB well/RB as/IN to/TO query/VB for/IN services/NNS from/IN all/PDT the/DT registries/NNS ./.
+The/DT proxy/JJ uses/VBZ the/DT service/NN name/NN as/IN input/NN to/TO the/DT DHT/NNP ''/'' s/NN hash/NN Article/NNP 2/CD function/NN to/TO get/VB the/DT DHT/NNP key/NN ./.
+The/DT value/NN that/WDT is/VBZ stored/VBN in/IN the/DT DHT/NNP using/VBG this/DT key/NN is/VBZ the/DT URI/NNP of/IN the/DT registry/NN along/IN with/IN the/DT UDDI/NNP key/NN of/IN the/DT service/NN ./.
+This/DT ensures/VBZ that/IN when/WRB the/DT proxy/JJ registry/NN queries/NNS for/IN services/NNS with/IN a/DT certain/JJ name/NN ,/, it/PRP gets/VBZ back/RB the/DT URI/NNP and/CC UDDI/NNP keys/NNS for/IN matching/VBG entries/NNS ./.
+Using/VBG these/DT returned/VBN results/NNS ,/, the/DT proxy/NN can/MD do/VB fast/RB lookup/VB operations/NNS at/IN the/DT respective/JJ UDDI/NNP registries/NNS ./.
+The/DT UDDI/NNP keys/NNS make/VBP it/PRP unnecessary/JJ to/TO repeat/VB the/DT search/NN at/IN the/DT UDDI/NNP registries/NNS with/IN the/DT service/NN name/NN ./.
+We/PRP have/VBP so/RB far/RB described/VBD the/DT process/NN of/IN exact/JJ match/NN on/IN service/NN name/NN ./.
+However/RB there/EX are/VBP additional/JJ types/NNS of/IN search/NN that/WDT must/MD be/VB supported/VBN ./.
+Firstly/RB ,/, the/DT search/NN requested/VBD could/MD be/VB case-insensitive/JJ ./.
+To/TO support/VB that/DT ,/, the/DT proxy/NN registry/NN has/VBZ to/TO publish/VB the/DT same/JJ service/NN once/RB using/VBG the/DT name/NN exactly/RB as/RB entered/VBN in/IN the/DT UDDI/NNP registry/NN ,/, and/CC once/RB with/IN the/DT name/NN converted/VBD to/TO all/DT lower-case/JJ letters/NNS ./.
+To/TO do/VB a/DT case-insensitive/JJ search/NN ,/, the/DT proxy/JJ registry/NN simply/RB has/VBZ to/TO convert/VB the/DT query/NN string/VBG into/IN lower-case/JJ letters/NNS ./.
+Secondly/RB ,/, the/DT user/NN could/MD query/VB based/VBN on/IN the/DT prefix/NN of/IN a/DT service/NN name/NN ./.
+Indeed/RB ,/, this/DT is/VBZ the/DT default/NN behavior/NN of/IN search/NN in/IN UDDI/NNP ./.
+In/IN other/JJ words/NNS ,/, a/DT wildcard/NN is/VBZ implicit/JJ at/IN the/DT end/NN of/IN the/DT service/NN name/NN being/VBG searched/VBN ./.
+To/TO support/VB this/DT efficiently/RB in/IN the/DT DHT/NNP ,/, our/PRP$ proxy/JJ registries/NNS have/VBP to/TO take/VB prefixes/NNS of/IN the/DT service/NN name/NN of/IN varying/VBG length/NN and/CC publish/VB the/DT URI/NNP and/CC UDDI/NNP key/JJ multiple/JJ times/NNS ,/, once/RB using/VBG each/DT prefix/NN ./.
+For/IN example/NN ,/, the/DT prefix/NN sizes/VBZ chosen/VBN in/IN one/CD deployment/NN might/MD be/VB 5/CD ,/, 10/CD ,/, 15/CD and/CC 20/CD characters/NNS ./.
+If/IN a/DT search/NN for/IN the/DT first/JJ 12/CD characters/NNS of/IN a/DT service/NN name/NN is/VBZ submitted/VBN ,/, the/DT proxy/JJ registry/NN will/MD query/VB the/DT DHT/NNP with/IN the/DT first/JJ 10/CD characters/NNS of/IN the/DT search/NN string/NN ,/, and/CC then/RB refine/VB the/DT search/NN result/NN to/TO ensure/VB that/IN the/DT match/NN extends/VBZ to/TO the/DT 12th/CD character/NN ./.
+If/IN the/DT search/NN string/NN has/VBZ less/JJR than/IN 5/CD characters/NNS ,/, and/CC the/DT search/NN is/VBZ for/IN a/DT prefix/NN rather/RB than/IN an/DT exact/JJ match/NN ,/, the/DT DHT/NNP can/MD not/RB be/VB of/IN any/DT help/NN ,/, unless/IN every/DT service/NN is/VBZ published/VBN in/IN the/DT DHT/NNP with/IN prefix/NN of/IN length/NN 0/CD ./.
+Using/VBG this/DT null/JJ prefix/NN will/MD send/VB a/DT copy/NN of/IN every/DT advertised/JJ service/NN to/TO the/DT DHT/NNP node/NN to/TO which/WDT the/DT hash/NN of/IN the/DT null/JJ prefix/NN maps/NNS ./.
+Since/IN this/DT can/MD lead/VB to/TO load-imbalance/NN ,/, a/DT better/JJR solution/NN might/MD be/VB to/TO use/VB the/DT DHT/NNP only/RB to/TO get/VB a/DT list/NN of/IN all/DT UDDI/NNP registries/NNS ,/, and/CC send/VBP the/DT search/NN to/TO all/DT of/IN them/PRP in/IN the/DT locations/NNS to/TO be/VB searched/VBN ./.
+Thirdly/RB ,/, the/DT service/NN name/NN being/VBG searched/VBN can/MD be/VB a/DT regular/JJ expression/NN ,/, such/JJ as/IN one/CD with/IN embedded/VBN wildcard/NN characters/NNS ./.
+For/IN example/NN ,/, a/DT search/NN for/IN Garden/NNP %/NN s/NN should/MD match/VB both/DT Garden/NNP Supplies/NNPS and/CC Gardening/NNP Tools/NNP ./.
+This/DT will/MD be/VB treated/VBN similarly/RB to/TO the/DT previous/JJ case/NN as/IN the/DT DHT/NNP has/VBZ to/TO be/VB queried/VBN with/IN the/DT longest/JJS available/JJ prefix/NN ./.
+The/DT results/NNS returned/VBD have/VBP to/TO be/VB refined/VBN to/TO ensure/VB that/IN the/DT regular/JJ expression/NN matches/NNS ./.
+Figure/NN 5/CD shows/VBZ the/DT network/NN diagram/NN for/IN our/PRP$ implementation/NN ./.
+There/EX are/VBP two/CD proxy/JJ UDDI/NNP and/CC juddi/JJ registry/NN pairs/NNS ./.
+Consider/VB a/DT client/NN which/WDT contacts/VBZ the/DT UDDI/NNP proxy/NN on/IN grouse.hpl.hp.com/NN ./.
+The/DT proxy/NN does/VBZ a/DT lookup/NN of/IN the/DT DHT/NNP using/VBG the/DT query/NN string/NN or/CC a/DT prefix/NN ./.
+This/DT involves/VBZ contacting/VBG one/CD of/IN the/DT DHT/NNP nodes/NNS ,/, such/JJ as/IN pli1-br3.hpl.hp.com/NN ,/, which/WDT serves/VBZ as/IN the/DT gateway/NN to/TO the/DT DHT/NNP for/IN grouse.hpl.hp.com/NN ,/, based/VBN on/IN the/DT latter/NN ''/'' s/JJ configuration/NN file/NN ./.
+The/DT DHT/NNP node/NN may/MD then/RB route/VB the/DT query/NN to/TO one/CD of/IN the/DT other/JJ DHT/NNP nodes/NNS which/WDT is/VBZ responsible/JJ for/IN the/DT DHT/NNP key/NN that/IN the/DT query/NN string/NN maps/NNS to/TO ./.
+The/DT results/NNS of/IN the/DT DHT/NNP lookup/NN return/NN to/TO pli1-br3.hpl.hp.com/NN ,/, which/WDT forwards/VBZ them/PRP to/TO grouse.hpl.hp.com/VB ./.
+The/DT results/NNS may/MD include/VB a/DT few/JJ services/NNS from/IN each/DT of/IN the/DT juddi/NN registries/NNS ./.
+So/IN the/DT proxy/JJ registry/NN performs/VBZ the/DT lookup/JJ operations/NNS at/IN both/DT planetlab1/NN and/CC planetlab2.rdfrancetelecom.com/NN for/IN their/PRP$ respective/JJ entries/NNS listed/VBN in/IN the/DT search/NN results/NNS ./.
+The/DT responses/NNS to/TO these/DT lookups/NNS are/VBP collated/VBN by/IN the/DT proxy/JJ registry/NN and/CC returned/VBN to/TO the/DT client/NN ./.
+Figure/NN 5/CD Network/NNP Diagram/NNP 5/CD ./.
+RELATED/JJ WORK/VBD A/DT framework/NN for/IN QoS-based/JJ service/NN discovery/NN in/IN grids/NNS has/VBZ been/VBN proposed/VBN in/IN [/JJ 18/CD ]/NN ./.
+UDDIe/NNP ,/, an/DT extended/JJ UDDI/NNP registry/NN for/IN publishing/NN and/CC discovering/NN services/NNS based/VBN on/IN QoS/NNP parameters/NNS ,/, is/VBZ proposed/VBN in/IN [/JJ 19/CD ]/NN ./.
+Our/PRP$ work/NN is/VBZ complementary/JJ since/IN we/PRP focus/VBP on/IN how/WRB to/TO federate/VB the/DT UDDI/NNP registries/NNS and/CC address/VB the/DT scalability/NN issue/NN with/IN UDDI/NNP ./.
+The/DT DUDE/NNP proxy/NN can/MD publish/VB the/DT service/NN properties/NNS supported/VBN by/IN UDDIe/NNP in/IN the/DT DHT/NNP and/CC support/NN range/NN queries/NNS using/VBG techniques/NNS proposed/VBN for/IN such/JJ queries/NNS on/IN DHTs/NNP ./.
+Then/RB we/PRP can/MD deliver/VB the/DT scalability/NN benefits/NNS of/IN our/PRP$ current/JJ solution/NN to/TO both/DT UDDI/NNP and/CC UDDIe/NNP registries/NNS ./.
+Discovering/VBG services/NNS meeting/NN QoS/NNP and/CC price/NN requirements/NNS has/VBZ been/VBN studied/VBN in/IN the/DT context/NN of/IN a/DT grid/JJ economy/NN ,/, so/IN that/DT grid/JJ schedulers/NNS can/MD use/VB various/JJ market/NN models/NNS such/JJ as/IN commodity/NN markets/NNS and/CC auctions/NNS ./.
+The/DT Grid/NNP Market/NNP Directory/NNP [/NNP 20/CD ]/NNP was/VBD proposed/VBN for/IN this/DT purpose/NN ./.
+In/IN [/$ 12/CD ]/NN ,/, the/DT authors/NNS present/VBD an/DT ontology-based/JJ matchmaker/NN ./.
+Resource/NNP and/CC request/JJS descriptions/NNS are/VBP expressed/VBN in/IN RDF/NNP Schema/NNP ,/, a/DT semantic/JJ markup/NN language/NN ./.
+Matchmaking/VBG rules/NNS are/VBP expressed/VBN in/IN TRIPLE/NNP ,/, a/DT language/NN based/VBN on/IN Horn/NNP Logic/NNP ./.
+Although/IN our/PRP$ current/JJ implementation/NN focuses/NNS on/IN UDDI/NNP version/NN 2/CD ,/, in/IN future/JJ we/PRP will/MD consider/VB semantic/JJ extensions/NNS to/TO UDDI/NNP ,/, WS-Discovery/NNP [/NNP 16/CD ]/NNP and/CC other/JJ Grid/NNP computing/VBG standards/NNS such/JJ as/IN Monitoring/NNP and/CC Discovery/NNP Service/NNP (/( MDS/NNP )/) [/VBD 10/CD ]/NN ./.
+So/IN the/DT simplest/JJS extension/NN of/IN our/PRP$ work/NN could/MD involve/VB using/VBG the/DT DHT/NNP to/TO do/VB an/DT initial/JJ syntax-based/JJ search/NN to/TO identify/VB the/DT local/JJ registries/NNS that/WDT need/VBP to/TO be/VB contacted/VBN ./.
+Then/RB the/DT Proxy/NNP Registry/NNP can/MD contact/VB these/DT registries/NNS ,/, which/WDT do/VBP semantic/JJ matchmaking/NN to/TO identify/VB their/PRP$ matches/NNS ,/, which/WDT are/VBP then/RB merged/VBN at/IN the/DT Proxy/NNP Registry/NNP and/CC returned/VBN to/TO the/DT client/NN ./.
+The/DT convergence/NN of/IN grid/NN and/CC P2P/NNP computing/NN has/VBZ been/VBN explored/VBN in/IN [/JJ 5/CD ]/NN ./.
+GridVine/NNP [/VBZ 2/CD ]/NN builds/VBZ a/DT logical/JJ semantic/JJ overlay/NN on/IN top/NN of/IN a/DT physical/JJ layer/NN consisting/VBG of/IN P-Grid/NNP [/NNP 1/CD ]/NNP ,/, a/DT structured/VBN overlay/NN based/VBN on/IN distributed/JJ search/NN tree/NN that/WDT uses/VBZ prefix-based/JJ routing/NN and/CC changes/VBZ the/DT overlay/NN paths/NNS as/IN part/NN of/IN the/DT network/NN maintenance/NN protocol/NN to/TO adapt/VB to/TO load/VB in/IN different/JJ parts/NNS of/IN the/DT keyspace/NN ./.
+A/DT federated/JJ UDDI/NNP service/NN [/VBD 4/CD ]/NN has/VBZ been/VBN built/VBN on/IN top/NN of/IN the/DT PlanetP/NNP [/NNP 3/CD ]/NNP publish-subscribe/NN system/NN for/IN unstructured/JJ P2P/NNP communities/NNS ./.
+The/DT focus/NN of/IN this/DT work/NN has/VBZ been/VBN on/IN the/DT manageability/NN of/IN the/DT federated/JJ service/NN ./.
+The/DT UDDI/NNP service/NN is/VBZ treated/VBN as/IN an/DT application/NN Article/NNP 2/CD service/NN to/TO be/VB managed/VBN in/IN their/PRP$ framework/NN ./.
+So/IN they/PRP do/VBP not/RB address/VB the/DT issue/NN of/IN scalability/NN in/IN UDDI/NNP ,/, and/CC instead/RB use/VB simple/JJ replication/NN ./.
+In/IN [/$ 21/CD ]/NN ,/, the/DT authors/NNS describe/VBP a/DT UDDI/NNP extension/NN (/( UX/NNP )/) system/NN that/WDT launches/VBZ a/DT federated/JJ query/NN only/RB if/IN locally/RB found/VBN results/NNS are/VBP not/RB adequate/JJ ./.
+While/IN the/DT UX/NNP Server/NNP is/VBZ positioned/VBN as/IN an/DT intermediary/JJ similarly/RB to/TO the/DT UDDI/NNP Proxy/NNP described/VBD in/IN our/PRP$ DUDE/NNP framework/NN ,/, it/PRP focuses/VBZ more/RBR on/IN the/DT QoS/NNP framework/NN and/CC does/VBZ not/RB attempt/VB to/TO implement/VB a/DT seamless/JJ federation/NN mechanism/NN such/JJ as/IN our/PRP$ DHT/NNP based/VBN approach/NN ./.
+In/IN [/$ 22/CD ]/NNP D2HT/NNP describes/VBZ a/DT discovery/NN framework/NN built/VBN on/IN top/NN of/IN DHT/NNP ./.
+However/RB ,/, we/PRP have/VBP chosen/VBN to/TO use/VB UDDI/NNP on/IN top/NN of/IN DHT/NNP ./.
+D2HT/NNP have/VBP used/VBN (/( Agent/NNP Management/NNP System/NNP )/) AMS//NNP (/( Directory/NNP Facilitator/NNP )/) DF/NNP on/IN top/NN of/IN DHT/NNP ./.
+6/CD ./.
+CONCLUSIONS/NNP AND/NNP FUTURE/NNP WORK/NNP In/IN this/DT paper/NN ,/, we/PRP have/VBP described/VBN a/DT distributed/JJ architecture/NN to/TO support/VB large/JJ scale/JJ discovery/NN of/IN web-services/NNS ./.
+Our/PRP$ architecture/NN will/MD enable/VB organizations/NNS to/TO maintain/VB autonomous/JJ control/NN over/IN their/PRP$ UDDI/JJ registries/NNS and/CC at/IN the/DT same/JJ time/NN allowing/VBG clients/NNS to/TO query/VB multiple/JJ registries/NNS simultaneously/RB ./.
+The/DT clients/NNS are/VBP oblivious/JJ to/TO the/DT transparent/NN proxy/JJ approach/NN we/PRP have/VBP adopted/VBN and/CC get/VB richer/JJR and/CC more/RBR complete/JJ response/NN to/TO their/PRP$ queries/NNS ./.
+Based/VBN on/IN initial/JJ prototype/NN testing/NN ,/, we/PRP believe/VBP that/IN DUDE/NNP architecture/NN can/MD support/VB effective/JJ distribution/NN of/IN UDDI/NNP registries/NNS thereby/RB making/VBG UDDI/NNP more/JJR robust/JJ and/CC also/RB addressing/VBG its/PRP$ scaling/NN issues/NNS ./.
+The/DT paper/NN has/VBZ solved/VBN the/DT scalability/NN issues/NNS with/IN UDDI/NNP but/CC does/VBZ not/RB preclude/VB the/DT application/NN of/IN this/DT approach/NN to/TO other/JJ service/NN discovery/NN mechanisms/NN ./.
+An/DT example/NN of/IN another/DT service/NN discovery/NN mechanism/NN that/WDT could/MD benefit/VB from/IN such/JJ an/DT approach/NN is/VBZ Globus/NNP Toolkit/NNP ''/'' s/NN MDS/NNP ./.
+Furthermore/RB ,/, we/PRP plan/VBP to/TO investigate/VB other/JJ aspects/NNS of/IN grid/JJ service/NN discovery/NN that/WDT extend/VBP this/DT work/NN ./.
+Some/DT of/IN these/DT aspects/NNS include/VBP the/DT ability/NN to/TO subscribe/VB to/TO resource/service/VB information/NN ,/, the/DT ability/NN to/TO maintain/VB soft/JJ states/NNS and/CC the/DT ability/NN to/TO provide/VB a/DT variety/NN of/IN views/NNS for/IN various/JJ different/JJ purposes/NNS ./.
+In/IN addition/NN ,/, we/PRP plan/VBP to/TO revisit/VB the/DT service/NN APIs/NNP for/IN a/DT Grid/NNP Service/NNP Discovery/NNP solution/NN leveraging/VBG the/DT available/JJ solutions/NNS and/CC specifications/NNS as/RB well/RB as/IN the/DT work/NN presented/VBN in/IN this/DT paper/NN ./.
+7/CD ./.
+REFERENCES/NNP [/VBD 1/CD ]/JJ P-grid/JJ :/: A/DT self-organizing/JJ structured/JJ p2p/NN system/NN ./.
+K./NNP Aberer/NNP ,/, P./NNP Cudr_e-Mauroux/NNP ,/, A./NNP Datta/NNP ,/, Z./NNP Despotovic/NNP ,/, M./NNP Hauswirth/NNP ,/, M./NNP Punceva/NNP ,/, and/CC R./NNP Schmidt/NNP ./.
+ACM/NNP SIGMOD/NNP Record/NNP ,/, 32/CD (/( 3/CD )/) ,/, 2003/CD ./.
+[/RB 2/CD ]/JJ GridVine/NNP :/: Building/NN Internet-Scale/NNP Semantic/NNP Overlay/NNP Networks/NNP Karl/NNP Aberer/NNP ,/, Philippe/NNP Cudre-Mauroux/NNP ,/, Manfred/NNP Hauswirth/NNP ,/, and/CC Tim/NNP van/NNP Pelt/NNP ./.
+Proceedings/NNS ,/, 3rd/CD ISWC/NNP 2004/CD ,/, Hiroshima/NNP ,/, Japan/NNP ./.
+[/RB 3/CD ]/JJ ``/`` PlanetP/NN :/: Using/VBG Gossiping/VBG to/TO Build/VB Content/NNP Addressable/NNP Peer-to-Peer/NNP Information/NNP Sharing/NNP Communities/NNPS ''/'' ./.
+F./NNP M./NNP Cuenca-Acuna/NNP ,/, C./NNP Peery/NNP ,/, R./NNP P./NNP Martin/NNP ,/, and/CC T./NNP D./NNP Nguyen/NNP ./.
+In/IN Proceedings/NNP of/IN 12th/CD Intl/NNP Symposium/NNP on/IN HPDC/NNP ,/, June/NNP 2003/CD ./.
+[/RB 4/CD ]/JJ Self-Managing/NNP Federated/NNP Services/NNPS ./.
+Francisco/NNP Matias/NNP Cuenca-Acuna/NNP and/CC Thu/NNP D./NNP Nguyen/NNP ./.
+In/IN Proceedings/NNP of/IN 23rd/CD IEEE/NNP International/NNP SRDS/NNP ,/, 2004/CD ,/, Florianpolis/NNP ,/, BRAZIL/NNP ./.
+[/RB 5/CD ]/NNS On/IN Death/NNP ,/, Taxes/NNP ,/, and/CC the/DT Convergence/NNP of/IN P2P/NNP and/CC Grid/NNP Computing/NNP ./.
+Ian/NNP Foster/NNP and/CC Adriana/NNP Iamnitchi/NNP ./.
+In/IN Proceedings/NNP of/IN the/DT 2nd/CD IPTPS/NNP 2003/CD ./.
+[/RB 6/CD ]/VBD The/DT Physiology/NNP of/IN the/DT Grid/NNP :/: An/DT Open/NNP Grid/NNP Services/NNPS Architecture/NNP for/IN Distributed/NNP Systems/NNPS Integration/NNP ,/, I/PRP ./.
+Foster/NNP ,/, C./NNP Kesselman/NNP ,/, J./NNP M./NNP Nick/NNP and/CC S./NNP Tuecke/NNP ./.
+Presented/VBN to/TO OGSI/NNP WG/NNP ,/, Global/NNP Grid/NNP Forum/NNP ,/, June/NNP 22/CD ,/, 2002/CD ./.
+Available/JJ at/IN http/NN :/: //www.globus.org/alliance/publications/papers.php/JJ [/$ 7/CD ]/NN Was/VBD the/DT Universal/NNP Service/NNP Registry/NNP a/DT Dream/NNP ?/. ,/, Fred/NNP Hartman/NNP and/CC Harris/NNP Reynolds/NNP ,/, In/IN the/DT Web/NNP Services/NNPS Journal/NNP ,/, Dec/NNP 2/CD ,/, 2004/CD ./.
+[/RB 8/CD ]/JJ Pastry/NN :/: Scalable/JJ ,/, distributed/JJ object/NN location/NN and/CC routing/VBG for/IN large/JJ scale/JJ peer-to-peer/NN systems/NNS ./.
+A./NN Rowstron/NNP and/CC P./NNP Druschel/NNP ./.
+In/IN Proc/NNP ./.
+of/IN IFIP/ACM/NNP Middleware/NNP ,/, Nov./NNP 2001/CD [/NNP 9/CD ]/NNP http/NN :/: //www.planet-lab.org/JJ [/NN 10/CD ]/NNP Grid/NNP information/NN services/NNS for/IN distributed/JJ resource/NN sharing/NN ./.
+K./NNP Czajkowski/NNP ,/, S./NNP Fitzgerald/NNP ,/, I/PRP ./.
+Foster/NNP ,/, and/CC C./NNP Kesselman/NNP ./.
+Proceedings/NNS of/IN the/DT IEEE/NNP HPDC-10/NNP ,/, 2001/CD ./.
+[/RB 11/CD ]/JJ Handling/VBG churn/NN in/IN a/DT DHT/NNP ./.
+S./NNP Rhea/NNP ,/, D./NNP Geels/NNP ,/, T./NNP Roscoe/NNP ,/, and/CC J./NNP Kubiatowicz/NNP ./.
+Proceedings/NNS of/IN the/DT USENIX/NNP Annual/NNP Technical/NNP Conference/NNP ,/, June/NNP 2004/CD ./.
+[/RB 12/CD ]/JJ Ontology-based/JJ Resource/NNP Matching/NNP in/IN the/DT Grid/NNP -/: The/DT Grid/NNP Meets/NNPS the/DT Semantic/NNP Web/NNP ,/, Hongsuda/NNP Tangmunarunkit/NNP ,/, Stefan/NNP Decker/NNP ,/, Carl/NNP Kesselman/NNP ./.
+In/IN Proceedings/NNP of/IN the/DT Second/NNP ISWC/NNP (/( 2003/CD )/) ,/, Miami/NNP ,/, Florida/NNP ./.
+[/RB 13/CD ]/JJ UDDI4j/NNP Java/NNP Class/NNP Library/NNP :/: http/NN :/: //www124.ibm.com/developerworks/oss/uddi4j//JJ [/$ 14/CD ]/NNP UDDI/NNP V2/NNP specification/NN :/: Available/JJ at/IN http/NN :/: //uddi.org//JJ [/$ 15/CD ]/NNP UDDI/NNP V3.0.2/NNP specification/NN :/: http/NN :/: //uddi.org//JJ [/$ 16/CD ]/NNP Web/NNP Services/NNPS Dynamic/NNP Discovery/NNP (/( WS-Discovery/NNP )/) Specification/NNP ,/, February/NNP 2004./CD http/NN :/: //msdn.microsoft.com/ws/2004/02/discovery/NN [/VBZ 17/CD ]/NN Information/NN Services/NNP (/( MDS/NNP )/) :/: Key/JJ Concepts/NNP ./.
+http/NN :/: //www.globus.org/toolkit/docs/4.0/info/key//JJ [/$ 18/CD ]/JJ G-/JJ QoSM/NN :/: Grid/NNP Service/NNP Discovery/NNP using/VBG QoS/NNP Properties/NNPS ,/, R/NNP J./NNP Al-Ali/NNP ,/, O.F/NNP ./.
+Rana/NNP ,/, D.W./NNP Walker/NNP ,/, S./NNP Jha/NNP and/CC S./NNP Sohail/NNP ./.
+Journal/NNP of/IN Computing/NNP and/CC Informatics/NNP (/( Special/JJ issue/NN on/IN Grid/NNP Computing/NNP )/) ,/, Ed/NNP :/: Domenico/NNP LaForenza/NNP ,/, Vol/NNP ./.
+21/CD ,/, No/DT ./.
+4/CD ,/, pp/NN ./.
+363-382/CD ,/, 2002/CD ./.
+[/RB 19/CD ]/JJ UDDIe/NNP :/: An/DT Extended/JJ Registry/NN for/IN Web/NNP Services/NNPS ,/, A./NNP ShaikhAli/NNP ,/, O.F/NNP ./.
+Rana/NNP ,/, R./NNP Al-Ali/NNP and/CC D.W./NNP Walker/NNP ,/, Workshop/NNP on/IN Service/NNP Oriented/NNP Computing/NNP :/: Models/NNS ,/, Architectures/NNS and/CC Applications/NNS at/IN SAINT/NNP Conference/NNP ,/, Florida/NNP ,/, US/NNP ,/, January/NNP 2003/CD ./.
+IEEE/NNP Computer/NNP Society/NNP Press/NNP ./.
+[/RB 20/CD ]/VBD A/DT Market-Oriented/JJ Grid/NNP Directory/NNP Service/NNP for/IN Publication/NNP and/CC Discovery/NNP of/IN Grid/NNP Service/NNP Providers/NNP and/CC their/PRP$ Services/NNS ,/, J./NNP Yu/NNP ,/, S./NNP Venugopal/NNP and/CC R./NNP Buyya/NNP ,/, Journal/NNP of/IN Supercomputing/NNP ,/, Kluwer/NNP Academic/NNP Publishers/NNP ,/, USA/NNP ,/, 2005/CD ./.
+[/RB 21/CD ]/NNS Chen/NNP Zhou/NNP ,/, Liang-Tien/NNP Chia/NNP ,/, Bilhanan/NNP Silverajan/NNP ,/, Bu-Sung/NNP Lee/NNP :/: UX/NNP -/: An/DT Architecture/NN Providing/VBG QoS-Aware/NNP and/CC Federated/NNP Support/NNP for/IN UDDI/NNP ./.
+ICWS/JJ 2003/CD :/: 171-176/JJ ./.
+[/RB 22/CD ]/JJ Kee-Hyun/NNP Choi/NNP ,/, Ho-Jin/NNP Shin/NNP ,/, Dong-Ryeol/NNP Shin/NNP ,/, Service/NNP Discovery/NNP Supporting/NNP Open/NNP Scalability/NNP Using/NNP FIPACompliant/NNP Agent/NNP Platform/NNP for/IN Ubiquitous/NNP Networks/NNP ,/, Lecture/NNP Notes/VBZ in/IN Computer/NNP Science/NNP ,/, Volume/NN 3482/CD ,/, Jan/NNP 2005/CD ./.
+Article/NN 2/CD
