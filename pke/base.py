@@ -99,8 +99,7 @@ class LoadFile(object):
         elif format == 'preprocessed':
             self.read_preprocessed_document(stemmer=stemmer, sep=sep)
         elif format == 'corenlp':
-            self.read_preprocessed_document(use_lemmas=use_lemmas,
-                                            stemmer=stemmer)
+            self.read_corenlp_document(use_lemmas=use_lemmas, stemmer=stemmer)
 
 
     def read_corenlp_document(self, use_lemmas=False, stemmer='porter'):
