@@ -98,6 +98,11 @@ another model, simply replace TopicRank with SingleRank, KPMiner, TfIdf, etc.
 The models/ directory contains already trained models for Kea and WINGNUS as
 well as DF counts computed on the SemEval-2010 benchmark dataset.
 
+### Using pke as a command line tool
+
+A command line tool (cmd_pke.py) is also provided and allows users to perform 
+keyphrase extraction without any knowledge of the Python programming language.
+
 ### Computing Document Frequency (DF) weights (required for some models)
 
 Before using some keyphrase extraction algorithms (i.e. TfIdf, KP-Miner, Kea,
