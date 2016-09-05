@@ -31,17 +31,11 @@ def load_document_frequency_file(input_file,
     """
 
     df = {}
-    if input_file.endswith('.gz'):
-        with gzip.open(input_file, 'r') as f:
-            df_reader = csv.reader(f, delimiter=delimiter)
-            for row in df_reader:
-                df[row[0]] = int(row[1])
-    else:
-        with codecs.open(input_file, 'r') as f:
-            df_reader = csv.reader(f, delimiter=delimiter)
-            for row in df_reader:
-                print row
-                df[row[0]] = int(row[1])
+    with gzip.open(input_file, 'r') if input_file.endswith('.gz') else \
+         codecs.open(input_file, 'r') as f:
+        df_reader = csv.reader(f, delimiter=delimiter)
+        for row in df_reader:
+            df[row[0]] = int(row[1])
     return df
 
 

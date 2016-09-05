@@ -138,9 +138,9 @@ class LoadFile(object):
                 self.sentences[i].stems[j] = stem.lower()
 
             # add the meta-information
-            for k, v in sentence.iteritems():
+            for k, infos in sentence.iteritems():
                 if k not in set(['POS', 'lemmas', 'words']):
-                    self.sentences[i].meta[k] = v
+                    self.sentences[i].meta[k] = infos
 
 
     def read_preprocessed_document(self, stemmer='porter', sep='/'):

@@ -24,7 +24,7 @@ from sklearn.linear_model import LogisticRegression
 
 
 class SupervisedLoadFile(LoadFile):
-    """ The SupervisedLoadFile class that provides extra base functions for 
+    """ The SupervisedLoadFile class that provides extra base functions for
         supervised models. """
 
     def __init__(self, input_file=None, language='english'):
@@ -79,7 +79,7 @@ class Kea(SupervisedLoadFile):
 
 
     def candidate_selection(self):
-        """ Select 1-3 grams as keyphrase candidates. Candidates that start or 
+        """ Select 1-3 grams as keyphrase candidates. Candidates that start or
             end with a stopword are discarded.
         """
 
@@ -104,7 +104,7 @@ class Kea(SupervisedLoadFile):
 
 
     def feature_extraction(self, df=None, N=144, training=False):
-        """ Extract features (tf*idf, first occurrence and length) for each 
+        """ Extract features (tf*idf, first occurrence and length) for each
             candidate.
 
             Args:
@@ -132,7 +132,7 @@ class Kea(SupervisedLoadFile):
 
             # add the features to the instance container
             self.instances[k] = np.array([len(v.surface_forms) * idf,
-                                 v.offsets[0]/maximum_offset])
+                                          v.offsets[0]/maximum_offset])
 
         # scale features
         # self.feature_scaling()
@@ -152,7 +152,7 @@ class Kea(SupervisedLoadFile):
         clf.fit(training_instances, training_classes)
         with open(model_file, 'wb') as f:
             pickle.dump(clf, f)
-       
+
 
 class WINGNUS(SupervisedLoadFile):
     """ WINGNUS keyphrase extraction model. """
@@ -265,7 +265,7 @@ class WINGNUS(SupervisedLoadFile):
                     # skip if substring contains a stopword
                     if set(sub_words).intersection(stoplist):
                         continue
-                    
+
                     # check whether the substring occurs "as it"
                     if self.candidates.has_key(sub_string):
 
@@ -275,7 +275,7 @@ class WINGNUS(SupervisedLoadFile):
                             for offset_2 in v.offsets:
                                 if offset_1 >= offset_2 and \
                                    offset_1 <= offset_2 + len(v.lexical_form):
-                                   is_included = True
+                                    is_included = True
                             if not is_included:
                                 tf_of_substrings += 1
 
@@ -304,7 +304,7 @@ class WINGNUS(SupervisedLoadFile):
             feature_array.append(0)
 
             # [F10] -> Header
-            feature_array.append('sectionHeader' in types or 
+            feature_array.append('sectionHeader' in types or
                                  'subsectionHeader' in types or
                                  'subsubsectionHeader' in types)
 
@@ -377,9 +377,9 @@ class SEERLAB(SupervisedLoadFile):
         """ Select keyphrase candidates.
 
             Args:
-                dblp_candidates (list): valid candidates according to the list 
+                dblp_candidates (list): valid candidates according to the list
                     of candidates extracted from the dblp titles.
-                mf_unigrams (int): the number of most frequent unigrams to 
+                mf_unigrams (int): the number of most frequent unigrams to
                     include in the candidates, defaults to 30.
                 mf_non_unigrams (int): the number of most frequent non-unigrams
                     to include in the candidates, defaults to 30.
@@ -419,13 +419,13 @@ class SEERLAB(SupervisedLoadFile):
         valid_candidates = set(acronyms)
 
         # add the most frequent unigrams
-        valid_candidates.update(set([v for u, v in
-              sorted(unigrams, reverse=True)[:min(len(unigrams), 
-                                                  mf_unigrams)]]))
+        valid_candidates.update(set([v for u, v in \
+            sorted(unigrams, reverse=True)[:min(len(unigrams), mf_unigrams)]]))
+
         # add the most frequent non unigrams
-        valid_candidates.update(set([v for u, v in
-              sorted(non_unigrams, reverse=True)[:min(len(non_unigrams), 
-                                                       mf_non_unigrams)]]))
+        valid_candidates.update(set([v for u, v in \
+            sorted(non_unigrams, reverse=True)[:min(len(non_unigrams),
+                                                    mf_non_unigrams)]]))
 
         # filter candidates according the the most frequent sets
         for k, v in self.candidates.items():
@@ -460,7 +460,7 @@ class SEERLAB(SupervisedLoadFile):
 
 
     def feature_extraction(self, df=None, N=144, training=False):
-        """ Extract features (tf*idf, first occurrence and length) for each 
+        """ Extract features (tf*idf, first occurrence and length) for each
             candidate.
 
             Args:
@@ -522,7 +522,7 @@ class SEERLAB(SupervisedLoadFile):
         clf = RandomForestClassifier(n_estimators=200,
                                      max_features=3,
                                      class_weight='balanced')
-    
+
         # Down sampling the instances to 1:7
 
         # decompose instances into positives/negatives
@@ -540,7 +540,7 @@ class SEERLAB(SupervisedLoadFile):
         # training_instances = negatives[:min(len(positives)*7, len(negatives))]
         # training_classes = [0]*len(training_instances)
         # training_instances.extend(positives)
-        # training_classes.extend([1]*len(positives))        
+        # training_classes.extend([1]*len(positives))
 
         # X, y = shuffle(training_instances, training_classes, random_state=0)
 
@@ -551,5 +551,5 @@ class SEERLAB(SupervisedLoadFile):
             pickle.dump(clf, f)
 
         # print clf.feature_importances_
-        # print selector.support_ 
+        # print selector.support_
         # print selector.ranking_
