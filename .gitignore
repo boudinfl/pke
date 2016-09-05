@@ -1,4 +1,5 @@
 *.pyc
-example/test.py
+examples/test.py
+examples/C-1.txt
 
-example/C-1.txt
+.DS_Store
