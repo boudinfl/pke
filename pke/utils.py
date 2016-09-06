@@ -10,7 +10,7 @@ import logging
 from collections import defaultdict
 
 from .base import LoadFile
-from .supervised import Kea, WINGNUS
+from .supervised import Kea
 
 from nltk.stem.snowball import SnowballStemmer as Stemmer
 
@@ -27,20 +27,30 @@ def load_document_frequency_file(input_file,
                 frequencies tuples, defauts to '\t'.
 
         Returns:
-            df (dic): a dictionary of the form {term_1: freq, term_2: freq}.
+            frequencies (dic): a dictionary of the form {term_1: freq,
+                term_2: freq}, freq being an integer.
     """
 
-    df = {}
+    # initialize the DF dictionary
+    frequencies = {}
+
+    # open the input file
     with gzip.open(input_file, 'r') if input_file.endswith('.gz') else \
          codecs.open(input_file, 'r') as f:
+
+        # read the csv file
         df_reader = csv.reader(f, delimiter=delimiter)
+
+        # populate the dictionary
         for row in df_reader:
-            df[row[0]] = int(row[1])
-    return df
+            frequencies[row[0]] = int(row[1])
+
+    # return the populated dictionary
+    return frequencies
 
 
-def compute_document_frequency(input_dir, 
-                               output_file, 
+def compute_document_frequency(input_dir,
+                               output_file,
                                format="corenlp",
                                use_lemmas=False,
                                stemmer="porter",
@@ -48,7 +58,7 @@ def compute_document_frequency(input_dir,
                                delimiter='\t',
                                n=3,
                                extension="xml"):
-    """ Compute the n-gram document frequency from a set of documents. 
+    """ Compute the n-gram document frequency from a set of documents.
 
         Args:
             input_dir (str): the input directory.
@@ -62,8 +72,8 @@ def compute_document_frequency(input_dir,
                 None.
             delimiter (str): the delimiter between n-grams and document
                 frequencies, default to tabulation.
-            n (int): the lenght for ngrams, defaults to 3.
-            extension (str): file extension for input documents, defaults to 
+            n (int): the length for ngrams, defaults to 3.
+            extension (str): file extension for input documents, defaults to
                 xml.
     """
 
@@ -101,7 +111,7 @@ def compute_document_frequency(input_dir,
                     df[ngram].add(input_file)
 
     logging.info('writing document frequencies to '+output_file)
-    
+
     # Dump the df container
     with gzip.open(output_file, 'w') as f:
         for ngram in df:
@@ -135,13 +145,13 @@ def train_supervised_model(input_dir,
                 instead of stems (computed by nltk), defaults to False.
             stemmer (str): the stemmer in nltk to used (if used), defaults
                 to porter.
-            model (pke.supervised object): the supervised model to train, 
+            model (pke.supervised object): the supervised model to train,
                 defaults to a Kea object.
-            extension (str): file extension for input documents, defaults to 
+            extension (str): file extension for input documents, defaults to
                 xml.
-            sep_doc_id (str): the separator used for doc_id in reference file, 
+            sep_doc_id (str): the separator used for doc_id in reference file,
                 defaults to ':'.
-            sep_ref_keyphrases (str): the separator used for keyphrases in 
+            sep_ref_keyphrases (str): the separator used for keyphrases in
                 reference file, defaults to ','.
             dblp_candidates (list): valid candidates according to the list of
                 candidates extracted from the dblp titles.
@@ -188,7 +198,7 @@ def train_supervised_model(input_dir,
 
         # extract features
         model.feature_extraction(df=df, N=N, training=True)
-        
+
         # annotate the reference keyphrases in the instances
         for candidate in model.instances:
             if candidate in references[doc_id]:
@@ -202,7 +212,7 @@ def train_supervised_model(input_dir,
                 training_classes=training_classes,
                 model_file=model_file)
 
-        
+
 def load_references(input_file,
                     sep_doc_id=':',
                     sep_ref_keyphrases=',',

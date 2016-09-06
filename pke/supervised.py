@@ -5,10 +5,8 @@
 import re
 import math
 import string
-from collections import defaultdict
 
 from .base import LoadFile
-from .base import Candidate
 
 import numpy as np
 
@@ -19,8 +17,8 @@ import pickle
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.utils import shuffle
-from sklearn.linear_model import LogisticRegression
+# from sklearn.utils import shuffle
+# from sklearn.linear_model import LogisticRegression
 
 
 class SupervisedLoadFile(LoadFile):
@@ -215,7 +213,7 @@ class WINGNUS(SupervisedLoadFile):
                            df=None,
                            N=144,
                            training=False,
-                           features_set=[1, 4, 6]):
+                           features_set=None):
         """ Extract features for each candidate.
 
             Args:
@@ -224,7 +222,13 @@ class WINGNUS(SupervisedLoadFile):
                     144 as in the SemEval dataset.
                 training (bool): indicates whether features are computed for the
                     training set for computing IDF weights, defaults to false.
+                features_set (list): the set of features to use, defaults to
+                    [1, 4, 6].
         """
+
+        # define the default features_set
+        if features_set is None:
+            features_set = [1, 4, 6]
 
         # find the maximum offset
         maximum_offset = float(sum([s.length for s in self.sentences]))
@@ -419,11 +423,11 @@ class SEERLAB(SupervisedLoadFile):
         valid_candidates = set(acronyms)
 
         # add the most frequent unigrams
-        valid_candidates.update(set([v for u, v in \
+        valid_candidates.update(set([elem[0] for elem in \
             sorted(unigrams, reverse=True)[:min(len(unigrams), mf_unigrams)]]))
 
         # add the most frequent non unigrams
-        valid_candidates.update(set([v for u, v in \
+        valid_candidates.update(set([elem[1] for elem in \
             sorted(non_unigrams, reverse=True)[:min(len(non_unigrams),
                                                     mf_non_unigrams)]]))
 
@@ -472,7 +476,7 @@ class SEERLAB(SupervisedLoadFile):
         """
 
         # find the maximum offset
-        maximum_offset = float(sum([s.length for s in self.sentences]))
+        # maximum_offset = float(sum([s.length for s in self.sentences]))
 
         for k, v in self.candidates.iteritems():
 
