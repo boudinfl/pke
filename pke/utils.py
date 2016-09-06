@@ -52,19 +52,23 @@ def load_document_frequency_file(input_file,
 def compute_document_frequency(input_dir,
                                output_file,
                                format="corenlp",
+                               extension="xml",
                                use_lemmas=False,
                                stemmer="porter",
                                stoplist=None,
                                delimiter='\t',
-                               n=3,
-                               extension="xml"):
-    """ Compute the n-gram document frequency from a set of documents.
+                               n=3):
+    """ Compute n-gram document frequencies from a set of input documents. An
+        extra row is added to the output file for specifying the number of
+        documents from which the frequencies were computed (--NB_DOC-- tab XX).
 
         Args:
             input_dir (str): the input directory.
             output_file (str): the output file.
             format (str): the input files format, defaults to corenlp.
-            use_lemmas (bool): weither lemmas from stanford corenlp are used
+            extension (str): file extension for input documents, defaults to
+                xml.
+            use_lemmas (bool): whether lemmas from stanford corenlp are used
                 instead of stems (computed by nltk), defaults to False.
             stemmer (str): the stemmer in nltk to used (if used), defaults
                 to porter.
@@ -73,30 +77,28 @@ def compute_document_frequency(input_dir,
             delimiter (str): the delimiter between n-grams and document
                 frequencies, default to tabulation.
             n (int): the length for ngrams, defaults to 3.
-            extension (str): file extension for input documents, defaults to
-                xml.
     """
 
-    logging.info('computing document frequency from '+input_dir)
-
     # document frequency container
-    df = defaultdict(set)
+    frequencies = defaultdict(set)
+
+    # initialize number of documents
+    nb_documents = 0
 
     # loop throught the documents
     for input_file in glob.glob(input_dir+'/*.'+extension):
 
-        logging.info('reading file '+input_file)
-
+        # initialize load file object
         doc = LoadFile(input_file)
 
-        if format == "corenlp":
-            doc.read_corenlp_document(use_lemmas=use_lemmas, stemmer=stemmer)
-        elif format == "pre":
-            doc.read_preprocessed_document(stemmer=stemmer)
-        elif format == "raw":
-            doc.read_raw_document(stemmer=stemmer)
+        # read the input file
+        doc.read_document(format=format,
+                          use_lemmas=use_lemmas,
+                          stemmer=stemmer,
+                          sep='/')
 
-        for i, sentence in enumerate(doc.sentences):
+        # loop through sentences
+        for sentence in doc.sentences:
 
             skip = min(n, sentence.length)
             lowercase_words = [u.lower() for u in sentence.words]
@@ -108,14 +110,20 @@ def compute_document_frequency(input_dir,
                         continue
 
                     ngram = ' '.join(sentence.stems[j:k]).lower()
-                    df[ngram].add(input_file)
+                    frequencies[ngram].add(input_file)
 
-    logging.info('writing document frequencies to '+output_file)
+        nb_documents += 1
 
     # Dump the df container
     with gzip.open(output_file, 'w') as f:
-        for ngram in df:
-            f.write((ngram).encode('utf-8')+delimiter+str(len(df[ngram]))+'\n')
+
+        # add the number of documents as special token
+        f.write('--NB_DOC--'+delimiter+str(nb_documents)+'\n')
+
+        for ngram in frequencies:
+            f.write((ngram).encode('utf-8') + delimiter +
+                    str(len(frequencies[ngram])) + '\n')
+
 
 
 def train_supervised_model(input_dir,
@@ -130,8 +138,7 @@ def train_supervised_model(input_dir,
                            extension="xml",
                            sep_doc_id=':',
                            sep_ref_keyphrases=',',
-                           reference_stemming=False,
-                           dblp_candidates=None):
+                           reference_stemming=False):
     """ Build a supervised keyphrase extraction model from a set of documents
         and a reference file.
 
@@ -153,8 +160,6 @@ def train_supervised_model(input_dir,
                 defaults to ':'.
             sep_ref_keyphrases (str): the separator used for keyphrases in
                 reference file, defaults to ','.
-            dblp_candidates (list): valid candidates according to the list of
-                candidates extracted from the dblp titles.
     """
 
     logging.info('building model '+str(model)+' from '+input_dir)
@@ -168,9 +173,6 @@ def train_supervised_model(input_dir,
     training_classes = []
     files = glob.glob(input_dir+'/*.'+extension)
 
-    # number of files for IDF computation
-    N = len(files)-1
-
     # get the input files from the input directory
     for input_file in files:
 
@@ -181,23 +183,16 @@ def train_supervised_model(input_dir,
 
         doc_id = input_file.split('/')[-1].split('.')[0]
 
-        # input file format
-        if format == "corenlp":
-            model.read_corenlp_document(use_lemmas=use_lemmas, stemmer=stemmer)
-        elif format == "pre":
-            model.read_preprocessed_document(stemmer=stemmer)
-        elif format == "raw":
-            doc.read_raw_document(stemmer=stemmer)
+        model.read_document(format=format,
+                            use_lemmas=use_lemmas,
+                            stemmer=stemmer,
+                            sep='/')
 
         # select candidates using default method
-        if dblp_candidates is not None:
-            model.candidate_selection(dblp_candidates=dblp_candidates)
-            N = 5082856
-        else:
-            model.candidate_selection()
+        model.candidate_selection()
 
         # extract features
-        model.feature_extraction(df=df, N=N, training=True)
+        model.feature_extraction(df=df, training=True)
 
         # annotate the reference keyphrases in the instances
         for candidate in model.instances:
@@ -241,9 +236,3 @@ def load_references(input_file,
                     references[doc_id][i] = ' '.join(stems)
 
     return references
-
-
-
-
-
-

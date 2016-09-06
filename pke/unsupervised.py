@@ -2,6 +2,8 @@
 
 """ Unsupervised keyphrase extraction models. """
 
+from __future__ import division
+
 import string
 import networkx as nx
 import numpy as np
@@ -32,14 +34,16 @@ class TfIdf(LoadFile):
                                   '-rsb-'])
 
 
-    def candidate_weighting(self, df=None, N=144):
+    def candidate_weighting(self, df=None):
         """ Candidate weighting function using document frequencies.
 
             Args:
-                df (dict): document frequencies.
-                N (int): the number of documents for computing IDF, defaults to
-                    144 as in the SemEval dataset.
+                df (dict): document frequencies, the number of documents should
+                    be specified using the "--NB_DOC--" key.
         """
+
+        # initialize the number of documents as --NB_DOC-- + 1 (current)
+        N = 1 + df.get('--NB_DOC--', 0)
 
         # loop throught the candidates
         for k, v in self.candidates.items():
@@ -48,7 +52,7 @@ class TfIdf(LoadFile):
             candidate_df = 1 + df.get(k, 0)
 
             # compute the idf score
-            idf = math.log(float(N+1) / float(candidate_df), 2)
+            idf = math.log(N / candidate_df, 2)
 
             # add the idf score to the weights container
             self.weights[k] = len(v.surface_forms) * idf
@@ -94,7 +98,7 @@ class KPMiner(LoadFile):
                 del self.candidates[k]
 
 
-    def candidate_weighting(self, df=None, N=144, sigma=3.0, alpha=2.3):
+    def candidate_weighting(self, df=None, sigma=3.0, alpha=2.3):
         """ Candidate weight calculation as described in the KP-Miner paper.
 
             w = tf * idf * B * P_f
@@ -106,9 +110,8 @@ class KPMiner(LoadFile):
                 P_f = 1
 
             Args:
-                df (dict): document frequencies.
-                N (int): the number of documents for computing IDF, defaults to
-                    144 as in the SemEval dataset.
+                df (dict): document frequencies, the number of documents should
+                    be specified using the "--NB_DOC--" key.
                 sigma (int): parameter for boosting factor, defaults to 3.0.
                 alpha (int): parameter for boosting factor, defaults to 2.3.
         """
@@ -116,6 +119,9 @@ class KPMiner(LoadFile):
         # handle empty df dictionary
         if df is None:
             df = {}
+
+        # initialize the number of documents as --NB_DOC-- + 1 (current)
+        N = 1 + df.get('--NB_DOC--', 0)
 
         # compute the number of candidates whose length exceeds one
         P_d = sum([len(v.surface_forms) for v in self.candidates.values()
@@ -138,7 +144,7 @@ class KPMiner(LoadFile):
                 candidate_df += df.get(k, 0)
 
             # compute the idf score
-            idf = math.log(float(N+1) / float(candidate_df), 2)
+            idf = math.log(N / candidate_df, 2)
 
             self.weights[k] = len(v.surface_forms) * B * idf
 

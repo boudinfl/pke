@@ -2,6 +2,8 @@
 
 """ Supervised keyphrase extraction models. """
 
+from __future__ import division
+
 import re
 import math
 import string
@@ -101,17 +103,21 @@ class Kea(SupervisedLoadFile):
                 del self.candidates[k]
 
 
-    def feature_extraction(self, df=None, N=144, training=False):
+    def feature_extraction(self, df=None, training=False):
         """ Extract features (tf*idf, first occurrence and length) for each
             candidate.
 
             Args:
-                df (dict): document frequencies.
-                N (int): the number of documents for computing IDF, defaults to
-                    144 as in the SemEval dataset.
+                df (dict): document frequencies, the number of documents should
+                    be specified using the "--NB_DOC--" key.
                 training (bool): indicates whether features are computed for the
                     training set for computing IDF weights, defaults to false.
         """
+
+        # initialize the number of documents as --NB_DOC--
+        N = df.get('--NB_DOC--', 0) + 1
+        if training:
+            N -= 1
 
         # find the maximum offset
         maximum_offset = float(sum([s.length for s in self.sentences]))
@@ -122,17 +128,17 @@ class Kea(SupervisedLoadFile):
             candidate_df = 1 + df.get(k, 0)
 
             # hack for handling training documents
-            if training and candidate_df != 1:
+            if training and candidate_df > 1:
                 candidate_df -= 1
 
             # compute the tf*idf of the candidate
-            idf = math.log(float(N+1) / float(candidate_df), 2)
+            idf = math.log(N / candidate_df, 2)
 
             # add the features to the instance container
             self.instances[k] = np.array([len(v.surface_forms) * idf,
                                           v.offsets[0]/maximum_offset])
 
-        # scale features
+        # # scale features
         # self.feature_scaling()
 
 
@@ -209,17 +215,12 @@ class WINGNUS(SupervisedLoadFile):
                                                    in valid_surface_forms]
 
 
-    def feature_extraction(self,
-                           df=None,
-                           N=144,
-                           training=False,
-                           features_set=None):
+    def feature_extraction(self, df=None, training=False, features_set=None):
         """ Extract features for each candidate.
 
             Args:
-                df (dict): document frequencies.
-                N (int): the number of documents for computing IDF, defaults to
-                    144 as in the SemEval dataset.
+                df (dict): document frequencies, the number of documents should
+                    be specified using the "--NB_DOC--" key.
                 training (bool): indicates whether features are computed for the
                     training set for computing IDF weights, defaults to false.
                 features_set (list): the set of features to use, defaults to
@@ -229,6 +230,11 @@ class WINGNUS(SupervisedLoadFile):
         # define the default features_set
         if features_set is None:
             features_set = [1, 4, 6]
+
+        # initialize the number of documents as --NB_DOC--
+        N = df.get('--NB_DOC--', 0) + 1
+        if training:
+            N -= 1
 
         # find the maximum offset
         maximum_offset = float(sum([s.length for s in self.sentences]))
@@ -242,11 +248,11 @@ class WINGNUS(SupervisedLoadFile):
             candidate_df = 1 + df.get(k, 0)
 
             # hack for handling training documents
-            if training and candidate_df != 1:
+            if training and candidate_df > 1:
                 candidate_df -= 1
 
             # compute the tf*idf of the candidate
-            idf = math.log(float(N+1) / float(candidate_df), 2)
+            idf = math.log(N / candidate_df, 2)
 
             # [F1] TF*IDF
             feature_array.append(len(v.surface_forms) * idf)
@@ -298,8 +304,8 @@ class WINGNUS(SupervisedLoadFile):
             feature_array.append(0)
 
             # extract information from candidate meta information
-            sections = [u['section'] for u in v.meta]
-            types = [u['type'] for u in v.meta]
+            sections = [u['section'] for u in v.meta if u.has_key('section')]
+            types = [u['type'] for u in v.meta if u.has_key('type')]
 
             # [F8] -> Is in title
             feature_array.append('title' in sections)
@@ -463,20 +469,21 @@ class SEERLAB(SupervisedLoadFile):
                 j += 1
 
 
-    def feature_extraction(self, df=None, N=144, training=False):
+    def feature_extraction(self, df=None, training=False):
         """ Extract features (tf*idf, first occurrence and length) for each
             candidate.
 
             Args:
-                df (dict): document frequencies.
-                N (int): the number of documents for computing IDF, defaults to
-                    144 as in the SemEval dataset.
+                df (dict): document frequencies, the number of documents should
+                    be specified using the "--NB_DOC--" key.
                 training (bool): indicates whether features are computed for the
                     training set for computing IDF weights, defaults to false.
         """
 
-        # find the maximum offset
-        # maximum_offset = float(sum([s.length for s in self.sentences]))
+        # initialize the number of documents as --NB_DOC--
+        N = df.get('--NB_DOC--', 0) + 1
+        if training:
+            N -= 1
 
         for k, v in self.candidates.iteritems():
 
@@ -488,7 +495,7 @@ class SEERLAB(SupervisedLoadFile):
                 candidate_df -= 1
 
             # compute the tf*idf of the candidate
-            idf = math.log(float(N+1) / float(candidate_df), 2)
+            idf = math.log(N / candidate_df, 2)
 
             # test if candidate is an acronym
             is_acronym = 0
