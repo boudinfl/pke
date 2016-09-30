@@ -7,7 +7,6 @@ import codecs
 import argparse
 import logging
 
-sys.path.append(os.environ['PATH_CODE'])
 import pke
 
 if __name__ == "__main__":
@@ -93,16 +92,4 @@ if __name__ == "__main__":
 
     with codecs.open(args.output, 'w', 'utf-8') as f:
         f.write(u'\n'.join([u+'\t'+str(v) for u, v in keyphrases]))
-
-
-
-
-
-
-
-
-
-
-
-
             

@@ -1,6 +1,19 @@
-# pke - python keyphrase extraction
+# `pke` - python keyphrase extraction
 
-pke currently implements the following keyphrase extraction models:
+`pke` is an open source python-based keyphrase extraction toolkit. It provides
+an end-to-end keyphrase extraction pipeline in which each component can be
+easily modified or extented to develop new approaches. `pke` also allows for 
+easy benchmarking of state-of-the-art keyphrase extraction approaches, and 
+ships with supervised models trained on the
+[SemEval-2010 dataset](http://aclweb.org/anthology/S10-1004).
+
+If you use this toolkit, please cite:
+
+ - **`pke`: an open source python-based keyphrase extraction toolkit.** Florian
+   Boudin. *International Conference on Computational Linguistics (COLING), 
+   demonstration papers, 2016.*
+
+`pke` currently implements the following keyphrase extraction models:
 
 - Unsupervised models
   - SingleRank [(Xiaojun and Jianguo, 2008)][1]
@@ -40,7 +53,7 @@ Three input formats are currently supported:
     by specified by incorporating attributes into the sentence elements of the
     CoreNLP XML format.
 
-Detailed examples of input formats are provided in the examples/ directory.
+Detailed examples of input formats are provided in the `examples/` directory.
 
 Default language in pke is English and default candidate selection methods are
 based on the PTB tagset.
@@ -49,6 +62,8 @@ based on the PTB tagset.
 
 All the unsupervised models can be used by typing the 5 lines below. For using
 another model, simply replace TopicRank with SingleRank, KPMiner, TfIdf, etc.
+A complete documented example is described in [`keyphrase-extraction.py`][7]
+within the `examples/` directory.
 
     import pke
 
@@ -56,7 +71,7 @@ another model, simply replace TopicRank with SingleRank, KPMiner, TfIdf, etc.
     extractor = pke.TopicRank(input_file='/path/to/input')
 
     # load the content of the document, preprocessing is carried out using nltk
-    extractor.read_raw_document()
+    extractor.read_document(format='raw')
 
     # keyphrase candidate selection, here sequences of nouns and adjectives
     extractor.candidate_selection()
@@ -76,16 +91,16 @@ another model, simply replace TopicRank with SingleRank, KPMiner, TfIdf, etc.
     extractor = pke.Kea(input_file='/path/to/input')
 
     # load the Document Frequency (DF) weights file
-    df = pke.load_document_frequency_file(input_file='/path/to/file')
+    df_counts = pke.load_document_frequency_file(input_file='/path/to/file')
 
     # load the content of the document, preprocessing is carried out using nltk
-    extractor.read_raw_document()
+    extractor.read_document(format='raw')
 
     # candidate selection, here 1-3-grams that do not begin/end with a stopword
     extractor.candidate_selection()
 
     # feature extraction, here TF*IDF and relative position of first occurrence
-    extractor.feature_extraction(df=df)
+    extractor.feature_extraction(df=df_counts)
 
     # candidate classification, here using a Naïve Bayes classifier
     extractor.classify_candidates(model='/path/to/model/file')
@@ -152,3 +167,4 @@ Here is a minimal example for training a new Kea model:
 [4]: https://www.cl.cam.ac.uk/archive/ksj21/ksjdigipapers/jdoc72.pdf
 [5]: http://arxiv.org/ftp/cs/papers/9902/9902007.pdf
 [6]: http://aclweb.org/anthology/S10-1035.pdf
+[7]: https://github.com/boudinfl/pke/blob/master/examples/keyphrase-extraction.py
