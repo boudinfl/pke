@@ -2,6 +2,8 @@
 
 """ Unsupervised keyphrase extraction models. """
 
+from __future__ import division
+
 import string
 import networkx as nx
 import numpy as np
@@ -32,14 +34,16 @@ class TfIdf(LoadFile):
                                   '-rsb-'])
 
 
-    def candidate_weighting(self, df=None, N=144):
+    def candidate_weighting(self, df=None):
         """ Candidate weighting function using document frequencies.
-        
+
             Args:
-                df (dict): document frequencies.
-                N (int): the number of documents for computing IDF, defaults to
-                    144 as in the SemEval dataset.
+                df (dict): document frequencies, the number of documents should
+                    be specified using the "--NB_DOC--" key.
         """
+
+        # initialize the number of documents as --NB_DOC-- + 1 (current)
+        N = 1 + df.get('--NB_DOC--', 0)
 
         # loop throught the candidates
         for k, v in self.candidates.items():
@@ -48,19 +52,19 @@ class TfIdf(LoadFile):
             candidate_df = 1 + df.get(k, 0)
 
             # compute the idf score
-            idf = math.log(float(N+1) / float(candidate_df), 2)
+            idf = math.log(N / candidate_df, 2)
 
             # add the idf score to the weights container
             self.weights[k] = len(v.surface_forms) * idf
 
 
 class KPMiner(LoadFile):
-    """ KP-Miner keyphrase extraction model. 
+    """ KP-Miner keyphrase extraction model.
 
         This model was published and described in:
 
-          * Samhaa R. El-Beltagy and Ahmed Rafea, KP-Miner: Participation in 
-            SemEval-2, *Proceedings of the 5th International Workshop on 
+          * Samhaa R. El-Beltagy and Ahmed Rafea, KP-Miner: Participation in
+            SemEval-2, *Proceedings of the 5th International Workshop on
             Semantic Evaluation*, pages 190-193, 2010.
     """
 
@@ -94,7 +98,7 @@ class KPMiner(LoadFile):
                 del self.candidates[k]
 
 
-    def candidate_weighting(self, df=None, N=144, sigma=3.0, alpha=2.3):
+    def candidate_weighting(self, df=None, sigma=3.0, alpha=2.3):
         """ Candidate weight calculation as described in the KP-Miner paper.
 
             w = tf * idf * B * P_f
@@ -106,12 +110,18 @@ class KPMiner(LoadFile):
                 P_f = 1
 
             Args:
-                df (dict): document frequencies.
-                N (int): the number of documents for computing IDF, defaults to
-                    144 as in the SemEval dataset.
+                df (dict): document frequencies, the number of documents should
+                    be specified using the "--NB_DOC--" key.
                 sigma (int): parameter for boosting factor, defaults to 3.0.
                 alpha (int): parameter for boosting factor, defaults to 2.3.
         """
+
+        # handle empty df dictionary
+        if df is None:
+            df = {}
+
+        # initialize the number of documents as --NB_DOC-- + 1 (current)
+        N = 1 + df.get('--NB_DOC--', 0)
 
         # compute the number of candidates whose length exceeds one
         P_d = sum([len(v.surface_forms) for v in self.candidates.values()
@@ -134,7 +144,7 @@ class KPMiner(LoadFile):
                 candidate_df += df.get(k, 0)
 
             # compute the idf score
-            idf = math.log(float(N+1) / float(candidate_df), 2)
+            idf = math.log(N / candidate_df, 2)
 
             self.weights[k] = len(v.surface_forms) * B * idf
 
@@ -144,9 +154,9 @@ class SingleRank(LoadFile):
 
         This model was published and described in:
 
-          * Xiaojun Wan and Jianguo Xiao, CollabRank: Towards a Collaborative 
-            Approach to Single-Document Keyphrase Extraction, *Proceedings of 
-            the 22nd International Conference on Computational Linguistics 
+          * Xiaojun Wan and Jianguo Xiao, CollabRank: Towards a Collaborative
+            Approach to Single-Document Keyphrase Extraction, *Proceedings of
+            the 22nd International Conference on Computational Linguistics
             (Coling 2008)*, pages 969-976, 2008.
     """
 
@@ -160,17 +170,20 @@ class SingleRank(LoadFile):
         """ The word graph. """
 
 
-    def build_word_graph(self,
-                         window=10,
-                         pos=set(['NN', 'NNS', 'NNP', 'NNPS'])):
+    def build_word_graph(self, window=10, pos=None):
         """ Build the word graph from the document.
 
             Args:
                 window (int): the window within the sentence for connecting two
                     words in the graph, defaults to 10.
                 pos (set): the set of valid pos for words to be considered as
-                    nodes in the graph, defaults to (NN, NNS, NNP, NNPS).
+                    nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
+                    JJR, JJS).
         """
+
+        # define default pos tags set
+        if pos is None:
+            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
 
         # loop through the sentences to build the graph
         for sentence in self.sentences:
@@ -189,17 +202,20 @@ class SingleRank(LoadFile):
                     self.graph[node_1][node_2]['weight'] += 1.0
 
 
-    def candidate_selection(self, pos=['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR',
-                                       'JJS']):
+    def candidate_selection(self, pos=None):
         """ The candidate selection as described in the SingleRank paper.
 
             Args:
-                pos (list): the set of valid POS tags, defaults to (NN, NNS,
+                pos (set): the set of valid POS tags, defaults to (NN, NNS,
                     NNP, NNPS, JJ, JJR, JJS).
         """
 
+        # define default pos tags set
+        if pos is None:
+            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+
         # select sequence of adjectives and nouns
-        self.longest_pos_sequence_selection(valid_pos=set(pos))
+        self.longest_pos_sequence_selection(valid_pos=pos)
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=stopwords.words(self.language) +
@@ -208,22 +224,23 @@ class SingleRank(LoadFile):
                                   '-rsb-'])
 
 
-    def candidate_weighting(self,
-                            window=10,
-                            pos=['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR',
-                                 'JJS']):
+    def candidate_weighting(self, window=10, pos=None):
         """ Candidate weight calculation using random walk.
 
             Args:
                 window (int): the window within the sentence for connecting two
                     words in the graph, defaults to 10.
-                pos (list): the set of valid pos for words to be considered as
+                pos (set): the set of valid pos for words to be considered as
                     nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
                     JJR, JJS).
         """
 
+        # define default pos tags set
+        if pos is None:
+            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+
         # build the word graph
-        self.build_word_graph(window=window, pos=set(pos))
+        self.build_word_graph(window=window, pos=pos)
 
         # compute the word scores using random walk
         w = nx.pagerank_scipy(self.graph)
@@ -235,11 +252,11 @@ class SingleRank(LoadFile):
 
 
 class TopicRank(LoadFile):
-    """ The TopicRank keyphrase extraction model. 
+    """ The TopicRank keyphrase extraction model.
 
         This model was published and described in:
 
-          * Adrien Bougouin, Florian Boudin and Béatrice Daille, TopicRank: 
+          * Adrien Bougouin, Florian Boudin and Béatrice Daille, TopicRank:
             Graph-Based Topic Ranking for Keyphrase Extraction, *Proceedings of
             the Sixth International Joint Conference on Natural Language
             Processing*, pages 543-551, 2013.
@@ -258,17 +275,20 @@ class TopicRank(LoadFile):
         """ The topic container. """
 
 
-    def candidate_selection(self, pos=['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR',
-                                       'JJS']):
+    def candidate_selection(self, pos=None):
         """ The candidate selection as described in the TopicRank paper.
 
             Args:
-                pos (list): the set of valid POS tags, defaults to (NN, NNS,
+                pos (set): the set of valid POS tags, defaults to (NN, NNS,
                     NNP, NNPS, JJ, JJR, JJS).
         """
 
+        # define default pos tags set
+        if pos is None:
+            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+
         # select sequence of adjectives and nouns
-        self.longest_pos_sequence_selection(valid_pos=set(pos))
+        self.longest_pos_sequence_selection(valid_pos=pos)
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=stopwords.words(self.language) +
@@ -306,8 +326,8 @@ class TopicRank(LoadFile):
         """ Clustering candidates into topics.
 
             Args:
-                threshold (int): the minimum similarity for clustering, defaults
-                    to 0.25.
+                threshold (float): the minimum similarity for clustering,
+                    defaults to 0.25.
                 method (str): the linkage method, defaults to average.
         """
 
@@ -349,13 +369,13 @@ class TopicRank(LoadFile):
         """ Candidate weight calculation using random walk.
 
             Args:
-                threshold (int): the minimum similarity for clustering, defaults
-                    to 0.25.
+                threshold (float): the minimum similarity for clustering,
+                    defaults to 0.25.
                 method (str): the linkage method, defaults to average.
         """
 
         # cluster the candidates
-        self.topic_clustering()
+        self.topic_clustering(threshold=threshold, method=method)
 
         # build the topic graph
         self.build_topic_graph()
