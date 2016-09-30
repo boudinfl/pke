@@ -47,9 +47,9 @@ To install this module:
 Three input formats are currently supported:
   - raw text (`format='raw'`): text preprocessing (i.e. tokenization, sentence
     splitting and POS-tagging) is carried out using nltk.
-  - preprocessed text (format='preprocessed'): whitespace-separated POS-tagged
+  - preprocessed text (`format='preprocessed'`): whitespace-separated POS-tagged
     tokens, one sentence per line.
-  - Stanford XML CoreNLP (format='corenlp'): output file produced using the
+  - Stanford XML CoreNLP (`format='corenlp'`): output file produced using the
     annotators tokenize, ssplit, pos and lemma. Document logical structure
     information can by specified by incorporating attributes into the sentence
     elements of the CoreNLP XML format.
@@ -163,6 +163,9 @@ a file:
     complex question  1
     [...]
 
+A documented example is described in [`compute-df-counts.py`][9] within the
+`examples/` directory.
+
 ### Training supervised models
 
 Here is a minimal example for training a new Kea model:
@@ -179,6 +182,9 @@ Here is a minimal example for training a new Kea model:
                                df=df,
                                model=pke.Kea())
 
+A documented example is described in [`train-model.py`][10] within the
+`examples/` directory.
+
 
 [1]: http://aclweb.org/anthology/C08-1122.pdf
 [2]: http://aclweb.org/anthology/I13-1062.pdf
@@ -188,3 +194,6 @@ Here is a minimal example for training a new Kea model:
 [6]: http://aclweb.org/anthology/S10-1035.pdf
 [7]: https://github.com/boudinfl/pke/blob/master/examples/keyphrase-extraction.py
 [8]: http://aclweb.org/anthology/S10-1004.pdf
+[9]: https://github.com/boudinfl/pke/blob/master/examples/compute-df-counts.py
+[10]: https://github.com/boudinfl/pke/blob/master/examples/train-model.py
+
