@@ -3,4 +3,4 @@ examples/C-1.txt
 
 .DS_Store
 
-docs/build/html/*
+#docs/build/html/*
