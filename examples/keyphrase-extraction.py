@@ -28,13 +28,3 @@ extractor.candidate_weighting(threshold=0.25,
 
 # print the n-highest (10) scored candidates
 print (';'.join([u for u, v in extractor.get_n_best(n=10)])).encode('utf-8')
-
-
-
-
-
-
-
-
-
-            
