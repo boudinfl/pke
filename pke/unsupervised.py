@@ -326,8 +326,8 @@ class TopicRank(LoadFile):
         """ Clustering candidates into topics.
 
             Args:
-                threshold (int): the minimum similarity for clustering, defaults
-                    to 0.25.
+                threshold (float): the minimum similarity for clustering,
+                    defaults to 0.25.
                 method (str): the linkage method, defaults to average.
         """
 
@@ -369,8 +369,8 @@ class TopicRank(LoadFile):
         """ Candidate weight calculation using random walk.
 
             Args:
-                threshold (int): the minimum similarity for clustering, defaults
-                    to 0.25.
+                threshold (float): the minimum similarity for clustering,
+                    defaults to 0.25.
                 method (str): the linkage method, defaults to average.
         """
 
