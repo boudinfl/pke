@@ -4,26 +4,13 @@
 an end-to-end keyphrase extraction pipeline in which each component can be
 easily modified or extented to develop new approaches. `pke` also allows for 
 easy benchmarking of state-of-the-art keyphrase extraction approaches, and 
-ships with supervised models trained on the
-[SemEval-2010 dataset](http://aclweb.org/anthology/S10-1004).
+ships with supervised models trained on the [SemEval-2010 dataset][8].
 
 If you use this toolkit, please cite:
 
  - **`pke`: an open source python-based keyphrase extraction toolkit.** Florian
    Boudin. *International Conference on Computational Linguistics (COLING), 
    demonstration papers, 2016.*
-
-`pke` currently implements the following keyphrase extraction models:
-
-- Unsupervised models
-  - SingleRank [(Xiaojun and Jianguo, 2008)][1]
-  - TopicRank [(Bougouin et al., 2013)][2]
-  - KP-Miner [(El-Beltagy and Rafea, 2010)][3]
-  - TF*IDF [(Spärck Jones, 1972)][4]
-
-- Supervised models
-  - Kea [(Witten et al., 1999)][5]
-  - WINGNUS [(Nguyen and Luong, 2010)][6]
 
 ## Requirements
 
@@ -39,19 +26,33 @@ To install this module:
 
     pip install git+https://github.com/boudinfl/pke.git
 
+## Implemented models
+
+`pke` currently implements the following keyphrase extraction models:
+
+- Unsupervised models
+  - SingleRank [(Xiaojun and Jianguo, 2008)][1]
+  - TopicRank [(Bougouin et al., 2013)][2]
+  - KP-Miner [(El-Beltagy and Rafea, 2010)][3]
+  - TF*IDF [(Spärck Jones, 1972)][4]
+
+- Supervised models
+  - Kea [(Witten et al., 1999)][5]
+  - WINGNUS [(Nguyen and Luong, 2010)][6]
+
 ## Usage
 
 ### Input formats
 
 Three input formats are currently supported:
-  - raw text: text preprocessing (i.e. tokenization, sentence splitting and
-    POS-tagging) is carried out using nltk.
-  - preprocessed text: whitespace-separated POS-tagged tokens, one sentence per
-    line.
-  - Stanford XML CoreNLP format: output file produced using the annotators
-    tokenize, ssplit, pos and lemma. Document logical structure information can
-    by specified by incorporating attributes into the sentence elements of the
-    CoreNLP XML format.
+  - raw text (`format='raw'`): text preprocessing (i.e. tokenization, sentence
+    splitting and POS-tagging) is carried out using nltk.
+  - preprocessed text (format='preprocessed'): whitespace-separated POS-tagged
+    tokens, one sentence per line.
+  - Stanford XML CoreNLP (format='corenlp'): output file produced using the
+    annotators tokenize, ssplit, pos and lemma. Document logical structure
+    information can by specified by incorporating attributes into the sentence
+    elements of the CoreNLP XML format.
 
 Detailed examples of input formats are provided in the `examples/` directory.
 
@@ -110,19 +111,26 @@ within the `examples/` directory.
 
 ### Provided supervised models and Document Frequency (DF) counts
 
-The models/ directory contains already trained models for Kea and WINGNUS as
-well as DF counts computed on the SemEval-2010 benchmark dataset.
+The `models/` directory contains already trained models for Kea and WINGNUS as
+well as DF counts computed on the [SemEval-2010 benchmark dataset][8].
 
 ### Using pke as a command line tool
 
-A command line tool (cmd_pke.py) is also provided and allows users to perform 
-keyphrase extraction without any knowledge of the Python programming language.
+A command line tool (`cmd_pke.py`) is also provided and allows users to perform 
+keyphrase extraction without any knowledge of the Python programming language. A
+minimal example of use is given below:
 
-### Computing Document Frequency (DF) weights (required for some models)
+    python cmd_pke.py -i /path/to/input -f raw -o /path/to/output -a TopicRank
+
+Here, unsupervised keyphrase extraction using TopicRank is performed on a raw
+text input file, and the top ranked keyphrase candidates are outputted into a
+file.
+
+### Computing Document Frequency (DF) counts (required for some models)
 
 Before using some keyphrase extraction algorithms (i.e. TfIdf, KP-Miner, Kea,
-WINGNUS), one need to compute DF weights from a collection of documents. Such
-weights can be computed as:
+WINGNUS), one need to compute DF counts from a collection of documents. Such
+counts can be computed as:
 
     from pke import compute_document_frequency
     from string import punctuation
@@ -130,10 +138,10 @@ weights can be computed as:
     # path to the collection of documents
     input_dir = '/path/to/input/documents'
 
-    # path to the DF weights dictionary, saved as a gzip tab separated values
+    # path to the DF counts dictionary, saved as a gzip tab separated values
     output_file = '/path/to/output/'
 
-    # compute df weights and store stem -> weight values
+    # compute df counts and store stem -> weight values
     compute_document_frequency(input_dir=input_dir,
                                output_file=output_file,
                                format="corenlp",            # input files format
@@ -143,6 +151,17 @@ weights can be computed as:
                                delimiter='\t',            # tab separated output
                                extension='xml',          # input files extension
                                n=5)              # compute n-grams up to 5-grams
+
+DF counts are stored as a ngram tab count file. The number of documents in the
+collection, used to compute Inverse Document Frequency (IDF) weigths, is stored
+as an extra line --NB_DOC-- tab number_of_documents. Below is an example of such
+a file:
+
+    --NB_DOC--  100
+    greedi alloc  1
+    sinc trial structur 1
+    complex question  1
+    [...]
 
 ### Training supervised models
 
@@ -168,3 +187,4 @@ Here is a minimal example for training a new Kea model:
 [5]: http://arxiv.org/ftp/cs/papers/9902/9902007.pdf
 [6]: http://aclweb.org/anthology/S10-1035.pdf
 [7]: https://github.com/boudinfl/pke/blob/master/examples/keyphrase-extraction.py
+[8]: http://aclweb.org/anthology/S10-1004.pdf
