@@ -1,0 +1,5 @@
+nltk
+networkx
+numpy
+scipy
+sklearn
