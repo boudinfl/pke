@@ -26,6 +26,10 @@ To install this module:
 
     pip install git+https://github.com/boudinfl/pke.git
 
+## Documentation
+
+Documentation is available from [pke.readthedocs.io](pke.readthedocs.io)
+
 ## Implemented models
 
 `pke` currently implements the following keyphrase extraction models:
