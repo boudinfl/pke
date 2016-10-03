@@ -375,7 +375,7 @@ class LoadFile(object):
         """ Filter the candidates containing strings from the stoplist. Only
             keep the candidates containing alpha-numeric characters and those
             length exceeds a given number of characters.
-
+            
             Args:
                 stoplist (list): list of strings, defaults to None.
                 mininum_length (int): minimum number of characters for a

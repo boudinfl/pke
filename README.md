@@ -28,7 +28,7 @@ To install this module:
 
 ## Documentation
 
-Documentation is available from [pke.readthedocs.io](pke.readthedocs.io)
+Documentation is available from [pke.readthedocs.io](https://pke.readthedocs.io)
 
 ## Implemented models
 

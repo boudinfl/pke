@@ -3,9 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-###############################
 Welcome to pke's documentation!
-###############################
+===============================
 
 `pke` is an open source python-based keyphrase extraction toolkit. It provides
 an end-to-end keyphrase extraction pipeline in which each component can be
@@ -18,56 +17,38 @@ ships with supervised models trained on the SemEval-2010 dataset.
 
 .. automodule:: pke
 
-************
 Base classes
-************
+------------
 
-LoadFile
-========
+.. automodule:: pke.base
+   :members:
 
-.. autoclass:: LoadFile
-	:members:
+Unsupervised models
+-------------------
 
-Sentence
-========
+.. automodule:: pke.unsupervised
+   :members:
 
-.. autoclass:: Sentence
-	:members:
+Supervised models
+-----------------
 
-Candidate
-=========
+.. automodule:: pke.supervised
+   :members:
 
-.. autoclass:: Candidate
-	:members:
-
-**************
 Reader classes
-**************
+--------------
 
-MinimalCoreNLPParser
-====================
+.. automodule:: pke.readers
+   :members:
 
-.. autoclass:: MinimalCoreNLPParser
-	:members:
+Useful functions
+----------------
 
-PreProcessedTextReader
-====================
+.. automodule:: pke.utils
+   :members:
 
-.. autoclass:: PreProcessedTextReader
-	:members:
-
-RawTextReader
-====================
-
-.. autoclass:: RawTextReader
-	:members:
-
-
-
-
-******************
 Indices and tables
-******************
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
