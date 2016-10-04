@@ -224,7 +224,7 @@ class SingleRank(LoadFile):
                                   '-rsb-'])
 
 
-    def candidate_weighting(self, window=10, pos=None):
+    def candidate_weighting(self, window=10, pos=None, normalized=False):
         """ Candidate weight calculation using random walk.
 
             Args:
@@ -233,6 +233,8 @@ class SingleRank(LoadFile):
                 pos (set): the set of valid pos for words to be considered as
                     nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
                     JJR, JJS).
+                normalized (False): normalize keyphrase score by their length,
+                    defaults to False
         """
 
         # define default pos tags set
@@ -248,7 +250,9 @@ class SingleRank(LoadFile):
         # loop throught the candidates
         for k in self.candidates.keys():
             tokens = self.candidates[k].lexical_form
-            self.weights[k] = sum([w[t] for t in tokens]) / len(tokens)
+            self.weights[k] = sum([w[t] for t in tokens])
+            if normalized:
+                self.weights[k] /= len(tokens)
 
 
 class TopicRank(LoadFile):
