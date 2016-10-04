@@ -204,12 +204,14 @@ class SingleRank(LoadFile):
                     self.graph[node_1[0]][node_2[0]]['weight'] += 1.0
 
 
-    def candidate_selection(self, pos=None):
+    def candidate_selection(self, pos=None, maximum_length=5):
         """ The candidate selection as described in the SingleRank paper.
 
             Args:
                 pos (set): the set of valid POS tags, defaults to (NN, NNS,
                     NNP, NNPS, JJ, JJR, JJS).
+                maximum_length (int): maximum length in words of the candidates,
+                    defaults to 5.
         """
 
         # define default pos tags set
@@ -224,6 +226,13 @@ class SingleRank(LoadFile):
                                  list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
+
+        # further filter long candidates
+        for k, v in self.candidates.items():
+
+            # delete if candidate is longer than maximum_length
+            if len(v.lexical_form) > maximum_length:
+                del self.candidates[k]
 
 
     def candidate_weighting(self, window=10, pos=None, normalized=False):
@@ -281,12 +290,14 @@ class TopicRank(LoadFile):
         """ The topic container. """
 
 
-    def candidate_selection(self, pos=None):
-        """ The candidate selection as described in the TopicRank paper.
+    def candidate_selection(self, pos=None, maximum_length=5):
+        """ The candidate selection as described in the SingleRank paper.
 
             Args:
                 pos (set): the set of valid POS tags, defaults to (NN, NNS,
                     NNP, NNPS, JJ, JJR, JJS).
+                maximum_length (int): maximum length in words of the candidates,
+                    defaults to 5.
         """
 
         # define default pos tags set
@@ -301,6 +312,13 @@ class TopicRank(LoadFile):
                                  list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
+
+        # further filter long candidates
+        for k, v in self.candidates.items():
+
+            # delete if candidate is longer than maximum_length
+            if len(v.lexical_form) > maximum_length:
+                del self.candidates[k]
 
 
     def vectorize_candidates(self):
