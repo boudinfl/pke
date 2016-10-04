@@ -28,7 +28,7 @@ To install this module:
 
 ## Documentation
 
-For documentation, please visit [pke.readthedocs.io](https://pke.rtfd.io).
+For documentation, please visit [pke.readthedocs.io](http://pke.rtfd.io).
 
 ## Implemented models
 

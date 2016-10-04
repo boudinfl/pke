@@ -185,21 +185,23 @@ class SingleRank(LoadFile):
         if pos is None:
             pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
 
-        # loop through the sentences to build the graph
-        for sentence in self.sentences:
+        # flatten document and initialize nodes 
+        sequence = []
 
-            # add the nodes to the graph
+        for sentence in self.sentences:
             for j, node in enumerate(sentence.stems):
                 if sentence.pos[j] in pos:
                     self.graph.add_node(node)
+                sequence.append((node, sentence.pos[j]))
 
-            # add the edges between the nodes
-            for j, node_1 in enumerate(sentence.stems):
-                for k in range(j+1, min(j+window, sentence.length)):
-                    node_2 = sentence.stems[k]
-                    if not self.graph.has_edge(node_1, node_2):
-                        self.graph.add_edge(node_1, node_2, weight=0)
-                    self.graph[node_1][node_2]['weight'] += 1.0
+        # loop through sequence to build the edges in the graph
+        for j, node_1 in enumerate(sequence):
+            for k in range(j+1, min(j+window, len(sequence))):
+                node_2 = sequence[k]
+                if node_1[1] in pos and node_2[1] in pos:
+                    if not self.graph.has_edge(node_1[0], node_2[0]):
+                        self.graph.add_edge(node_1[0], node_2[0], weight=0)
+                    self.graph[node_1[0]][node_2[0]]['weight'] += 1.0
 
 
     def candidate_selection(self, pos=None):
