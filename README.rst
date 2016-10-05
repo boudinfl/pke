@@ -223,3 +223,46 @@ Here is a minimal example for training a new Kea model:
 
 A documented example is described in ``train-model.py`` within the
 ``examples/`` directory.
+
+``pke`` for non English languages
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+While the default language in ``pke`` is English, extracting keyphrases from
+documents in other languages is easily achieved by inputting already
+preprocessed documents, and setting the ``language`` parameter to the desired
+language. The only language dependent resource used in ``pke`` is the stoplist
+from ``nltk`` that is available in
+`11 languages <http://www.nltk.org/_modules/nltk/corpus.html>`_.
+
+Given an already preprocessed document (here in French):
+
+::
+
+  France/NPP :/PONCT disparition/NC de/P Thierry/NPP Roland/NPP [...]
+  Le/DET journaliste/NC et/CC commentateur/NC sportif/ADJ Thierry/NPP [...]
+  Commentateur/NC mythique/ADJ des/P+D matchs/NC internationaux/ADJ [...]
+  [...]
+
+Keyphrase extraction can then be performed by:
+
+::
+
+    import pke
+
+    # initialize TopicRank and set the language to French (used during candidate
+    # selection for filtering stopwords)
+    extractor = pke.TopicRank(input_file='/path/to/input', language='French')
+
+    # load the content of the document and perform French stemming (instead of
+    # Porter stemmer)
+    extractor.read_document(format='preprocessed', stemmer='french')
+
+    # keyphrase candidate selection, here sequences of nouns and adjectives
+    # defined by the French POS tags NPP, NC and ADJ
+    extractor.candidate_selection(pos=["NPP", "NC", "ADJ"])
+
+    # candidate weighting, here using a random walk algorithm
+    extractor.candidate_weighting()
+
+    # N-best selection, here the 10 highest scored candidates
+    keyphrases = extractor.get_n_best(n=10)
