@@ -1,18 +1,24 @@
-# `pke` - python keyphrase extraction
+``pke`` - python keyphrase extraction
+=====================================
 
-`pke` is an open source python-based keyphrase extraction toolkit. It provides
+``pke`` is an open source python-based keyphrase extraction toolkit. It provides
 an end-to-end keyphrase extraction pipeline in which each component can be
-easily modified or extented to develop new approaches. `pke` also allows for 
+easily modified or extented to develop new approaches. ``pke`` also allows for 
 easy benchmarking of state-of-the-art keyphrase extraction approaches, and 
-ships with supervised models trained on the [SemEval-2010 dataset][8].
+ships with supervised models trained on the `SemEval-2010 dataset
+<http://aclweb.org/anthology/S10-1004.pdf>`_.
 
 If you use this toolkit, please cite:
 
- - **`pke`: an open source python-based keyphrase extraction toolkit.** Florian
-   Boudin. *International Conference on Computational Linguistics (COLING), 
-   demonstration papers, 2016.*
+* **pke: an open source python-based keyphrase extraction toolkit.** Florian
+  Boudin. *International Conference on Computational Linguistics (COLING), 
+  demonstration papers, 2016.*
 
-## Requirements
+Requirements
+------------
+
+.. code-block:: bash
+    :linenos:
 
     numpy
     scipy
@@ -20,55 +26,72 @@ If you use this toolkit, please cite:
     networkx
     sklearn
 
-## Installation
+Installation
+------------
 
-To install this module:
+To install this module
+
+.. code-block:: bash
+    :linenos:
 
     pip install git+https://github.com/boudinfl/pke.git
 
-## Documentation
+Documentation
+-------------
 
-For documentation, please visit [pke.readthedocs.io](http://pke.rtfd.io).
+For documentation, please visit `pke.readthedocs.io <http://pke.rtfd.io>`_.
 
-## Implemented models
+Implemented models
+------------------
 
-`pke` currently implements the following keyphrase extraction models:
+``pke`` currently implements the following keyphrase extraction models:
 
-- Unsupervised models
-  - SingleRank [(Xiaojun and Jianguo, 2008)][1]
-  - TopicRank [(Bougouin et al., 2013)][2]
-  - KP-Miner [(El-Beltagy and Rafea, 2010)][3]
-  - TF*IDF [(Spärck Jones, 1972)][4]
+* Unsupervised models
 
-- Supervised models
-  - Kea [(Witten et al., 1999)][5]
-  - WINGNUS [(Nguyen and Luong, 2010)][6]
+  - SingleRank `(Xiaojun and Jianguo, 2008) <http://aclweb.org/anthology/C08-1122.pdf>`_
+  - TopicRank `(Bougouin et al., 2013) <http://aclweb.org/anthology/I13-1062.pdf>`_
+  - KP-Miner `(El-Beltagy and Rafea, 2010) <http://aclweb.org/anthology/S10-1041.pdf>`_
+  - TF*IDF `(Spärck Jones, 1972) <https://www.cl.cam.ac.uk/archive/ksj21/ksjdigipapers/jdoc72.pdf>`_
 
-## Usage
+* Supervised models
 
-### Input formats
+  - Kea `(Witten et al., 1999) <http://arxiv.org/ftp/cs/papers/9902/9902007.pdf>`_
+  - WINGNUS `(Nguyen and Luong, 2010) <http://aclweb.org/anthology/S10-1035.pdf>`_
+
+Usage
+-----
+
+Input formats
+~~~~~~~~~~~~~
 
 Three input formats are currently supported:
-  - raw text (`format='raw'`): text preprocessing (i.e. tokenization, sentence
-    splitting and POS-tagging) is carried out using nltk.
-  - preprocessed text (`format='preprocessed'`): whitespace-separated POS-tagged
-    tokens, one sentence per line.
-  - Stanford XML CoreNLP (`format='corenlp'`): output file produced using the
-    annotators tokenize, ssplit, pos and lemma. Document logical structure
-    information can by specified by incorporating attributes into the sentence
-    elements of the CoreNLP XML format.
 
-Detailed examples of input formats are provided in the `examples/` directory.
+* raw text (``format='raw'``): text preprocessing (i.e. tokenization, sentence
+  splitting and POS-tagging) is carried out using nltk.
 
-Default language in pke is English and default candidate selection methods are
-based on the PTB tagset.
+* preprocessed text (``format='preprocessed'``): whitespace-separated
+  POS-tagged tokens, one sentence per line.
 
-### Minimal example: unsupervised keyphrase extraction using TopicRank
+* Stanford XML CoreNLP (``format='corenlp'``): output file produced using the
+  annotators tokenize, ssplit, pos and lemma. Document logical structure
+  information can by specified by incorporating attributes into the sentence
+  elements of the CoreNLP XML format.
+
+Detailed examples of input formats are provided in the ``examples/`` directory.
+
+Default language in ``pke`` is English and default candidate selection methods
+are based on the PTB tagset.
+
+Minimal example: unsupervised keyphrase extraction using TopicRank
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 All the unsupervised models can be used by typing the 5 lines below. For using
 another model, simply replace TopicRank with SingleRank, KPMiner, TfIdf, etc.
-A complete documented example is described in [`keyphrase-extraction.py`][7]
-within the `examples/` directory.
+A complete documented example is described in ``keyphrase-extraction.py``
+within the ``examples/`` directory.
+
+.. code-block:: python
+    :linenos:
 
     import pke
 
@@ -88,7 +111,11 @@ within the `examples/` directory.
     keyphrases = extractor.get_n_best(n=10)
 
 
-### Minimal example: supervised keyphrase extraction using Kea
+Minimal example: supervised keyphrase extraction using Kea
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: python
+    :linenos:
 
     import pke
 
@@ -113,16 +140,21 @@ within the `examples/` directory.
     # N-best selection, here the 10 highest scored candidates
     keyphrases = extractor.get_n_best(n=10)
 
-### Provided supervised models and Document Frequency (DF) counts
+Provided supervised models and Document Frequency (DF) counts
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The `models/` directory contains already trained models for Kea and WINGNUS as
-well as DF counts computed on the [SemEval-2010 benchmark dataset][8].
+The ``models/`` directory contains already trained models for Kea and WINGNUS as
+well as DF counts computed on the SemEval-2010 benchmark dataset.
 
-### Using pke as a command line tool
+Using pke as a command line tool
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A command line tool (`cmd_pke.py`) is also provided and allows users to perform 
-keyphrase extraction without any knowledge of the Python programming language. A
-minimal example of use is given below:
+A command line tool (``cmd_pke.py``) is also provided and allows users to
+perform keyphrase extraction without any knowledge of the Python programming
+language. A minimal example of use is given below:
+
+.. code-block:: bash
+    :linenos:
 
     python cmd_pke.py -i /path/to/input -f raw -o /path/to/output -a TopicRank
 
@@ -130,11 +162,15 @@ Here, unsupervised keyphrase extraction using TopicRank is performed on a raw
 text input file, and the top ranked keyphrase candidates are outputted into a
 file.
 
-### Computing Document Frequency (DF) counts (required for some models)
+Computing Document Frequency (DF) counts (required for some models)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Before using some keyphrase extraction algorithms (i.e. TfIdf, KP-Miner, Kea,
 WINGNUS), one need to compute DF counts from a collection of documents. Such
 counts can be computed as:
+
+.. code-block:: python
+    :linenos:
 
     from pke import compute_document_frequency
     from string import punctuation
@@ -161,18 +197,25 @@ collection, used to compute Inverse Document Frequency (IDF) weigths, is stored
 as an extra line --NB_DOC-- tab number_of_documents. Below is an example of such
 a file:
 
+.. code-block:: python
+    :linenos:
+
     --NB_DOC--  100
     greedi alloc  1
     sinc trial structur 1
     complex question  1
     [...]
 
-A documented example is described in [`compute-df-counts.py`][9] within the
-`examples/` directory.
+A documented example is described in ``compute-df-counts.py`` within the
+``examples/`` directory.
 
-### Training supervised models
+Training supervised models
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Here is a minimal example for training a new Kea model:
+
+.. code-block:: python
+    :linenos:
 
     import pke
 
@@ -186,18 +229,5 @@ Here is a minimal example for training a new Kea model:
                                df=df,
                                model=pke.Kea())
 
-A documented example is described in [`train-model.py`][10] within the
-`examples/` directory.
-
-
-[1]: http://aclweb.org/anthology/C08-1122.pdf
-[2]: http://aclweb.org/anthology/I13-1062.pdf
-[3]: http://aclweb.org/anthology/S10-1041.pdf
-[4]: https://www.cl.cam.ac.uk/archive/ksj21/ksjdigipapers/jdoc72.pdf
-[5]: http://arxiv.org/ftp/cs/papers/9902/9902007.pdf
-[6]: http://aclweb.org/anthology/S10-1035.pdf
-[7]: https://github.com/boudinfl/pke/blob/master/examples/keyphrase-extraction.py
-[8]: http://aclweb.org/anthology/S10-1004.pdf
-[9]: https://github.com/boudinfl/pke/blob/master/examples/compute-df-counts.py
-[10]: https://github.com/boudinfl/pke/blob/master/examples/train-model.py
-
+A documented example is described in ``train-model.py`` within the
+``examples/`` directory.
