@@ -17,8 +17,7 @@ If you use this toolkit, please cite:
 Requirements
 ------------
 
-.. code-block:: bash
-    :linenos:
+::
 
     numpy
     scipy
@@ -31,8 +30,7 @@ Installation
 
 To install this module
 
-.. code-block:: bash
-    :linenos:
+::
 
     pip install git+https://github.com/boudinfl/pke.git
 
