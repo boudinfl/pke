@@ -88,8 +88,7 @@ another model, simply replace TopicRank with SingleRank, KPMiner, TfIdf, etc.
 A complete documented example is described in ``keyphrase-extraction.py``
 within the ``examples/`` directory.
 
-.. code-block:: python
-    :linenos:
+::
 
     import pke
 
@@ -112,8 +111,7 @@ within the ``examples/`` directory.
 Minimal example: supervised keyphrase extraction using Kea
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: python
-    :linenos:
+::
 
     import pke
 
@@ -151,8 +149,7 @@ A command line tool (``cmd_pke.py``) is also provided and allows users to
 perform keyphrase extraction without any knowledge of the Python programming
 language. A minimal example of use is given below:
 
-.. code-block:: bash
-    :linenos:
+::
 
     python cmd_pke.py -i /path/to/input -f raw -o /path/to/output -a TopicRank
 
@@ -167,8 +164,7 @@ Before using some keyphrase extraction algorithms (i.e. TfIdf, KP-Miner, Kea,
 WINGNUS), one need to compute DF counts from a collection of documents. Such
 counts can be computed as:
 
-.. code-block:: python
-    :linenos:
+::
 
     from pke import compute_document_frequency
     from string import punctuation
@@ -195,8 +191,7 @@ collection, used to compute Inverse Document Frequency (IDF) weigths, is stored
 as an extra line --NB_DOC-- tab number_of_documents. Below is an example of such
 a file:
 
-.. code-block:: python
-    :linenos:
+::
 
     --NB_DOC--  100
     greedi alloc  1
@@ -212,8 +207,7 @@ Training supervised models
 
 Here is a minimal example for training a new Kea model:
 
-.. code-block:: python
-    :linenos:
+::
 
     import pke
 
