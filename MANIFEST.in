@@ -1,1 +1,1 @@
-recursive-include models *.pickle
+recursive-include models *.pickle *.gz
