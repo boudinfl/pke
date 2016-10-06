@@ -7,7 +7,16 @@ easy benchmarking of state-of-the-art keyphrase extraction approaches, and
 ships with supervised models trained on the
 [SemEval-2010 dataset](http://aclweb.org/anthology/S10-1004).
 
-## Requirements
+## Table of Contents
+
+* [Installation](#Installation)
+  - [Requirements](#Requirements)
+  - [pip install](#pip-install-from-github)
+* [Usage](#usage)
+
+## Installation
+
+### Requirements
 
 ```
 numpy
@@ -17,7 +26,7 @@ networkx
 sklearn
 ```
 
-## Installation
+### pip install from github
 
 To install this module:
 
