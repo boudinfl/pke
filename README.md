@@ -15,6 +15,7 @@ ships with supervised models trained on the
   - [Input formats](#input-formats)
   - [Provided models](#provided-models)
   - [Document Frequency counts](#document-frequency-counts)
+  - [Training supervised models](#training-supervised-models)
 * [Code documentation](#code-documentation)
 
 ## Installation
@@ -187,6 +188,37 @@ sinc trial structur 1
 complex question  1
 [...]
 ```
+
+Newly computed DF counts should be loaded and given as parameter to 
+`candidate_weighting()` for unsupervised models and `feature_extraction()` for
+supervised models:
+
+```python
+import pke
+
+# initialize TfIdf model
+extractor = pke.TfIDF(input_file='/path/to/input')
+
+# load the DF counts from a file
+df_counts = pke.load_document_frequency_file(input_file='/path/to/file')
+
+# load the content of the document
+extractor.read_document(format='raw')
+
+# keyphrase candidate selection
+extractor.candidate_selection()
+
+# candidate weighting with the provided DF counts
+extractor.candidate_weighting(df=df_counts)
+
+# N-best selection, keyphrases contains the 10 highest scored candidates as
+# (keyphrase, score) tuples
+keyphrases = extractor.get_n_best(n=10)
+```
+
+## Training supervised models
+
+todo
 
 ## Code documentation
 
