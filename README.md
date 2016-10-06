@@ -9,16 +9,18 @@ ships with supervised models trained on the
 
 ## Table of Contents
 
-* [Installation](#Installation)
-  - [Requirements](#Requirements)
-  - [pip install](#pip-install-from-github)
+* [Installation](#installation)
 * [Usage](#usage)
+  - [Minimal example](#minimal-example)
+  - [Input formats](#input-formats)
+  - [Provided models](#provided-models)
+* [Code documentation](#code-documentation)
 
 ## Installation
 
-### Requirements
+The following modules are required:
 
-```
+```bash
 numpy
 scipy
 nltk
@@ -26,9 +28,7 @@ networkx
 sklearn
 ```
 
-### pip install from github
-
-To install this module:
+To pip install `pke` from github:
 
 ```bash
 pip install git+https://github.com/boudinfl/pke.git
