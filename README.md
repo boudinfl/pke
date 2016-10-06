@@ -14,6 +14,7 @@ ships with supervised models trained on the
   - [Minimal example](#minimal-example)
   - [Input formats](#input-formats)
   - [Provided models](#provided-models)
+  - [Document Frequency counts](#document-frequency-counts)
 * [Code documentation](#code-documentation)
 
 ## Installation
@@ -144,6 +145,48 @@ counts that were computed on the training set of the SemEval-2010 benchmark
 dataset. These models are located into the `pke/models/` directory.
 
 For details about the provided models, see [pke/models/README.md](pke/models/README.md).
+
+### Document Frequency counts
+
+`pke` ships with document frequency counts computed on the SemEval-2010
+benchmark dataset. These counts are used in various models (TfIdf, KP-Miner,
+Kea and WINGNUS). The following code illustrates how to compute new counts
+from another (or a larger) document collection:
+
+```python
+from pke import compute_document_frequency
+from string import punctuation
+
+# path to the collection of documents
+input_dir = '/path/to/input/documents'
+
+# path to the DF counts dictionary, saved as a gzip tab separated values
+output_file = '/path/to/output/'
+
+# compute df counts and store stem -> weight values
+compute_document_frequency(input_dir=input_dir,
+                           output_file=output_file,
+                           format="corenlp",            # input files format
+                           use_lemmas=False,    # do not use Stanford lemmas
+                           stemmer="porter",            # use porter stemmer
+                           stoplist=list(punctuation),            # stoplist
+                           delimiter='\t',            # tab separated output
+                           extension='xml',          # input files extension
+                           n=5)              # compute n-grams up to 5-grams
+```
+
+DF counts are stored as a ngram tab count file. The number of documents in the
+collection, used to compute Inverse Document Frequency (IDF) weigths, is stored
+as an extra line --NB_DOC-- tab number_of_documents. Below is an example of such
+a file:
+
+```bash
+--NB_DOC--  100
+greedi alloc  1
+sinc trial structur 1
+complex question  1
+[...]
+```
 
 ## Code documentation
 
