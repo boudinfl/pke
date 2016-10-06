@@ -60,11 +60,20 @@ keyphrases = extractor.get_n_best(n=10)
 `pke` currently supports the following input formats:
 
 1. *raw text*: text preprocessing (i.e. tokenization, sentence splitting and 
-   POS-tagging) is carried out using nltk.
+   POS-tagging) is carried out using nltk. 
 
-```python
-extractor.read_document(format='raw')
-```
+   Example of raw text:
+
+   ```
+   Efficient discovery of grid services is essential for the success of
+   grid computing. [...]
+   ```
+
+   To read raw text document:
+
+   ```python
+   extractor.read_document(format='raw')
+   ```
 
 2. *preprocessed text*: whitespace-separated POS-tagged tokens, one sentence per
    line.
