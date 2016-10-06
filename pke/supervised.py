@@ -3,12 +3,15 @@
 """ Supervised keyphrase extraction models. """
 
 from __future__ import division
+from __future__ import absolute_import
 
+import os
 import re
 import math
 import string
 
 from .base import LoadFile
+from .utils import load_document_frequency_file
 
 import numpy as np
 
@@ -47,12 +50,18 @@ class SupervisedLoadFile(LoadFile):
             self.instances[candidate] = X[i]
 
 
-    def classify_candidates(self, model):
+    def classify_candidates(self, model=None):
         """ Classify the candidates as keyphrase or not keyphrase.
 
             Args:
-                model (str): the path to load the model in pickle format.
+                model (str): the path to load the model in pickle format,
+                    default to None.
         """
+
+        # set the default model if none provided
+        if model is None:
+            instance = self.__class__.__name__
+            model = os.path.join(self._models, instance+"-semeval2010.pickle")
 
         # load the model
         with open(model, 'rb') as f:
@@ -113,6 +122,10 @@ class Kea(SupervisedLoadFile):
                 training (bool): indicates whether features are computed for the
                     training set for computing IDF weights, defaults to false.
         """
+
+        # initialize default document frequency counts if none provided
+        if df is None:
+            df = load_document_frequency_file(self._df_counts, delimiter='\t')
 
         # initialize the number of documents as --NB_DOC--
         N = df.get('--NB_DOC--', 0) + 1
@@ -230,6 +243,10 @@ class WINGNUS(SupervisedLoadFile):
         # define the default features_set
         if features_set is None:
             features_set = [1, 4, 6]
+
+        # initialize default document frequency counts if none provided
+        if df is None:
+            df = load_document_frequency_file(self._df_counts, delimiter='\t')
 
         # initialize the number of documents as --NB_DOC--
         N = df.get('--NB_DOC--', 0) + 1
@@ -479,6 +496,10 @@ class SEERLAB(SupervisedLoadFile):
                 training (bool): indicates whether features are computed for the
                     training set for computing IDF weights, defaults to false.
         """
+
+        # initialize default document frequency counts if none provided
+        if df is None:
+            df = load_document_frequency_file(self._df_counts, delimiter='\t')
 
         # initialize the number of documents as --NB_DOC--
         N = df.get('--NB_DOC--', 0) + 1

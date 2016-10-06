@@ -3,6 +3,7 @@
 """ Unsupervised keyphrase extraction models. """
 
 from __future__ import division
+from __future__ import absolute_import
 
 import string
 import networkx as nx
@@ -10,6 +11,7 @@ import numpy as np
 import math
 
 from .base import LoadFile
+from .utils import load_document_frequency_file
 
 from itertools import combinations
 
@@ -41,6 +43,10 @@ class TfIdf(LoadFile):
                 df (dict): document frequencies, the number of documents should
                     be specified using the "--NB_DOC--" key.
         """
+
+        # initialize default document frequency counts if none provided
+        if df is None:
+            df = load_document_frequency_file(self._df_counts, delimiter='\t')
 
         # initialize the number of documents as --NB_DOC-- + 1 (current)
         N = 1 + df.get('--NB_DOC--', 0)
@@ -116,9 +122,9 @@ class KPMiner(LoadFile):
                 alpha (int): parameter for boosting factor, defaults to 2.3.
         """
 
-        # handle empty df dictionary
+        # initialize default document frequency counts if none provided
         if df is None:
-            df = {}
+            df = load_document_frequency_file(self._df_counts, delimiter='\t')
 
         # initialize the number of documents as --NB_DOC-- + 1 (current)
         N = 1 + df.get('--NB_DOC--', 0)

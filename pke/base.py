@@ -6,7 +6,7 @@ from .readers import MinimalCoreNLPParser, PreProcessedTextReader, RawTextReader
 from collections import defaultdict
 from nltk.stem.snowball import SnowballStemmer as Stemmer
 from string import letters, digits
-
+import os
 
 class Sentence(object):
     """ The sentence data structure. """
@@ -76,6 +76,12 @@ class LoadFile(object):
 
         self.weights = {}
         """ The weight container (can be either word or candidate weights). """
+
+        self._models = os.path.join(os.path.dirname(__file__), 'models')
+        """ Root path of the pke module. """ 
+
+        self._df_counts = os.path.join(self._models, "df-semeval2010.tsv.gz")
+        """ Document frequency counts provided in pke. """
 
 
     def read_document(self,

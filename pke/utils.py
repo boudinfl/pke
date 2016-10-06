@@ -2,6 +2,9 @@
 
 """ Useful functions for the pke module. """
 
+from __future__ import division
+from __future__ import absolute_import
+
 import csv
 import glob
 import gzip
@@ -10,7 +13,7 @@ import logging
 from collections import defaultdict
 
 from .base import LoadFile
-from .supervised import Kea
+# from .supervised import Kea
 
 from nltk.stem.snowball import SnowballStemmer as Stemmer
 
@@ -97,20 +100,15 @@ def compute_document_frequency(input_dir,
                           stemmer=stemmer,
                           sep='/')
 
-        # loop through sentences
-        for sentence in doc.sentences:
+        # candidate selection
+        doc.ngram_selection(n=n)
 
-            skip = min(n, sentence.length)
-            lowercase_words = [u.lower() for u in sentence.words]
+        # filter candidates containing punctuation marks
+        doc.candidate_filtering(stoplist=stoplist)
 
-            for j in range(sentence.length):
-                for k in range(j+1, min(j+1+skip, sentence.length+1)):
-
-                    if set(lowercase_words[j:k]).intersection(stoplist):
-                        continue
-
-                    ngram = ' '.join(sentence.stems[j:k]).lower()
-                    frequencies[ngram].add(input_file)
+        # loop through candidates
+        for lexical_form in doc.candidates:
+            frequencies[lexical_form].add(input_file)
 
         nb_documents += 1
 
@@ -133,7 +131,7 @@ def train_supervised_model(input_dir,
                            format="corenlp",
                            use_lemmas=False,
                            stemmer="porter",
-                           model=Kea(),
+                           model=None,
                            language='english',
                            extension="xml",
                            sep_doc_id=':',
@@ -152,8 +150,7 @@ def train_supervised_model(input_dir,
                 instead of stems (computed by nltk), defaults to False.
             stemmer (str): the stemmer in nltk to used (if used), defaults
                 to porter.
-            model (pke.supervised object): the supervised model to train,
-                defaults to a Kea object.
+            model (object): the supervised model to train, defaults to None.
             extension (str): file extension for input documents, defaults to
                 xml.
             sep_doc_id (str): the separator used for doc_id in reference file,
