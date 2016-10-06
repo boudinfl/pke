@@ -78,18 +78,55 @@ keyphrases = extractor.get_n_best(n=10)
 2. *preprocessed text*: whitespace-separated POS-tagged tokens, one sentence per
    line.
 
-```python
-extractor.read_document(format='preprocessed')
-```
+   Example of preprocessed text:
+
+   ```
+   Efficient/NNP discovery/NN of/IN grid/NN services/NNS is/VBZ essential/JJ for/IN the/DT success/NN of/IN grid/JJ computing/NN ./.
+   [...]
+   ```
+
+   To read preprocessed text document:
+
+   ```python
+   extractor.read_document(format='preprocessed')
+   ```
 
 3. *Stanford XML CoreNLP*: output file produced using the annotators `tokenize`,
-	`ssplit`, `pos` and `lemma`. Document logical structure information can by
-	specified by incorporating attributes into the sentence elements of the
-	CoreNLP XML format.
+   `ssplit`, `pos` and `lemma`. Document logical structure information can by
+   specified by incorporating attributes into the sentence elements of the
+   CoreNLP XML format.
 
-```python
-extractor.read_document(format='corenlp')
-```
+   Example of CoreNLP XML:
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <root>
+     <document>
+       <sentences>
+         <sentence id="1" section="abstract" type="bodyText" confidence="0.925">
+           <tokens>
+             <token id="1">
+               <word>Efficient</word>
+               <lemma>efficient</lemma>
+               <CharacterOffsetBegin>362</CharacterOffsetBegin>
+               <CharacterOffsetEnd>371</CharacterOffsetEnd>
+               <POS>JJ</POS>
+             </token>
+             <token id="2">
+               <word>discovery</word>
+               <lemma>discovery</lemma>
+               <CharacterOffsetBegin>372</CharacterOffsetBegin>
+               <CharacterOffsetEnd>381</CharacterOffsetEnd>
+               <POS>NN</POS>
+              </token>
+   [...]
+   ```
+
+   To read a CoreNLP XML document:
+
+   ```python
+   extractor.read_document(format='corenlp')
+   ```
 
 ### Provided models
 
