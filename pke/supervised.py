@@ -50,6 +50,11 @@ class SupervisedLoadFile(LoadFile):
             self.instances[candidate] = X[i]
 
 
+    def feature_extraction(self):
+        """ Skeletton for feature extraction. """
+        pass
+
+
     def classify_candidates(self, model=None):
         """ Classify the candidates as keyphrase or not keyphrase.
 
@@ -76,6 +81,12 @@ class SupervisedLoadFile(LoadFile):
 
         for i, candidate in enumerate(candidates):
             self.weights[candidate] = y[i][1]
+
+    def candidate_weighting(self):
+        """ Extract features and classify candidates with default parameters."""
+        
+        self.feature_extraction()
+        self.classify_candidates()
 
 
 class Kea(SupervisedLoadFile):
