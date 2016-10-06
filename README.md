@@ -232,6 +232,7 @@ pke.train_supervised_model(input_dir='/path/to/input/documents/',
                            model_file='/path/to/model/file',
                            df=df_counts,
                            model=pke.Kea()) # here a we train a Kea model
+```
 
 The training data consists of a set of documents along with a reference file
 containing annotated keyphrases in the SemEval-2010 [format](http://docs.google.com/Doc?id=ddshp584_46gqkkjng4).
