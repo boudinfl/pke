@@ -14,6 +14,7 @@ setup(name='pke',
       	'numpy',
       	'scipy',
             'sklearn'
-      ]
+      ],
+      package_data={'pke': ['models/*.pickle']}
      )
 

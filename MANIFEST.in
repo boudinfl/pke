@@ -1,1 +1,1 @@
-include pke/models/wingnus-semeval2010.pickle
+recursive-include models *.pickle
