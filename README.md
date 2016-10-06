@@ -134,6 +134,8 @@ keyphrases = extractor.get_n_best(n=10)
 counts that were computed on the training set of the SemEval-2010 benchmark
 dataset. These models are located into the `pke/models/` directory.
 
+For details about the provided models, see [pke/models/README.md](pke/models/README.md).
+
 ## Code documentation
 
 For code documentation, please visit [pke.readthedocs.io](http://pke.rtfd.io>).
