@@ -199,7 +199,7 @@ import pke
 # initialize TfIdf model
 extractor = pke.TfIDF(input_file='/path/to/input')
 
-# load the DF counts from a file
+# load the DF counts from file
 df_counts = pke.load_document_frequency_file(input_file='/path/to/file')
 
 # load the content of the document
@@ -218,7 +218,23 @@ keyphrases = extractor.get_n_best(n=10)
 
 ## Training supervised models
 
-todo
+Here is a minimal example for training a new supervised model:
+
+```python
+import pke
+
+# load the DF counts from file
+df_counts = pke.load_document_frequency_file('/path/to/file')
+
+# train a new Kea model
+pke.train_supervised_model(input_dir='/path/to/input/documents/',
+                           reference_file='/path/to/reference/file',
+                           model_file='/path/to/model/file',
+                           df=df_counts,
+                           model=pke.Kea()) # here a we train a Kea model
+
+The training data consists of a set of documents along with a reference file
+containing annotated keyphrases in the SemEval-2010 [format](http://docs.google.com/Doc?id=ddshp584_46gqkkjng4).
 
 ## Code documentation
 
