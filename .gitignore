@@ -1,6 +1,3 @@
-*.pyc
-examples/C-1.txt
-
 .DS_Store
-
-docs/build/html/*
+*.pyc
+docs/build/*
