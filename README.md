@@ -9,17 +9,21 @@ ships with supervised models trained on the
 
 ## Requirements
 
-    numpy
-    scipy
-    nltk
-    networkx
-    sklearn
+```
+numpy
+scipy
+nltk
+networkx
+sklearn
+```
 
 ## Installation
 
 To install this module:
 
-	pip install git+https://github.com/boudinfl/pke.git
+```bash
+pip install git+https://github.com/boudinfl/pke.git
+```
 
 ## Usage
 
@@ -50,6 +54,39 @@ extractor.candidate_weighting()
 # (keyphrase, score) tuples
 keyphrases = extractor.get_n_best(n=10)
 ```
+
+### Input formats
+
+`pke` currently supports the following input formats:
+
+1. *raw text*: text preprocessing (i.e. tokenization, sentence splitting and 
+   POS-tagging) is carried out using nltk.
+
+```python
+extractor.read_document(format='raw')
+```
+
+2. *preprocessed text*: whitespace-separated POS-tagged tokens, one sentence per
+   line.
+
+```python
+extractor.read_document(format='preprocessed')
+```
+
+3. *Stanford XML CoreNLP*: output file produced using the annotators `tokenize`,
+	`ssplit`, `pos` and `lemma`. Document logical structure information can by
+	specified by incorporating attributes into the sentence elements of the
+	CoreNLP XML format.
+
+```python
+extractor.read_document(format='corenlp')
+```
+
+### Provided models
+
+`pke` ships with a collection of already trained models and document frequency
+counts that were computed on the training set of the SemEval-2010 benchmark
+dataset. These models are located into the `pke/models/` directory.
 
 ## Code documentation
 
