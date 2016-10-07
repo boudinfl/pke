@@ -16,6 +16,8 @@ ships with supervised models trained on the
   - [Provided models](#provided-models)
   - [Document Frequency counts](#document-frequency-counts)
   - [Training supervised models](#training-supervised-models)
+  - [Non English languages](#non-english-languages)
+* [Benchmarking](#benchmarking)
 * [Code documentation](#code-documentation)
 
 ## Installation
@@ -227,7 +229,7 @@ extractor.candidate_weighting(df=df_counts)
 keyphrases = extractor.get_n_best(n=10)
 ```
 
-## Training supervised models
+### Training supervised models
 
 Here is a minimal example for training a new supervised model:
 
@@ -247,6 +249,77 @@ pke.train_supervised_model(input_dir='/path/to/input/documents/',
 
 The training data consists of a set of documents along with a reference file
 containing annotated keyphrases in the SemEval-2010 [format](http://docs.google.com/Doc?id=ddshp584_46gqkkjng4).
+
+### Non English languages
+
+While the default language in `pke` is English, extracting keyphrases from
+documents in other languages is easily achieved by inputting already
+preprocessed documents, and setting the `language` parameter to the desired
+language. The only language dependent resources used in `pke` are the stoplist
+and the stemming algorithm from `nltk` that is available in
+[11 languages](http://www.nltk.org/_modules/nltk/corpus.html).
+
+Given an already preprocessed document (here in French):
+
+```
+France/NPP :/PONCT disparition/NC de/P Thierry/NPP Roland/NPP [...]
+Le/DET journaliste/NC et/CC commentateur/NC sportif/ADJ Thierry/NPP [...]
+Commentateur/NC mythique/ADJ des/P+D matchs/NC internationaux/ADJ [...]
+[...]
+```
+
+Keyphrase extraction can then be performed by:
+
+```python
+import pke
+
+# initialize TopicRank and set the language to French (used during candidate
+# selection for filtering stopwords)
+extractor = pke.TopicRank(input_file='/path/to/input', language='French')
+
+# load the content of the document and perform French stemming (instead of
+# Porter stemmer)
+extractor.read_document(format='preprocessed', stemmer='french')
+
+# keyphrase candidate selection, here sequences of nouns and adjectives
+# defined by the French POS tags NPP, NC and ADJ
+extractor.candidate_selection(pos=["NPP", "NC", "ADJ"])
+
+# candidate weighting, here using a random walk algorithm
+extractor.candidate_weighting()
+
+# N-best selection, keyphrases contains the 10 highest scored candidates as
+# (keyphrase, score) tuples
+keyphrases = extractor.get_n_best(n=10)
+```
+
+## Benchmarking
+
+We evaluate the performance of our re-implementations using the SemEval-2010
+benchmark dataset. This dataset is composed of 244 scientific articles (144 in
+training and 100 for test) collected from the ACM Digital Library (conference
+and workshop papers). Document logical structure information, required to
+compute features in the WINGNUS approach, is annotated with
+[ParsCit](https://github.com/knmnyn/ParsCit). The [Stanford CoreNLP pipeline](http://stanfordnlp.github.io/CoreNLP/)
+(tokenization, sentence splitting and POS-tagging) is then applied to the
+documents from which irrelevant pieces of text (e.g. tables, equations,
+footnotes) were filtered out. The dataset we use (lvl-2) can be found at
+[https://github.com/boudinfl/semeval-2010-pre](https://github.com/boudinfl/semeval-2010-pre).
+
+We follow the evaluation procedure used in the SemEval-2010 competition and
+evaluate the performance of each implemented approach in terms of precision (P),
+recall (R) and f-measure (F) at the top 10 keyphrases. We use the set of
+combined (stemmed) author- and reader-assigned keyphrases as reference
+keyphrases.
+
+| Approach   | P@10 | R@10 | F@10 |
+|------------|------|------|------|
+| TfIdf      | 20.0 | 14.1 | 16.4 |
+| TopicRank  | 15.6 | 10.8 | 12.6 |
+| SingleRank |  2.2 |  1.5 |  1.8 |
+| KP-Miner   | 24.1 | 17.0 | 19.8 |
+| Kea        | 23.5 | 16.6 | 19.3 |
+| WINGNUS    | 24.7 | 17.3 | 20.2 |
 
 ## Code documentation
 
