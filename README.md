@@ -133,6 +133,17 @@ keyphrases = extractor.get_n_best(n=10)
    [...]
    ```
 
+   Here, the document logical structure information is added to the CoreNLP XML
+   output by the use of the `section`, `type` and `confidence` attributes. We
+   use the classification categories proposed by [Luong et al. (2012)](https://www.comp.nus.edu.sg/~kanmy/papers/ijdls-SectLabel.pdf).
+   In `pke`, document logical structure information is exploited by the WINGNUS
+   model and the following values are handled:
+
+   ```xml
+   section="title|abstract|introduction|related work|conclusions"
+   type="sectionHeader|subsectionHeader|subsubsectionHeader|bodyText"
+   ```
+
    To read a CoreNLP XML document:
 
    ```python

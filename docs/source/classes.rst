@@ -1,6 +1,3 @@
-Code documentation
-==================
-
 Base classes
 ------------
 
