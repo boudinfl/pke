@@ -160,6 +160,9 @@ dataset. These models are located into the `pke/models/` directory.
 
 For details about the provided models, see [pke/models/README.md](pke/models/README.md).
 
+**These already trained models/DF counts are used by default if no parameters
+are given.**
+
 ### Document Frequency counts
 
 `pke` ships with document frequency counts computed on the SemEval-2010
