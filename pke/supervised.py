@@ -82,6 +82,7 @@ class SupervisedLoadFile(LoadFile):
         for i, candidate in enumerate(candidates):
             self.weights[candidate] = y[i][1]
 
+
     def candidate_weighting(self):
         """ Extract features and classify candidates with default parameters."""
         
@@ -267,6 +268,7 @@ class WINGNUS(SupervisedLoadFile):
         # find the maximum offset
         maximum_offset = float(sum([s.length for s in self.sentences]))
 
+        # loop through the candidates
         for k, v in self.candidates.iteritems():
 
             # initialize features array
@@ -331,9 +333,12 @@ class WINGNUS(SupervisedLoadFile):
             # [F7] -> typeface
             feature_array.append(0)
 
-            # extract information from candidate meta information
-            sections = [u['section'] for u in v.meta if u.has_key('section')]
-            types = [u['type'] for u in v.meta if u.has_key('type')]
+            # extract information from sentence meta information
+            meta = [self.sentences[sid].meta for sid in v.sentence_ids]
+
+            # extract meta information of candidate
+            sections = [u['section'] for u in meta if u.has_key('section')]
+            types = [u['type'] for u in meta if u.has_key('type')]
 
             # [F8] -> Is in title
             feature_array.append('title' in sections)

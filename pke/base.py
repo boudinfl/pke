@@ -49,9 +49,6 @@ class Candidate(object):
         self.lexical_form = []
         """ the lexical form of the candidate. """
 
-        self.meta = []
-        """ meta-information of the candidate. """
-
 
 class LoadFile(object):
     """ The LoadFile class that provides base functions. """
@@ -279,7 +276,7 @@ class LoadFile(object):
         return [(u, self.weights[u]) for u in best[:min(n, len(best))]]
 
 
-    def add_candidate(self, words, stems, pos, offset, sentence_id, meta):
+    def add_candidate(self, words, stems, pos, offset, sentence_id):
         """ Add a keyphrase candidate to the candidates container.
 
             Args:
@@ -288,7 +285,6 @@ class LoadFile(object):
                 pos (list): the Part-Of-Speeches of the words in the candidate.
                 offset (int): the offset of the first word of the candidate.
                 sentence_id (int): the sentence id of the candidate.
-                meta (dict): the meta-information from the sentence.
         """
 
         # build the lexical (canonical) form of the candidate using stems
@@ -308,9 +304,6 @@ class LoadFile(object):
 
         # add/update the sentence ids
         self.candidates[lexical_form].sentence_ids.append(sentence_id)
-
-        # add/update the meta information
-        self.candidates[lexical_form].meta.append(meta)
 
 
     def ngram_selection(self, n=3):
@@ -338,8 +331,7 @@ class LoadFile(object):
                                        stems=sentence.stems[j:k],
                                        pos=sentence.pos[j:k],
                                        offset=shift+j,
-                                       sentence_id=i,
-                                       meta=sentence.meta)
+                                       sentence_id=i)
 
 
     def longest_pos_sequence_selection(self, valid_pos=None):
@@ -375,8 +367,7 @@ class LoadFile(object):
                                        stems=sentence.stems[seq[0]:seq[-1]+1],
                                        pos=sentence.pos[seq[0]:seq[-1]+1],
                                        offset=shift+j,
-                                       sentence_id=i,
-                                       meta=sentence.meta)
+                                       sentence_id=i)
 
                 # flush sequence container
                 seq = []
@@ -408,7 +399,7 @@ class LoadFile(object):
 
         # add accents for other languages
         if self.language == 'french':
-            printable.update(set(u'éèêëïàçùö'))
+            printable.update(set(u'éèêëïîàâçùûüöôÿæœ'))
 
         # loop throught the candidates
         for k, v in self.candidates.items():
