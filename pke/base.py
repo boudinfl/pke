@@ -40,14 +40,14 @@ class Candidate(object):
         self.offsets = []
         """ the offsets of the surface forms. """
 
+        self.sentence_ids = []
+        """ the sentence id of each surface form. """
+
         self.pos_patterns = []
         """ the Part-Of-Speech patterns of the candidate. """
 
         self.lexical_form = []
         """ the lexical form of the candidate. """
-
-        self.meta = []
-        """ meta-information of the candidate. """
 
 
 class LoadFile(object):
@@ -276,7 +276,7 @@ class LoadFile(object):
         return [(u, self.weights[u]) for u in best[:min(n, len(best))]]
 
 
-    def add_candidate(self, words, stems, pos, offset, meta):
+    def add_candidate(self, words, stems, pos, offset, sentence_id):
         """ Add a keyphrase candidate to the candidates container.
 
             Args:
@@ -284,7 +284,7 @@ class LoadFile(object):
                 stems (list): the stemmed words of the candidate.
                 pos (list): the Part-Of-Speeches of the words in the candidate.
                 offset (int): the offset of the first word of the candidate.
-                meta (dict): the meta-information from the sentence.
+                sentence_id (int): the sentence id of the candidate.
         """
 
         # build the lexical (canonical) form of the candidate using stems
@@ -302,8 +302,8 @@ class LoadFile(object):
         # add/update the offsets
         self.candidates[lexical_form].offsets.append(offset)
 
-        # add/update the meta information
-        self.candidates[lexical_form].meta.append(meta)
+        # add/update the sentence ids
+        self.candidates[lexical_form].sentence_ids.append(sentence_id)
 
 
     def ngram_selection(self, n=3):
@@ -331,7 +331,7 @@ class LoadFile(object):
                                        stems=sentence.stems[j:k],
                                        pos=sentence.pos[j:k],
                                        offset=shift+j,
-                                       meta=sentence.meta)
+                                       sentence_id=i)
 
 
     def longest_pos_sequence_selection(self, valid_pos=None):
@@ -367,7 +367,7 @@ class LoadFile(object):
                                        stems=sentence.stems[seq[0]:seq[-1]+1],
                                        pos=sentence.pos[seq[0]:seq[-1]+1],
                                        offset=shift+j,
-                                       meta=sentence.meta)
+                                       sentence_id=i)
 
                 # flush sequence container
                 seq = []
@@ -377,7 +377,8 @@ class LoadFile(object):
                             stoplist=None,
                             mininum_length=3,
                             mininum_word_size=2,
-                            valid_punctuation_marks='-'):
+                            valid_punctuation_marks='-',
+                            maximum_word_number=5):
         """ Filter the candidates containing strings from the stoplist. Only
             keep the candidates containing alpha-numeric characters and those
             length exceeds a given number of characters.
@@ -390,13 +391,15 @@ class LoadFile(object):
                     token to be considered as a valid word, defaults to 2.
                 valid_punctuation_marks (str): punctuation marks that are valid
                     for a candidate, defaults to '-'.
+                maximum_word_number (int): maximum length in words of the
+                    candidate, defaults to 5.
         """
 
         printable = set(letters + digits + valid_punctuation_marks)
 
         # add accents for other languages
         if self.language == 'french':
-            printable.update(set(u'éèêëïàçùö'))
+            printable.update(set(u'éèêëïîàâçùûüöôÿæœ'))
 
         # loop throught the candidates
         for k, v in self.candidates.items():
@@ -422,4 +425,8 @@ class LoadFile(object):
 
             # discard candidates containing small words (1-character)
             elif min([len(u) for u in words]) < mininum_word_size:
+                del self.candidates[k]
+
+            # discard candidates composed of more than 5 words
+            elif len(v.lexical_form) > maximum_word_number:
                 del self.candidates[k]
