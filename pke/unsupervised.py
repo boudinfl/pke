@@ -14,11 +14,13 @@ from .base import LoadFile
 from .utils import load_document_frequency_file
 
 from itertools import combinations
+from collections import defaultdict
 
 from nltk.corpus import stopwords
 
 from scipy.cluster.hierarchy import linkage, fcluster
 from scipy.spatial.distance import pdist
+from sklearn.cluster import spectral_clustering
 
 
 class TfIdf(LoadFile):
@@ -333,12 +335,13 @@ class TopicRank(LoadFile):
         return C, X
 
 
-    def topic_clustering(self, threshold=0.25, method='average'):
+    def topic_clustering(self, threshold=0.74, method='average'):
         """ Clustering candidates into topics.
 
             Args:
                 threshold (float): the minimum similarity for clustering,
-                    defaults to 0.25.
+                    defaults to 0.74, i.e. more than 1/4 of stem overlap
+                    similarity.
                 method (str): the linkage method, defaults to average.
         """
 
@@ -352,7 +355,7 @@ class TopicRank(LoadFile):
         Z = linkage(Y, method=method)
 
         # form flat clusters
-        clusters = fcluster(Z, t=1.0-threshold, criterion='distance')
+        clusters = fcluster(Z, t=threshold, criterion='distance')
 
         # for each cluster id
         for cluster_id in range(1, max(clusters)+1):
@@ -373,16 +376,26 @@ class TopicRank(LoadFile):
                 for c_j in self.topics[j]:
                     for p_i in self.candidates[c_i].offsets:
                         for p_j in self.candidates[c_j].offsets:
-                            self.graph[i][j]['weight'] += 1.0 / abs(p_i-p_j)
+                            gap = abs(p_i - p_j)
+                            if p_i < p_j:
+                                gap -= len(self.candidates[c_i].lexical_form)-1
+                            if p_j < p_i:
+                                gap -= len(self.candidates[c_j].lexical_form)-1
+                            self.graph[i][j]['weight'] += 1.0 / gap
 
 
-    def candidate_weighting(self, threshold=0.25, method='average'):
+    def candidate_weighting(self, threshold=0.74, method='average',
+                            heuristic=None):
         """ Candidate weight calculation using random walk.
 
             Args:
                 threshold (float): the minimum similarity for clustering,
-                    defaults to 0.25.
+                    defaults to 0.74.
                 method (str): the linkage method, defaults to average.
+                heuristic (str): the heuristic for selecting the best candidate
+                    for each topic, defaults to first occurring candidate. Other
+                    options are 'frequent' (most frequent candidate, position
+                    is used for ties).
         """
 
         # cluster the candidates
@@ -397,7 +410,24 @@ class TopicRank(LoadFile):
         # loop throught the topics
         for i, topic in enumerate(self.topics):
 
-            # get first occuring candidate from topic
+            # get the offsets of the topic candidates
             offsets = [self.candidates[t].offsets[0] for t in topic]
-            first = offsets.index(min(offsets))
-            self.weights[topic[first]] = w[i]
+
+            # get first candidate from topic
+            if heuristic == 'frequent':
+
+                # get frequencies for each candidate within the topic
+                freq = [len(self.candidates[t].surface_forms) for t in topic]
+
+                # get the indexes of the most frequent candidates
+                indexes = [j for j, f in enumerate(freq) if f == max(freq)]
+
+                # offsets of the indexes
+                indexes_offsets = [offsets[j] for j in indexes]
+                most_frequent = indexes_offsets.index(min(indexes_offsets))
+                self.weights[topic[most_frequent]] = w[i]
+
+            else:
+                first = offsets.index(min(offsets))
+                self.weights[topic[first]] = w[i]
+

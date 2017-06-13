@@ -15,10 +15,14 @@ class MinimalCoreNLPParser(object):
         parser = etree.XMLParser()
         tree = etree.parse(path, parser)
         for sentence in tree.iterfind('./document/sentences/sentence'):
+            # get the character offsets
+            starts = [int(u.text) for u in sentence.iterfind("tokens/token/CharacterOffsetBegin")]
+            ends = [int(u.text) for u in sentence.iterfind("tokens/token/CharacterOffsetEnd")]
             self.sentences.append({
                 "words" : [u.text for u in sentence.iterfind("tokens/token/word")],
                 "lemmas" : [u.text for u in sentence.iterfind("tokens/token/lemma")],
-                "POS" : [u.text for u in sentence.iterfind("tokens/token/POS")]
+                "POS" : [u.text for u in sentence.iterfind("tokens/token/POS")],
+                "char_offsets" : [(starts[k], ends[k]) for k in range(len(starts))]
             })
             self.sentences[-1].update(sentence.attrib)
 
