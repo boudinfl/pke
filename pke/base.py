@@ -5,8 +5,10 @@
 from .readers import MinimalCoreNLPParser, PreProcessedTextReader, RawTextReader
 from collections import defaultdict
 from nltk.stem.snowball import SnowballStemmer as Stemmer
-from string import letters, digits
+from string import letters, digits, punctuation
 import os
+
+from unidecode import unidecode
 
 class Sentence(object):
     """ The sentence data structure. """
@@ -366,7 +368,7 @@ class LoadFile(object):
                     self.add_candidate(words=sentence.words[seq[0]:seq[-1]+1],
                                        stems=sentence.stems[seq[0]:seq[-1]+1],
                                        pos=sentence.pos[seq[0]:seq[-1]+1],
-                                       offset=shift+j,
+                                       offset=shift+j-len(seq),
                                        sentence_id=i)
 
                 # flush sequence container
@@ -378,10 +380,12 @@ class LoadFile(object):
                             mininum_length=3,
                             mininum_word_size=2,
                             valid_punctuation_marks='-',
-                            maximum_word_number=5):
+                            maximum_word_number=5,
+                            only_alphanum=True):
         """ Filter the candidates containing strings from the stoplist. Only
-            keep the candidates containing alpha-numeric characters and those
-            length exceeds a given number of characters.
+            keep the candidates containing alpha-numeric characters (if the
+            non_latin_filter is set to True) and those length exceeds a given
+            number of characters.
             
             Args:
                 stoplist (list): list of strings, defaults to None.
@@ -393,13 +397,13 @@ class LoadFile(object):
                     for a candidate, defaults to '-'.
                 maximum_word_number (int): maximum length in words of the
                     candidate, defaults to 5.
+                only_alphanum (bool): filter candidates containing non (latin)
+                    alpha-numeric characters, defaults to True.
         """
 
-        printable = set(letters + digits + valid_punctuation_marks)
-
         # add accents for other languages
-        if self.language == 'french':
-            printable.update(set(u'éèêëïîàâçùûüöôÿæœ'))
+        # if self.language == 'french':
+        #     printable.update(set(u'éèêëïîàâçùûüöôÿæœ'))
 
         # loop throught the candidates
         for k, v in self.candidates.items():
@@ -411,12 +415,12 @@ class LoadFile(object):
             if set(words).intersection(stoplist):
                 del self.candidates[k]
 
-            # discard if not containing only alpha-numeric characters
-            elif not set(''.join(words)).issubset(printable):
-                del self.candidates[k]
+            # # discard if not containing only alpha-numeric characters
+            # elif not set(''.join(words)).issubset(printable):
+            #     del self.candidates[k]
 
             # discard if containing tokens composed of only punctuation
-            elif any([set(u).issubset(valid_punctuation_marks) for u in words]):
+            elif any([set(u).issubset(set(punctuation)) for u in words]):
                 del self.candidates[k]
 
             # discard candidates composed of 1-2 characters
@@ -430,3 +434,10 @@ class LoadFile(object):
             # discard candidates composed of more than 5 words
             elif len(v.lexical_form) > maximum_word_number:
                 del self.candidates[k]
+
+            # discard if not containing only latin alpha-numeric characters
+            if only_alphanum and k in self.candidates:
+                printable = set(letters + digits + valid_punctuation_marks)
+                characters = unidecode(unicode(''.join(words))).encode("ascii")  
+                if not set(characters).issubset(printable):
+                    del self.candidates[k]
