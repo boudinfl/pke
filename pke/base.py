@@ -138,8 +138,11 @@ class LoadFile(object):
 
             # flatten with the stems if required
             if not use_lemmas:
-                for j, word in enumerate(self.sentences[i].words):
-                    self.sentences[i].stems[j] = Stemmer(stemmer).stem(word)
+                if stemmer == None:
+                    self.sentences[i].stems = list(self.sentences[i].words)
+                else:
+                    for j, word in enumerate(self.sentences[i].words):
+                        self.sentences[i].stems.append(Stemmer(stemmer).stem(word))
 
             # lowercase the stems/lemmas
             for j, stem in enumerate(self.sentences[i].stems):
@@ -172,8 +175,11 @@ class LoadFile(object):
             self.sentences[i].pos = sentence['POS']
 
             # add the stems
-            for j, word in enumerate(self.sentences[i].words):
-                self.sentences[i].stems.append(Stemmer(stemmer).stem(word))
+            if stemmer == None:
+                self.sentences[i].stems = list(self.sentences[i].words)
+            else:
+                for j, word in enumerate(self.sentences[i].words):
+                    self.sentences[i].stems.append(Stemmer(stemmer).stem(word))
 
             # lowercase the stems/lemmas
             for j, stem in enumerate(self.sentences[i].stems):
@@ -200,8 +206,11 @@ class LoadFile(object):
             self.sentences[i].pos = sentence['POS']
 
             # add the stems
-            for j, word in enumerate(self.sentences[i].words):
-                self.sentences[i].stems.append(Stemmer(stemmer).stem(word))
+            if stemmer == None:
+                self.sentences[i].stems = list(self.sentences[i].words)
+            else:
+                for j, word in enumerate(self.sentences[i].words):
+                    self.sentences[i].stems.append(Stemmer(stemmer).stem(word))
 
             # lowercase the stems/lemmas
             for j, stem in enumerate(self.sentences[i].stems):
