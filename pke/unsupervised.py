@@ -32,13 +32,13 @@ class TfIdf(LoadFile):
         # select ngrams from 1 to 3 grams
         self.ngram_selection(n=3)
 
-        # filter candidates containing punctuation marks
+        # filter candidates containing stopwords or punctuation marks
         if stoplist == None:
             stoplist = stoplist=stopwords.words(self.language) 
         self.candidate_filtering(stoplist=stoplist +
+                                 list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
-
 
     def candidate_weighting(self, df=None):
         """ Candidate weighting function using document frequencies.
