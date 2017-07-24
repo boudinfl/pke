@@ -26,17 +26,19 @@ from sklearn.cluster import spectral_clustering
 class TfIdf(LoadFile):
     """ TF*IDF keyphrase extraction model. """
 
-    def candidate_selection(self):
+    def candidate_selection(self, stoplist=None):
         """ Select 1-3 grams as keyphrase candidates. """
 
         # select ngrams from 1 to 3 grams
         self.ngram_selection(n=3)
 
-        # filter candidates containing punctuation marks
-        self.candidate_filtering(stoplist=list(string.punctuation) +
+        # filter candidates containing stopwords or punctuation marks
+        if stoplist == None:
+            stoplist = stoplist=stopwords.words(self.language) 
+        self.candidate_filtering(stoplist=stoplist +
+                                 list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
-
 
     def candidate_weighting(self, df=None):
         """ Candidate weighting function using document frequencies.
@@ -76,7 +78,7 @@ class KPMiner(LoadFile):
             Semantic Evaluation*, pages 190-193, 2010.
     """
 
-    def candidate_selection(self, lasf=3, cutoff=400):
+    def candidate_selection(self, lasf=3, cutoff=400, stoplist=None):
         """ The candidate selection as described in the KP-Miner paper.
 
             Args:
@@ -89,7 +91,9 @@ class KPMiner(LoadFile):
         self.ngram_selection(n=5)
 
         # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=stopwords.words(self.language) +
+        if stoplist == None:
+            stoplist = stoplist=stopwords.words(self.language) 
+        self.candidate_filtering(stoplist=stoplist +
                                  list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
@@ -212,7 +216,7 @@ class SingleRank(LoadFile):
                     self.graph[node_1[0]][node_2[0]]['weight'] += 1.0
 
 
-    def candidate_selection(self, pos=None):
+    def candidate_selection(self, pos=None, stoplist=None):
         """ The candidate selection as described in the SingleRank paper.
 
             Args:
@@ -228,7 +232,9 @@ class SingleRank(LoadFile):
         self.longest_pos_sequence_selection(valid_pos=pos)
 
         # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=stopwords.words(self.language) +
+        if stoplist == None:
+            stoplist = stoplist=stopwords.words(self.language) 
+        self.candidate_filtering(stoplist=stoplist +
                                  list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
@@ -288,7 +294,7 @@ class TopicRank(LoadFile):
         """ The topic container. """
 
 
-    def candidate_selection(self, pos=None):
+    def candidate_selection(self, pos=None, stoplist=None):
         """ The candidate selection as described in the SingleRank paper.
 
             Args:
@@ -304,7 +310,9 @@ class TopicRank(LoadFile):
         self.longest_pos_sequence_selection(valid_pos=pos)
 
         # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=stopwords.words(self.language) +
+        if stoplist == None:
+            stoplist = stoplist=stopwords.words(self.language) 
+        self.candidate_filtering(stoplist=stoplist +
                                  list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
