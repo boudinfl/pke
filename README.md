@@ -7,6 +7,8 @@ easy benchmarking of state-of-the-art keyphrase extraction approaches, and
 ships with supervised models trained on the
 [SemEval-2010 dataset](http://aclweb.org/anthology/S10-1004).
 
+`pke` works only for Python 2.x at the moment.
+
 ## Table of Contents
 
 * [Installation](#installation)
@@ -42,9 +44,9 @@ pip install git+https://github.com/boudinfl/pke.git
 
 ### Minimal example
 
-Start extracting keyphrases from a document by typing the 5 lines below. For
-using another model, simply replace TopicRank with Kea, KPMiner, TfIdf,
-etc. 
+`pke` provides a standardized API for keyphrases from a document. Start by
+typing the 5 lines below. For using another model, simply replace TopicRank with
+Kea, KPMiner, TfIdf, etc. 
 
 ```python
 import pke
@@ -68,9 +70,12 @@ extractor.candidate_weighting()
 keyphrases = extractor.get_n_best(n=10)
 ```
 
+A detailed example is provided in the `examples/` directory.
+
 ### Input formats
 
-`pke` currently supports the following input formats:
+`pke` currently supports the following input formats (examples of formatted
+input files are provided in the `examples/` directory):
 
 1. *raw text*: text preprocessing (i.e. tokenization, sentence splitting and 
    POS-tagging) is carried out using nltk. 
@@ -232,6 +237,9 @@ extractor.candidate_weighting(df=df_counts)
 keyphrases = extractor.get_n_best(n=10)
 ```
 
+A detailed example for computing new DF counts is given in
+`examples/compute-df-counts.py`.
+
 ### Training supervised models
 
 Here is a minimal example for training a new supervised model:
@@ -252,6 +260,9 @@ pke.train_supervised_model(input_dir='/path/to/input/documents/',
 
 The training data consists of a set of documents along with a reference file
 containing annotated keyphrases in the SemEval-2010 [format](http://docs.google.com/Doc?id=ddshp584_46gqkkjng4).
+
+A detailed example for training a supervised model is given in
+`examples/train-model.py`.
 
 ### Non English languages
 
