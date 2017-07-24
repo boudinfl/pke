@@ -23,7 +23,7 @@ extractor.candidate_selection(pos=['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR',
 # weight the candidates using a random walk. The threshold parameter sets the
 # minimum similarity for clustering, and the method parameter defines the 
 # linkage method
-extractor.candidate_weighting(threshold=0.25,
+extractor.candidate_weighting(threshold=0.74,
 							  method='average')
 
 # print the n-highest (10) scored candidates

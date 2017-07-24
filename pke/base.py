@@ -99,7 +99,8 @@ class LoadFile(object):
                 use_lemmas (bool): whether lemmas from stanford corenlp are used
                     instead of stems (computed by nltk), defaults to False.
                 stemmer (str): the stemmer in nltk to use (if used), defaults
-                    to porter.
+                    to porter (can be set to None for using word surface forms
+                    instead of stems).
                 sep (str): the separator of the tagged word, defaults to /.
         """
 
@@ -119,7 +120,8 @@ class LoadFile(object):
                 use_lemmas (bool): whether lemmas from stanford corenlp are used
                     instead of stems (computed by nltk), defaults to False.
                 stemmer (str): the stemmer in nltk to use (if used), defaults
-                    to porter.
+                    to porter (can be set to None for using word surface forms
+                    instead of stems).
         """
 
         # parse the document using the Minimal CoreNLP parser
@@ -139,8 +141,15 @@ class LoadFile(object):
 
             # flatten with the stems if required
             if not use_lemmas:
-                for j, word in enumerate(self.sentences[i].words):
-                    self.sentences[i].stems[j] = Stemmer(stemmer).stem(word)
+
+                # if stemming is performed
+                if stemmer is not None:
+                    for j, word in enumerate(self.sentences[i].words):
+                        self.sentences[i].stems[j] = Stemmer(stemmer).stem(word)
+
+                # else, all computations are performed on surface forms
+                else:
+                    self.sentences[i].stems = self.sentences[i].words
 
             # lowercase the stems/lemmas
             for j, stem in enumerate(self.sentences[i].stems):
@@ -156,7 +165,9 @@ class LoadFile(object):
         """ Read the preprocessed input file and populate the sentence list.
 
             Args:
-                stemmer (str): the stemmer in nltk to use, defaults to porter.
+                stemmer (str): the stemmer in nltk to use, defaults to porter
+                    (can be set to None for using word surface forms instead of
+                    stems).
                 sep (str): the separator of the tagged word, defaults to /.
         """
 
@@ -173,8 +184,13 @@ class LoadFile(object):
             self.sentences[i].pos = sentence['POS']
 
             # add the stems
-            for j, word in enumerate(self.sentences[i].words):
-                self.sentences[i].stems.append(Stemmer(stemmer).stem(word))
+            if stemmer is not None:
+                for j, word in enumerate(self.sentences[i].words):
+                    self.sentences[i].stems.append(Stemmer(stemmer).stem(word))
+
+            # otherwise computations are performed on surface forms
+            else:
+                self.sentences[i].stems = self.sentences[i].words
 
             # lowercase the stems/lemmas
             for j, stem in enumerate(self.sentences[i].stems):
@@ -185,7 +201,9 @@ class LoadFile(object):
         """ Read the raw input file and populate the sentence list.
 
             Args:
-                stemmer (str): the stemmer in nltk to use, defaults to porter.
+                stemmer (str): the stemmer in nltk to use, defaults to porter
+                    (can be set to None for using word surface forms instead of
+                    stems).
         """
 
         # parse the document using the preprocessed text parser
@@ -201,8 +219,13 @@ class LoadFile(object):
             self.sentences[i].pos = sentence['POS']
 
             # add the stems
-            for j, word in enumerate(self.sentences[i].words):
-                self.sentences[i].stems.append(Stemmer(stemmer).stem(word))
+            if stemmer is not None:
+                for j, word in enumerate(self.sentences[i].words):
+                    self.sentences[i].stems.append(Stemmer(stemmer).stem(word))
+
+            # otherwise computations are performed on surface forms
+            else:
+                self.sentences[i].stems = self.sentences[i].words
 
             # lowercase the stems/lemmas
             for j, stem in enumerate(self.sentences[i].stems):
@@ -240,13 +263,16 @@ class LoadFile(object):
         return False
 
 
-    def get_n_best(self, n=10, redundancy_removal=False):
+    def get_n_best(self, n=10, redundancy_removal=False, stemming=True):
         """ Returns the n-best candidates given the weights.
 
             Args:
                 n (int): the number of candidates, defaults to 10.
                 redundancy_removal (bool): whether redundant keyphrases are
                     filtered out from the n-best list, defaults to False.
+                stemming (bool): whether to extract stems or surface forms
+                    (lowercased, first occurring form of candidate), default to
+                    stems.
         """
 
         # sort candidates by descending weight
@@ -275,8 +301,16 @@ class LoadFile(object):
             # copy non redundant candidates in best container
             best = non_redundant_best
 
-        # return the list of best candidates as (lexical form, weight) tuples
-        return [(u, self.weights[u]) for u in best[:min(n, len(best))]]
+        # get the list of best candidates as (lexical form, weight) tuples
+        n_best = [(u, self.weights[u]) for u in best[:min(n, len(best))]]
+
+        # replace with surface forms is no stemming
+        if not stemming:
+            n_best = [(' '.join(self.candidates[u].surface_forms[0]).lower(),
+                       self.weights[u]) for u in best[:min(n, len(best))]]
+
+        # return the list of best candidates
+        return n_best
 
 
     def add_candidate(self, words, stems, pos, offset, sentence_id):

@@ -99,9 +99,14 @@ class Kea(SupervisedLoadFile):
         super(Kea, self).__init__(input_file=input_file, language=language)
 
 
-    def candidate_selection(self):
+    def candidate_selection(self, stoplist=None):
         """ Select 1-3 grams as keyphrase candidates. Candidates that start or
             end with a stopword are discarded.
+
+            Args:
+                stoplist (list): the stoplist for filtering candidates, defaults
+                    to the nltk stoplist. Words that are punctuation marks from
+                    string.punctuation are not allowed.
         """
 
         # select ngrams from 1 to 3 grams
@@ -112,8 +117,9 @@ class Kea(SupervisedLoadFile):
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'])
 
-        # initialize the stoplist
-        stoplist = stopwords.words(self.language)
+        # initialize stoplist list if not provided
+        if stoplist is None:
+            stoplist = stopwords.words(self.language)
 
         # filter candidates that start or end with a stopword
         for k, v in self.candidates.items():
