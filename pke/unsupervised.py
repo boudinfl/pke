@@ -26,16 +26,28 @@ from sklearn.cluster import spectral_clustering
 class TfIdf(LoadFile):
     """ TF*IDF keyphrase extraction model. """
 
-    def candidate_selection(self):
-        """ Select 1-3 grams as keyphrase candidates. """
+    def candidate_selection(self, n=3, stoplist=None):
+        """ Select 1-3 grams as keyphrase candidates.
+
+            Args:
+                n (int): the length of the n-grams, defaults to 3.
+                stoplist (list): the stoplist for filtering candidates, defaults
+                    to None. Words that are punctuation marks from
+                    string.punctuation are not allowed.
+        """
 
         # select ngrams from 1 to 3 grams
-        self.ngram_selection(n=3)
+        self.ngram_selection(n=n)
+
+        # initialize empty list if stoplist is not provided
+        if stoplist is None:
+            stoplist = []
 
         # filter candidates containing punctuation marks
         self.candidate_filtering(stoplist=list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'])
+                                  '-rsb-'] +
+                                  stoplist)
 
 
     def candidate_weighting(self, df=None):
@@ -76,23 +88,30 @@ class KPMiner(LoadFile):
             Semantic Evaluation*, pages 190-193, 2010.
     """
 
-    def candidate_selection(self, lasf=3, cutoff=400):
+    def candidate_selection(self, lasf=3, cutoff=400, stoplist=None):
         """ The candidate selection as described in the KP-Miner paper.
 
             Args:
                 lasf (int): least allowable seen frequency, defaults to 3.
                 cutoff (int): the number of words after which candidates are
                     filtered out, defaults to 400.
+                stoplist (list): the stoplist for filtering candidates, defaults
+                    to the nltk stoplist. Words that are punctuation marks from
+                    string.punctuation are not allowed.
         """
 
         # select ngrams from 1 to 5 grams
         self.ngram_selection(n=5)
 
+        # initialize stoplist list if not provided
+        if stoplist is None:
+            stoplist = stopwords.words(self.language)
+
         # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=stopwords.words(self.language) +
-                                 list(string.punctuation) +
+        self.candidate_filtering(stoplist=list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'])
+                                  '-rsb-'] +
+                                  stoplist)
 
         # further filter candidates using lasf and cutoff
         for k, v in self.candidates.items():
@@ -178,6 +197,35 @@ class SingleRank(LoadFile):
         """ The word graph. """
 
 
+    def candidate_selection(self, pos=None, stoplist=None):
+        """ The candidate selection as described in the SingleRank paper.
+
+            Args:
+                pos (set): the set of valid POS tags, defaults to (NN, NNS,
+                    NNP, NNPS, JJ, JJR, JJS).
+                stoplist (list): the stoplist for filtering candidates, defaults
+                    to the nltk stoplist. Words that are punctuation marks from
+                    string.punctuation are not allowed.
+        """
+
+        # define default pos tags set
+        if pos is None:
+            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+
+        # select sequence of adjectives and nouns
+        self.longest_pos_sequence_selection(valid_pos=pos)
+
+        # initialize stoplist list if not provided
+        if stoplist is None:
+            stoplist = stopwords.words(self.language)
+
+        # filter candidates containing stopwords or punctuation marks
+        self.candidate_filtering(stoplist=list(string.punctuation) +
+                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
+                                  '-rsb-'] +
+                                  stoplist)
+
+
     def build_word_graph(self, window=10, pos=None):
         """ Build the word graph from the document.
 
@@ -211,27 +259,6 @@ class SingleRank(LoadFile):
                         self.graph.add_edge(node_1[0], node_2[0], weight=0)
                     self.graph[node_1[0]][node_2[0]]['weight'] += 1.0
 
-
-    def candidate_selection(self, pos=None):
-        """ The candidate selection as described in the SingleRank paper.
-
-            Args:
-                pos (set): the set of valid POS tags, defaults to (NN, NNS,
-                    NNP, NNPS, JJ, JJR, JJS).
-        """
-
-        # define default pos tags set
-        if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
-
-        # select sequence of adjectives and nouns
-        self.longest_pos_sequence_selection(valid_pos=pos)
-
-        # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=stopwords.words(self.language) +
-                                 list(string.punctuation) +
-                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'])
 
     def candidate_weighting(self, window=10, pos=None, normalized=False):
         """ Candidate weight calculation using random walk.
@@ -288,12 +315,15 @@ class TopicRank(LoadFile):
         """ The topic container. """
 
 
-    def candidate_selection(self, pos=None):
+    def candidate_selection(self, pos=None, stoplist=None):
         """ The candidate selection as described in the SingleRank paper.
 
             Args:
                 pos (set): the set of valid POS tags, defaults to (NN, NNS,
                     NNP, NNPS, JJ, JJR, JJS).
+                stoplist (list): the stoplist for filtering candidates, defaults
+                    to the nltk stoplist. Words that are punctuation marks from
+                    string.punctuation are not allowed.
         """
 
         # define default pos tags set
@@ -303,11 +333,15 @@ class TopicRank(LoadFile):
         # select sequence of adjectives and nouns
         self.longest_pos_sequence_selection(valid_pos=pos)
 
+        # initialize stoplist list if not provided
+        if stoplist is None:
+            stoplist = stopwords.words(self.language)
+
         # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=stopwords.words(self.language) +
-                                 list(string.punctuation) +
+        self.candidate_filtering(stoplist=list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'])
+                                  '-rsb-'] +
+                                  stoplist)
 
 
     def vectorize_candidates(self):
