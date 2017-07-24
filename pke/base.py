@@ -5,6 +5,7 @@
 from .readers import MinimalCoreNLPParser, PreProcessedTextReader, RawTextReader
 from collections import defaultdict
 from nltk.stem.snowball import SnowballStemmer as Stemmer
+from nltk import RegexpParser
 from string import letters, digits, punctuation
 import os
 
@@ -373,6 +374,57 @@ class LoadFile(object):
 
                 # flush sequence container
                 seq = []
+
+
+    def grammar_selection(self, grammar=None):
+        """ Select candidates using nltk RegexpParser with a grammar defining
+            noun phrases (NP).
+
+            Args:
+                grammar (str): grammar defining POS patterns of NPs.
+        """
+
+        # initialize default grammar if none provided
+        if grammar is None:
+            grammar = r"""
+                NBAR:
+                    {<NN.*|JJ>*<NN.*>} 
+                    
+                NP:
+                    {<NBAR>}
+                    {<NBAR><IN><NBAR>}
+            """
+
+        # initialize chunker
+        chunker = RegexpParser(grammar)
+
+        # loop through the sentences
+        for i, sentence in enumerate(self.sentences):
+
+            # compute the offset shift for the sentence
+            shift = sum([s.length for s in self.sentences[0:i]])
+
+            # convert sentence as list of (offset, pos) tuples
+            tuples = [(str(j), sentence.pos[j]) for j in range(sentence.length)]
+
+            # parse sentence
+            tree = chunker.parse(tuples)
+
+            # find candidates
+            for subtree in tree.subtrees():
+                if subtree.label() == 'NP':
+                    leaves = subtree.leaves()
+
+                    # get the first and lest offset of the current candidate
+                    first = int(leaves[0][0])
+                    last = int(leaves[-1][0])
+
+                    # add the NP to the candidate container
+                    self.add_candidate(words=sentence.words[first:last+1],
+                                       stems=sentence.stems[first:last+1],
+                                       pos=sentence.pos[first:last+1],
+                                       offset=shift+first,
+                                       sentence_id=i)
 
 
     def candidate_filtering(self,

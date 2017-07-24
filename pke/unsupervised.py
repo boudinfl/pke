@@ -381,7 +381,8 @@ class TopicRank(LoadFile):
                                 gap -= len(self.candidates[c_i].lexical_form)-1
                             if p_j < p_i:
                                 gap -= len(self.candidates[c_j].lexical_form)-1
-                            self.graph[i][j]['weight'] += 1.0 / gap
+                            # get the max for handling zero divisions
+                            self.graph[i][j]['weight'] += 1.0 / max(gap, 1)
 
 
     def candidate_weighting(self, threshold=0.74, method='average',
