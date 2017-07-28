@@ -9,6 +9,10 @@ ships with supervised models trained on the
 
 `pke` works only for Python 2.x at the moment.
 
+If you use `pke`, please cite the following paper:
+
+  * [Florian Boudin. **pke: an open source python-based keyphrase extraction toolkit**, *Proceedings of COLING 2016, the 26th International Conference on Computational Linguistics: System Demonstrations*](http://aclweb.org/anthology/C16-2015). [[bibtex](http://aclweb.org/anthology/C16-2015.bib)]
+
 ## Table of Contents
 
 * [Installation](#installation)
