@@ -341,4 +341,4 @@ keyphrases.
 
 ## Code documentation
 
-For code documentation, please visit [pke.readthedocs.io](http://pke.rtfd.io>).
+For code documentation, please visit [pke.readthedocs.io](http://pke.rtfd.io).
