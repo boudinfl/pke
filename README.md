@@ -331,14 +331,14 @@ combined (stemmed) author- and reader-assigned keyphrases as reference
 keyphrases.
 
 | Approach   | P@10 | R@10 | F@10 |
-|------------|------|------|------|
+| ---------- | ---- | ---- | ---- |
 | TfIdf      | 20.0 | 14.1 | 16.4 |
 | TopicRank  | 15.6 | 10.8 | 12.6 |
-| SingleRank |  2.2 |  1.5 |  1.8 |
+| SingleRank | 2.2  | 1.5  | 1.8  |
 | KP-Miner   | 24.1 | 17.0 | 19.8 |
 | Kea        | 23.5 | 16.6 | 19.3 |
 | WINGNUS    | 24.7 | 17.3 | 20.2 |
 
 ## Code documentation
 
-For code documentation, please visit [pke.readthedocs.io](http://pke.rtfd.io>).
+For code documentation, please visit [pke.readthedocs.io](https://pke.readthedocs.io/en/latest/).
