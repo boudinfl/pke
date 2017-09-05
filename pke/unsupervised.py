@@ -255,7 +255,7 @@ class SingleRank(LoadFile):
             for k in range(j+1, min(j+window, len(sequence))):
                 node_2 = sequence[k]
                 if node_1[1] in pos and node_2[1] in pos \
-                   and node_1[1] != node_2[1]:
+                   and node_1[0] != node_2[0]:
                     if not self.graph.has_edge(node_1[0], node_2[0]):
                         self.graph.add_edge(node_1[0], node_2[0], weight=0)
                     self.graph[node_1[0]][node_2[0]]['weight'] += 1.0
