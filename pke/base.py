@@ -399,11 +399,16 @@ class LoadFile(object):
                 # add sequence as candidate if non empty
                 if seq:
 
+                    # bias for candidate in last position within sentence
+                    bias = 0
+                    if j == (sentence.length - 1):
+                        bias = 1
+
                     # add the ngram to the candidate container
                     self.add_candidate(words=sentence.words[seq[0]:seq[-1]+1],
                                        stems=sentence.stems[seq[0]:seq[-1]+1],
                                        pos=sentence.pos[seq[0]:seq[-1]+1],
-                                       offset=shift+j-len(seq),
+                                       offset=shift+j-len(seq)+bias,
                                        sentence_id=i)
 
                 # flush sequence container
@@ -449,7 +454,7 @@ class LoadFile(object):
                 if subtree.label() == 'NP':
                     leaves = subtree.leaves()
 
-                    # get the first and lest offset of the current candidate
+                    # get the first and last offset of the current candidate
                     first = int(leaves[0][0])
                     last = int(leaves[-1][0])
 

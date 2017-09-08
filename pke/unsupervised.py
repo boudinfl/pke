@@ -282,7 +282,7 @@ class SingleRank(LoadFile):
         self.build_word_graph(window=window, pos=pos)
 
         # compute the word scores using random walk
-        w = nx.pagerank_scipy(self.graph)
+        w = nx.pagerank_scipy(self.graph, alpha=0.85, weight='weight')
 
         # loop through the candidates
         for k in self.candidates.keys():
@@ -416,8 +416,7 @@ class TopicRank(LoadFile):
                                 gap -= len(self.candidates[c_i].lexical_form)-1
                             if p_j < p_i:
                                 gap -= len(self.candidates[c_j].lexical_form)-1
-                            # get the max for handling zero divisions
-                            self.graph[i][j]['weight'] += 1.0 / max(gap, 1)
+                            self.graph[i][j]['weight'] += 1.0 / gap
 
 
     def candidate_weighting(self, threshold=0.74, method='average',
@@ -441,7 +440,7 @@ class TopicRank(LoadFile):
         self.build_topic_graph()
 
         # compute the word scores using random walk
-        w = nx.pagerank_scipy(self.graph)
+        w = nx.pagerank_scipy(self.graph, alpha=0.85, weight='weight')
 
         # loop throught the topics
         for i, topic in enumerate(self.topics):
