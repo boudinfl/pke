@@ -26,7 +26,7 @@ from sklearn.cluster import spectral_clustering
 class TfIdf(LoadFile):
     """ TF*IDF keyphrase extraction model. """
 
-    def candidate_selection(self, n=3, stoplist=None):
+    def candidate_selection(self, n=3, stoplist=None, only_alphanum=True):
         """ Select 1-3 grams as keyphrase candidates.
 
             Args:
@@ -34,6 +34,8 @@ class TfIdf(LoadFile):
                 stoplist (list): the stoplist for filtering candidates, defaults
                     to None. Words that are punctuation marks from
                     string.punctuation are not allowed.
+                only_alphanum (bool): filter candidates containing non (latin)
+                    alpha-numeric characters, defaults to True.
         """
 
         # select ngrams from 1 to 3 grams
@@ -47,7 +49,8 @@ class TfIdf(LoadFile):
         self.candidate_filtering(stoplist=list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'] +
-                                  stoplist)
+                                  stoplist,
+                                  only_alphanum=only_alphanum)
 
 
     def candidate_weighting(self, df=None):
@@ -88,7 +91,7 @@ class KPMiner(LoadFile):
             Semantic Evaluation*, pages 190-193, 2010.
     """
 
-    def candidate_selection(self, lasf=3, cutoff=400, stoplist=None):
+    def candidate_selection(self, lasf=3, cutoff=400, stoplist=None, only_alphanum=True):
         """ The candidate selection as described in the KP-Miner paper.
 
             Args:
@@ -98,6 +101,8 @@ class KPMiner(LoadFile):
                 stoplist (list): the stoplist for filtering candidates, defaults
                     to the nltk stoplist. Words that are punctuation marks from
                     string.punctuation are not allowed.
+                only_alphanum (bool): filter candidates containing non (latin)
+                    alpha-numeric characters, defaults to True.
         """
 
         # select ngrams from 1 to 5 grams
@@ -111,7 +116,8 @@ class KPMiner(LoadFile):
         self.candidate_filtering(stoplist=list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'] +
-                                  stoplist)
+                                  stoplist,
+                                  only_alphanum=only_alphanum)
 
         # further filter candidates using lasf and cutoff
         for k, v in self.candidates.items():
@@ -197,7 +203,7 @@ class SingleRank(LoadFile):
         """ The word graph. """
 
 
-    def candidate_selection(self, pos=None, stoplist=None):
+    def candidate_selection(self, pos=None, stoplist=None, only_alphanum=True):
         """ The candidate selection as described in the SingleRank paper.
 
             Args:
@@ -206,6 +212,8 @@ class SingleRank(LoadFile):
                 stoplist (list): the stoplist for filtering candidates, defaults
                     to the nltk stoplist. Words that are punctuation marks from
                     string.punctuation are not allowed.
+                only_alphanum (bool): filter candidates containing non (latin)
+                    alpha-numeric characters, defaults to True.
         """
 
         # define default pos tags set
@@ -223,7 +231,8 @@ class SingleRank(LoadFile):
         self.candidate_filtering(stoplist=list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'] +
-                                  stoplist)
+                                  stoplist,
+                                  only_alphanum=only_alphanum)
 
 
     def build_word_graph(self, window=10, pos=None):
@@ -316,7 +325,7 @@ class TopicRank(LoadFile):
         """ The topic container. """
 
 
-    def candidate_selection(self, pos=None, stoplist=None):
+    def candidate_selection(self, pos=None, stoplist=None, only_alphanum=True):
         """ The candidate selection as described in the SingleRank paper.
 
             Args:
@@ -325,6 +334,8 @@ class TopicRank(LoadFile):
                 stoplist (list): the stoplist for filtering candidates, defaults
                     to the nltk stoplist. Words that are punctuation marks from
                     string.punctuation are not allowed.
+                only_alphanum (bool): filter candidates containing non (latin)
+                    alpha-numeric characters, defaults to True.
         """
 
         # define default pos tags set
@@ -342,7 +353,8 @@ class TopicRank(LoadFile):
         self.candidate_filtering(stoplist=list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
                                   '-rsb-'] +
-                                  stoplist)
+                                  stoplist,
+                                  only_alphanum=only_alphanum)
 
 
     def vectorize_candidates(self):
