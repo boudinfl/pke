@@ -9,6 +9,7 @@ scipy
 nltk
 networkx
 sklearn
+unidecode
 ```
 
 To pip install `pke` from github:
