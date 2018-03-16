@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='pke',
-      version='1.5',
+      version='1.6',
       description='Python Keyphrase Extraction module',
       author='Florian Boudin',
       author_email='florian.boudin@univ-nantes.fr',

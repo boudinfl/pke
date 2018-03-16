@@ -9,9 +9,11 @@ ships with supervised models trained on the
 
 `pke` works only for Python 2.x at the moment.
 
-If you use `pke`, please cite the following paper:
+If you use `pke`, please cite the following papers:
 
   * [Florian Boudin. **pke: an open source python-based keyphrase extraction toolkit**, *Proceedings of COLING 2016, the 26th International Conference on Computational Linguistics: System Demonstrations*](http://aclweb.org/anthology/C16-2015). [[bibtex](http://aclweb.org/anthology/C16-2015.bib)]
+
+  * [Florian Boudin. **Unsupervised Keyphrase Extraction with Multipartite Graphs**, *Proceedings of NAACL 2018*](http://naacl2018.org/).
 
 ## Table of Contents
 
@@ -19,6 +21,7 @@ If you use `pke`, please cite the following paper:
 * [Usage](#usage)
   - [Minimal example](#minimal-example)
   - [Input formats](#input-formats)
+  - [Implemented approaches](#implemented-approaches)
   - [Provided models](#provided-models)
   - [Document Frequency counts](#document-frequency-counts)
   - [Training supervised models](#training-supervised-models)
@@ -161,11 +164,19 @@ input files are provided in the `examples/` directory):
    extractor.read_document(format='corenlp')
    ```
 
+### Implemented approaches
+
+`pke` currently implements the following keyphrase extraction approaches:
+
+
+
+
 ### Provided models
 
-`pke` ships with a collection of already trained models and document frequency
-counts that were computed on the training set of the SemEval-2010 benchmark
-dataset. These models are located into the `pke/models/` directory.
+`pke` ships with a collection of already trained models (for supervised
+keyphrase extraction approaches)and document frequency counts that were computed
+on the training set of the SemEval-2010 benchmark dataset. These models are
+located into the `pke/models/` directory.
 
 For details about the provided models, see [pke/models/README.md](pke/models/README.md).
 
@@ -341,4 +352,4 @@ keyphrases.
 
 ## Code documentation
 
-For code documentation, please visit [pke.readthedocs.io](https://pke.readthedocs.io/en/latest/).
+For code documentation, please visit [https://boudinfl.github.io/pke/](https://boudinfl.github.io/pke/).

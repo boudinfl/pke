@@ -94,6 +94,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#kpminer">KPMiner</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#singlerank">SingleRank</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#topicrank">TopicRank</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multipartiterank">MultipartiteRank</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#positionrank">PositionRank</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="supervised.html">Supervised models</a></li>
@@ -432,6 +434,145 @@ similarity.</dd>
 <dt>Returns:</dt>
 <dd>C (list): the list of candidates.
 X (matrix): vectorized representation of the candidates.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="multipartiterank">
+<h2>MultipartiteRank<a class="headerlink" href="#multipartiterank" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pke.unsupervised.MultipartiteRank">
+<em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">MultipartiteRank</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.MultipartiteRank" title="Permalink to this definition">¶</a></dt>
+<dd><p>Multipartite graph keyphrase extraction model.</p>
+<p>This model was published and described in:</p>
+<ul class="simple">
+<li>Florian Boudin, Unsupervised Keyphrase Extraction with Multipartite
+Graphs, <em>Proceedings of NAACL</em>, 2018.</li>
+</ul>
+<dl class="method">
+<dt id="pke.unsupervised.MultipartiteRank.build_topic_graph">
+<code class="descname">build_topic_graph</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.MultipartiteRank.build_topic_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the Multipartite graph.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.unsupervised.MultipartiteRank.candidate_weighting">
+<code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>threshold=0.74</em>, <em>method='average'</em>, <em>alpha=1.1</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.MultipartiteRank.candidate_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Candidate weight calculation using random walk.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>threshold (float): the minimum similarity for clustering,</dt>
+<dd>defaults to 0.25.</dd>
+</dl>
+<p>method (str): the linkage method, defaults to average.
+alpha (float): hyper-parameter that controls the strength of the</p>
+<blockquote class="last">
+<div>weight adjustment, defaults to 1.1.</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.unsupervised.MultipartiteRank.graph">
+<code class="descname">graph</code><em class="property"> = None</em><a class="headerlink" href="#pke.unsupervised.MultipartiteRank.graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redefine the graph as a directed graph.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.unsupervised.MultipartiteRank.topic_clustering">
+<code class="descname">topic_clustering</code><span class="sig-paren">(</span><em>threshold=0.74</em>, <em>method='average'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.MultipartiteRank.topic_clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clustering candidates into topics.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>threshold (float): the minimum similarity for clustering,</dt>
+<dd>defaults to 0.74, i.e. more than 1/4 of stem overlap
+similarity.</dd>
+</dl>
+<p class="last">method (str): the linkage method, defaults to average.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.unsupervised.MultipartiteRank.topic_identifiers">
+<code class="descname">topic_identifiers</code><em class="property"> = None</em><a class="headerlink" href="#pke.unsupervised.MultipartiteRank.topic_identifiers" title="Permalink to this definition">¶</a></dt>
+<dd><p>A container for linking candidates to topic identifiers.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.unsupervised.MultipartiteRank.weight_adjustment">
+<code class="descname">weight_adjustment</code><span class="sig-paren">(</span><em>alpha=1.1</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.MultipartiteRank.weight_adjustment" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adjust edge weights for boosting some candidates.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>alpha (float): hyper-parameter that controls the strength of the</dt>
+<dd>weight adjustment, defaults to 1.1.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="positionrank">
+<h2>PositionRank<a class="headerlink" href="#positionrank" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pke.unsupervised.PositionRank">
+<em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">PositionRank</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.PositionRank" title="Permalink to this definition">¶</a></dt>
+<dd><p>PositionRank keyphrase extraction model.</p>
+<p>This model was published and described in:</p>
+<ul class="simple">
+<li>Corina Florescu and Cornelia Caragea. PositionRank: An Unsupervised
+Approach to Keyphrase Extraction from Scholarly Documents,
+<em>Proceedings of ACL</em>, pages 1105-1115, 2017.</li>
+</ul>
+<dl class="method">
+<dt id="pke.unsupervised.PositionRank.build_word_graph">
+<code class="descname">build_word_graph</code><span class="sig-paren">(</span><em>window=10</em>, <em>pos=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.PositionRank.build_word_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the word graph from the document.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>window (int): the window within the sentence for connecting two</dt>
+<dd>words in the graph, defaults to 10.</dd>
+<dt>pos (set): the set of valid pos for words to be considered as</dt>
+<dd>nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
+JJR, JJS).</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.unsupervised.PositionRank.candidate_selection">
+<code class="descname">candidate_selection</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.PositionRank.candidate_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>The candidate selection heuristic described in the PositionRank
+paper, i.e. noun phrases that match the regular expression
+(adjective)*(noun)+, of length up to three.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.unsupervised.PositionRank.candidate_weighting">
+<code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>window=10</em>, <em>pos=None</em>, <em>normalized=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.PositionRank.candidate_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Candidate weight calculation using random walk.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>window (int): the window within the sentence for connecting two</dt>
+<dd>words in the graph, defaults to 10.</dd>
+<dt>pos (set): the set of valid pos for words to be considered as</dt>
+<dd>nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
+JJR, JJS).</dd>
+<dt>normalized (False): normalize keyphrase score by their length,</dt>
+<dd>defaults to False.</dd>
+</dl>
+</dd>
 </dl>
 </dd></dl>
 

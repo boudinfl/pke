@@ -82,7 +82,8 @@ if __name__ == "__main__":
 
     extr.candidate_selection()
 
-    if args.approach in ['TfIdf', 'TopicRank', 'SingleRank', 'KPMiner']:
+    if args.approach in ['TfIdf', 'TopicRank', 'SingleRank', 'KPMiner',
+                         'MultipartiteRank', 'PositionRank']:
         extr.candidate_weighting()
     elif args.approach in ['WINGNUS', 'Kea']:
         extr.feature_extraction(df=df)

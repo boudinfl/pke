@@ -187,12 +187,20 @@
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="unsupervised.html#pke.unsupervised.TopicRank.build_topic_graph">build_topic_graph() (pke.unsupervised.TopicRank method)</a>
+      <li><a href="unsupervised.html#pke.unsupervised.MultipartiteRank.build_topic_graph">build_topic_graph() (pke.unsupervised.MultipartiteRank method)</a>
+
+      <ul>
+        <li><a href="unsupervised.html#pke.unsupervised.TopicRank.build_topic_graph">(pke.unsupervised.TopicRank method)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="unsupervised.html#pke.unsupervised.SingleRank.build_word_graph">build_word_graph() (pke.unsupervised.SingleRank method)</a>
+      <li><a href="unsupervised.html#pke.unsupervised.PositionRank.build_word_graph">build_word_graph() (pke.unsupervised.PositionRank method)</a>
+
+      <ul>
+        <li><a href="unsupervised.html#pke.unsupervised.SingleRank.build_word_graph">(pke.unsupervised.SingleRank method)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -212,6 +220,8 @@
 </li>
         <li><a href="unsupervised.html#pke.unsupervised.KPMiner.candidate_selection">(pke.unsupervised.KPMiner method)</a>
 </li>
+        <li><a href="unsupervised.html#pke.unsupervised.PositionRank.candidate_selection">(pke.unsupervised.PositionRank method)</a>
+</li>
         <li><a href="unsupervised.html#pke.unsupervised.SingleRank.candidate_selection">(pke.unsupervised.SingleRank method)</a>
 </li>
         <li><a href="unsupervised.html#pke.unsupervised.TfIdf.candidate_selection">(pke.unsupervised.TfIdf method)</a>
@@ -225,6 +235,10 @@
 
       <ul>
         <li><a href="unsupervised.html#pke.unsupervised.KPMiner.candidate_weighting">(pke.unsupervised.KPMiner method)</a>
+</li>
+        <li><a href="unsupervised.html#pke.unsupervised.MultipartiteRank.candidate_weighting">(pke.unsupervised.MultipartiteRank method)</a>
+</li>
+        <li><a href="unsupervised.html#pke.unsupervised.PositionRank.candidate_weighting">(pke.unsupervised.PositionRank method)</a>
 </li>
         <li><a href="unsupervised.html#pke.unsupervised.SingleRank.candidate_weighting">(pke.unsupervised.SingleRank method)</a>
 </li>
@@ -271,9 +285,11 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="unsupervised.html#pke.unsupervised.SingleRank.graph">graph (pke.unsupervised.SingleRank attribute)</a>
+      <li><a href="unsupervised.html#pke.unsupervised.MultipartiteRank.graph">graph (pke.unsupervised.MultipartiteRank attribute)</a>
 
       <ul>
+        <li><a href="unsupervised.html#pke.unsupervised.SingleRank.graph">(pke.unsupervised.SingleRank attribute)</a>
+</li>
         <li><a href="unsupervised.html#pke.unsupervised.TopicRank.graph">(pke.unsupervised.TopicRank attribute)</a>
 </li>
       </ul></li>
@@ -337,6 +353,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="readers.html#pke.readers.MinimalCoreNLPParser">MinimalCoreNLPParser (class in pke.readers)</a>
 </li>
+      <li><a href="unsupervised.html#pke.unsupervised.MultipartiteRank">MultipartiteRank (class in pke.unsupervised)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -374,6 +392,8 @@
       <li><a href="base.html#pke.base.Sentence.pos">pos (pke.base.Sentence attribute)</a>
 </li>
       <li><a href="base.html#pke.base.Candidate.pos_patterns">pos_patterns (pke.base.Candidate attribute)</a>
+</li>
+      <li><a href="unsupervised.html#pke.unsupervised.PositionRank">PositionRank (class in pke.unsupervised)</a>
 </li>
       <li><a href="readers.html#pke.readers.PreProcessedTextReader">PreProcessedTextReader (class in pke.readers)</a>
 </li>
@@ -427,14 +447,20 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="unsupervised.html#pke.unsupervised.TfIdf">TfIdf (class in pke.unsupervised)</a>
 </li>
-      <li><a href="unsupervised.html#pke.unsupervised.TopicRank.topic_clustering">topic_clustering() (pke.unsupervised.TopicRank method)</a>
+      <li><a href="unsupervised.html#pke.unsupervised.MultipartiteRank.topic_clustering">topic_clustering() (pke.unsupervised.MultipartiteRank method)</a>
+
+      <ul>
+        <li><a href="unsupervised.html#pke.unsupervised.TopicRank.topic_clustering">(pke.unsupervised.TopicRank method)</a>
+</li>
+      </ul></li>
+      <li><a href="unsupervised.html#pke.unsupervised.MultipartiteRank.topic_identifiers">topic_identifiers (pke.unsupervised.MultipartiteRank attribute)</a>
 </li>
       <li><a href="unsupervised.html#pke.unsupervised.TopicRank">TopicRank (class in pke.unsupervised)</a>
 </li>
-      <li><a href="unsupervised.html#pke.unsupervised.TopicRank.topics">topics (pke.unsupervised.TopicRank attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="unsupervised.html#pke.unsupervised.TopicRank.topics">topics (pke.unsupervised.TopicRank attribute)</a>
+</li>
       <li><a href="supervised.html#pke.supervised.Kea.train">train() (pke.supervised.Kea static method)</a>
 
       <ul>
@@ -459,6 +485,8 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="unsupervised.html#pke.unsupervised.MultipartiteRank.weight_adjustment">weight_adjustment() (pke.unsupervised.MultipartiteRank method)</a>
+</li>
       <li><a href="base.html#pke.base.LoadFile.weights">weights (pke.base.LoadFile attribute)</a>
 </li>
   </ul></td>
