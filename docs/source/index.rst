@@ -1,5 +1,5 @@
-``pke`` : an open source python-based keyphrase extraction toolkit
-==================================================================
+``pke`` : Python-based Keyphrase Extraction toolkit
+===================================================
 
 ``pke`` is an open source python-based keyphrase extraction toolkit. It provides
 an end-to-end keyphrase extraction pipeline in which each component can be
@@ -9,21 +9,18 @@ ships with supervised models trained on the `SemEval-2010 dataset
 <http://aclweb.org/anthology/S10-1004.pdf>`_.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Installation
+   :maxdepth: 1
+   :caption: Package reference
 
-   install
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Base Classes
-
-   classes
-
+   base
+   unsupervised
+   supervised
+   readers
+   utils
 
 Indices and tables
-------------------
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`
-
+* :ref:`search`

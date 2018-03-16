@@ -1,5 +1,5 @@
 .DS_Store
 *.pyc
-docs/build/*
-
+docs/build/doctrees/*
+docs/build/html/_sources/*
 pke/dev.py

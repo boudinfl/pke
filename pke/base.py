@@ -427,7 +427,7 @@ class LoadFile(object):
         if grammar is None:
             grammar = r"""
                 NBAR:
-                    {<NN.*|JJ>*<NN.*>} 
+                    {<NN.*|JJ.*>*<NN.*>} 
                     
                 NP:
                     {<NBAR>}

@@ -1,0 +1,515 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Unsupervised models &mdash; pke 1.6 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pke 1.6 documentation" href="index.html"/>
+        <link rel="next" title="Supervised models" href="supervised.html"/>
+        <link rel="prev" title="Base classes" href="base.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pke
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Package reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="base.html">Base classes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Unsupervised models</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tfidf">TfIdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#kpminer">KPMiner</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#singlerank">SingleRank</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#topicrank">TopicRank</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="supervised.html">Supervised models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readers.html">Reader classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Useful functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pke</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Unsupervised models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/unsupervised.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pke.unsupervised">
+<span id="unsupervised-models"></span><h1>Unsupervised models<a class="headerlink" href="#module-pke.unsupervised" title="Permalink to this headline">¶</a></h1>
+<p>Unsupervised keyphrase extraction models.</p>
+<div class="section" id="tfidf">
+<h2>TfIdf<a class="headerlink" href="#tfidf" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pke.unsupervised.TfIdf">
+<em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">TfIdf</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TfIdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>TF*IDF keyphrase extraction model.</p>
+<dl class="method">
+<dt id="pke.unsupervised.TfIdf.candidate_selection">
+<code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>n=3</em>, <em>stoplist=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TfIdf.candidate_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select 1-3 grams as keyphrase candidates.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">n (int): the length of the n-grams, defaults to 3.
+stoplist (list): the stoplist for filtering candidates, defaults</p>
+<blockquote class="last">
+<div>to None. Words that are punctuation marks from
+string.punctuation are not allowed.</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.unsupervised.TfIdf.candidate_weighting">
+<code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>df=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TfIdf.candidate_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Candidate weighting function using document frequencies.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>df (dict): document frequencies, the number of documents should</dt>
+<dd>be specified using the “–NB_DOC–” key.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="kpminer">
+<h2>KPMiner<a class="headerlink" href="#kpminer" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pke.unsupervised.KPMiner">
+<em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">KPMiner</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.KPMiner" title="Permalink to this definition">¶</a></dt>
+<dd><p>KP-Miner keyphrase extraction model.</p>
+<p>This model was published and described in:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Samhaa R. El-Beltagy and Ahmed Rafea, KP-Miner: Participation in
+SemEval-2, <em>Proceedings of the 5th International Workshop on
+Semantic Evaluation</em>, pages 190-193, 2010.</li>
+</ul>
+</div></blockquote>
+<dl class="method">
+<dt id="pke.unsupervised.KPMiner.candidate_selection">
+<code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>lasf=3</em>, <em>cutoff=400</em>, <em>stoplist=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.KPMiner.candidate_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>The candidate selection as described in the KP-Miner paper.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">lasf (int): least allowable seen frequency, defaults to 3.
+cutoff (int): the number of words after which candidates are</p>
+<blockquote>
+<div>filtered out, defaults to 400.</div></blockquote>
+<dl class="last docutils">
+<dt>stoplist (list): the stoplist for filtering candidates, defaults</dt>
+<dd>to the nltk stoplist. Words that are punctuation marks from
+string.punctuation are not allowed.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.unsupervised.KPMiner.candidate_weighting">
+<code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>df=None</em>, <em>sigma=3.0</em>, <em>alpha=2.3</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.KPMiner.candidate_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Candidate weight calculation as described in the KP-Miner paper.</p>
+<p>w = tf * idf * B * P_f</p>
+<dl class="docutils">
+<dt>with:</dt>
+<dd>B = N_d / (P_d * alpha) and B = min(sigma, B)
+N_d = the number of all candidate terms
+P_d = number of candidates whose length exceeds one
+P_f = 1</dd>
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>df (dict): document frequencies, the number of documents should</dt>
+<dd>be specified using the “–NB_DOC–” key.</dd>
+</dl>
+<p class="last">sigma (int): parameter for boosting factor, defaults to 3.0.
+alpha (int): parameter for boosting factor, defaults to 2.3.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="singlerank">
+<h2>SingleRank<a class="headerlink" href="#singlerank" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pke.unsupervised.SingleRank">
+<em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">SingleRank</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.SingleRank" title="Permalink to this definition">¶</a></dt>
+<dd><p>The SingleRank keyphrase extraction model.</p>
+<p>This model was published and described in:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Xiaojun Wan and Jianguo Xiao, CollabRank: Towards a Collaborative
+Approach to Single-Document Keyphrase Extraction, <em>Proceedings of
+the 22nd International Conference on Computational Linguistics
+(Coling 2008)</em>, pages 969-976, 2008.</li>
+</ul>
+</div></blockquote>
+<dl class="method">
+<dt id="pke.unsupervised.SingleRank.build_word_graph">
+<code class="descname">build_word_graph</code><span class="sig-paren">(</span><em>window=10</em>, <em>pos=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.SingleRank.build_word_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the word graph from the document.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>window (int): the window within the sentence for connecting two</dt>
+<dd>words in the graph, defaults to 10.</dd>
+<dt>pos (set): the set of valid pos for words to be considered as</dt>
+<dd>nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
+JJR, JJS).</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.unsupervised.SingleRank.candidate_selection">
+<code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>pos=None</em>, <em>stoplist=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.SingleRank.candidate_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>The candidate selection as described in the SingleRank paper.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>pos (set): the set of valid POS tags, defaults to (NN, NNS,</dt>
+<dd>NNP, NNPS, JJ, JJR, JJS).</dd>
+<dt>stoplist (list): the stoplist for filtering candidates, defaults</dt>
+<dd>to the nltk stoplist. Words that are punctuation marks from
+string.punctuation are not allowed.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.unsupervised.SingleRank.candidate_weighting">
+<code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>window=10</em>, <em>pos=None</em>, <em>normalized=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.SingleRank.candidate_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Candidate weight calculation using random walk.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>window (int): the window within the sentence for connecting two</dt>
+<dd>words in the graph, defaults to 10.</dd>
+<dt>pos (set): the set of valid pos for words to be considered as</dt>
+<dd>nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
+JJR, JJS).</dd>
+<dt>normalized (False): normalize keyphrase score by their length,</dt>
+<dd>defaults to False</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.unsupervised.SingleRank.graph">
+<code class="descname">graph</code><em class="property"> = None</em><a class="headerlink" href="#pke.unsupervised.SingleRank.graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>The word graph.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="topicrank">
+<h2>TopicRank<a class="headerlink" href="#topicrank" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pke.unsupervised.TopicRank">
+<em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">TopicRank</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TopicRank" title="Permalink to this definition">¶</a></dt>
+<dd><p>The TopicRank keyphrase extraction model.</p>
+<p>This model was published and described in:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Adrien Bougouin, Florian Boudin and Béatrice Daille, TopicRank:
+Graph-Based Topic Ranking for Keyphrase Extraction, <em>Proceedings of
+the Sixth International Joint Conference on Natural Language
+Processing</em>, pages 543-551, 2013.</li>
+</ul>
+</div></blockquote>
+<dl class="method">
+<dt id="pke.unsupervised.TopicRank.build_topic_graph">
+<code class="descname">build_topic_graph</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TopicRank.build_topic_graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the topic graph.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.unsupervised.TopicRank.candidate_selection">
+<code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>pos=None</em>, <em>stoplist=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TopicRank.candidate_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>The candidate selection as described in the SingleRank paper.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>pos (set): the set of valid POS tags, defaults to (NN, NNS,</dt>
+<dd>NNP, NNPS, JJ, JJR, JJS).</dd>
+<dt>stoplist (list): the stoplist for filtering candidates, defaults</dt>
+<dd>to the nltk stoplist. Words that are punctuation marks from
+string.punctuation are not allowed.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.unsupervised.TopicRank.candidate_weighting">
+<code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>threshold=0.74</em>, <em>method='average'</em>, <em>heuristic=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TopicRank.candidate_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Candidate weight calculation using random walk.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>threshold (float): the minimum similarity for clustering,</dt>
+<dd>defaults to 0.74.</dd>
+</dl>
+<p>method (str): the linkage method, defaults to average.
+heuristic (str): the heuristic for selecting the best candidate</p>
+<blockquote class="last">
+<div>for each topic, defaults to first occurring candidate. Other
+options are ‘frequent’ (most frequent candidate, position
+is used for ties).</div></blockquote>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.unsupervised.TopicRank.graph">
+<code class="descname">graph</code><em class="property"> = None</em><a class="headerlink" href="#pke.unsupervised.TopicRank.graph" title="Permalink to this definition">¶</a></dt>
+<dd><p>The topic graph.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.unsupervised.TopicRank.topic_clustering">
+<code class="descname">topic_clustering</code><span class="sig-paren">(</span><em>threshold=0.74</em>, <em>method='average'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TopicRank.topic_clustering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clustering candidates into topics.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first docutils">
+<dt>threshold (float): the minimum similarity for clustering,</dt>
+<dd>defaults to 0.74, i.e. more than 1/4 of stem overlap
+similarity.</dd>
+</dl>
+<p class="last">method (str): the linkage method, defaults to average.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.unsupervised.TopicRank.topics">
+<code class="descname">topics</code><em class="property"> = None</em><a class="headerlink" href="#pke.unsupervised.TopicRank.topics" title="Permalink to this definition">¶</a></dt>
+<dd><p>The topic container.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.unsupervised.TopicRank.vectorize_candidates">
+<code class="descname">vectorize_candidates</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TopicRank.vectorize_candidates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Vectorize the keyphrase candidates.</p>
+<dl class="docutils">
+<dt>Returns:</dt>
+<dd>C (list): the list of candidates.
+X (matrix): vectorized representation of the candidates.</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="supervised.html" class="btn btn-neutral float-right" title="Supervised models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="base.html" class="btn btn-neutral" title="Base classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Florian Boudin.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.6',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

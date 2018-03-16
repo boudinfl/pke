@@ -1,0 +1,324 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Useful functions &mdash; pke 1.6 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="genindex.html"/>
+        <link rel="search" title="Search" href="search.html"/>
+    <link rel="top" title="pke 1.6 documentation" href="index.html"/>
+        <link rel="prev" title="Reader classes" href="readers.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> pke
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Package reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="base.html">Base classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="unsupervised.html">Unsupervised models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="supervised.html">Supervised models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="readers.html">Reader classes</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Useful functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pke</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Useful functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/utils.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-pke.utils">
+<span id="useful-functions"></span><h1>Useful functions<a class="headerlink" href="#module-pke.utils" title="Permalink to this headline">¶</a></h1>
+<p>Useful functions for the pke module.</p>
+<dl class="function">
+<dt id="pke.utils.compute_document_frequency">
+<code class="descclassname">pke.utils.</code><code class="descname">compute_document_frequency</code><span class="sig-paren">(</span><em>input_dir</em>, <em>output_file</em>, <em>format='corenlp'</em>, <em>extension='xml'</em>, <em>use_lemmas=False</em>, <em>stemmer='porter'</em>, <em>stoplist=None</em>, <em>delimiter='\t'</em>, <em>n=3</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.compute_document_frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute n-gram document frequencies from a set of input documents. An
+extra row is added to the output file for specifying the number of
+documents from which the frequencies were computed (–NB_DOC– tab XX).</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">input_dir (str): the input directory.
+output_file (str): the output file.
+format (str): the input files format, defaults to corenlp.
+extension (str): file extension for input documents, defaults to</p>
+<blockquote>
+<div>xml.</div></blockquote>
+<dl class="docutils">
+<dt>use_lemmas (bool): whether lemmas from stanford corenlp are used</dt>
+<dd>instead of stems (computed by nltk), defaults to False.</dd>
+<dt>stemmer (str): the stemmer in nltk to used (if used), defaults</dt>
+<dd>to porter.</dd>
+<dt>stoplist (list): the stop words for filtering n-grams, default to</dt>
+<dd>None.</dd>
+<dt>delimiter (str): the delimiter between n-grams and document</dt>
+<dd>frequencies, default to tabulation.</dd>
+</dl>
+<p class="last">n (int): the length for ngrams, defaults to 3.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pke.utils.load_document_frequency_file">
+<code class="descclassname">pke.utils.</code><code class="descname">load_document_frequency_file</code><span class="sig-paren">(</span><em>input_file</em>, <em>delimiter='\t'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.load_document_frequency_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a csv file containing document frequencies. Automatically detects
+if input file is compressed (gzip) if extension is ‘.gz’.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><dl class="first last docutils">
+<dt>input_file (str): the input file containing document frequencies in</dt>
+<dd>csv format.</dd>
+<dt>delimiter (str): the delimiter used for separating term-document</dt>
+<dd>frequencies tuples, defauts to ‘        ‘.</dd>
+</dl>
+</dd>
+<dt>Returns:</dt>
+<dd><dl class="first last docutils">
+<dt>frequencies (dic): a dictionary of the form {term_1: freq,</dt>
+<dd>term_2: freq}, freq being an integer.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="pke.utils.load_references">
+<code class="descclassname">pke.utils.</code><code class="descname">load_references</code><span class="sig-paren">(</span><em>input_file</em>, <em>sep_doc_id=':'</em>, <em>sep_ref_keyphrases='</em>, <em>'</em>, <em>reference_stemming=False</em>, <em>stemmer='porter'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.load_references" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a reference file and returns a dictionary.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="pke.utils.train_supervised_model">
+<code class="descclassname">pke.utils.</code><code class="descname">train_supervised_model</code><span class="sig-paren">(</span><em>input_dir</em>, <em>reference_file</em>, <em>model_file</em>, <em>df=None</em>, <em>format='corenlp'</em>, <em>use_lemmas=False</em>, <em>stemmer='porter'</em>, <em>model=None</em>, <em>language='english'</em>, <em>extension='xml'</em>, <em>sep_doc_id=':'</em>, <em>sep_ref_keyphrases='</em>, <em>'</em>, <em>reference_stemming=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.train_supervised_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a supervised keyphrase extraction model from a set of documents
+and a reference file.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">input_dir (str): the input directory.
+reference_file (str): the reference file.
+model_file (str): the model output file.
+df (dict): df weights dictionary.
+format (str): the input files format, defaults to corenlp.
+use_lemmas (bool): weither lemmas from stanford corenlp are used</p>
+<blockquote>
+<div>instead of stems (computed by nltk), defaults to False.</div></blockquote>
+<dl class="docutils">
+<dt>stemmer (str): the stemmer in nltk to used (if used), defaults</dt>
+<dd>to porter.</dd>
+</dl>
+<p>model (object): the supervised model to train, defaults to None.
+extension (str): file extension for input documents, defaults to</p>
+<blockquote>
+<div>xml.</div></blockquote>
+<dl class="last docutils">
+<dt>sep_doc_id (str): the separator used for doc_id in reference file,</dt>
+<dd>defaults to ‘:’.</dd>
+<dt>sep_ref_keyphrases (str): the separator used for keyphrases in</dt>
+<dd>reference file, defaults to ‘,’.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="readers.html" class="btn btn-neutral" title="Reader classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Florian Boudin.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'1.6',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
