@@ -99,7 +99,7 @@ class Kea(SupervisedLoadFile):
         super(Kea, self).__init__(input_file=input_file, language=language)
 
 
-    def candidate_selection(self, stoplist=None):
+    def candidate_selection(self, stoplist=None, only_alphanum=True):
         """ Select 1-3 grams as keyphrase candidates. Candidates that start or
             end with a stopword are discarded.
 
@@ -107,6 +107,8 @@ class Kea(SupervisedLoadFile):
                 stoplist (list): the stoplist for filtering candidates, defaults
                     to the nltk stoplist. Words that are punctuation marks from
                     string.punctuation are not allowed.
+                only_alphanum (bool): filter candidates containing non (latin)
+                    alpha-numeric characters, defaults to True.
         """
 
         # select ngrams from 1 to 3 grams
@@ -115,7 +117,8 @@ class Kea(SupervisedLoadFile):
         # filter candidates containing punctuation marks
         self.candidate_filtering(list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'])
+                                  '-rsb-'],
+                                  only_alphanum=only_alphanum)
 
         # initialize stoplist list if not provided
         if stoplist is None:
@@ -201,7 +204,8 @@ class WINGNUS(SupervisedLoadFile):
 
     def candidate_selection(self,
                             NP='^((JJ|NN) ){,2}NN$',
-                            NP_IN_NP='^((JJ|NN) )?NN IN ((JJ|NN) )?NN$'):
+                            NP_IN_NP='^((JJ|NN) )?NN IN ((JJ|NN) )?NN$',
+                            only_alphanum=True):
         """ Select noun phrases (NP) and NP containing a preprositional phrase
             (NP IN NP) as keyphrase candidates.
 
@@ -210,6 +214,8 @@ class WINGNUS(SupervisedLoadFile):
                     '^((JJ|NN) ){,2}NN$'.
                 simplex_NP (str): the pattern for filtering simplex noun
                     phrases, defaults to '^((JJ|NN) )?NN IN ((JJ|NN) )?NN$'.
+                only_alphanum (bool): filter candidates containing non (latin)
+                    alpha-numeric characters, defaults to True.
         """
 
         # select ngrams from 1 to 4 grams
@@ -218,7 +224,8 @@ class WINGNUS(SupervisedLoadFile):
         # filter candidates containing punctuation marks
         self.candidate_filtering(stoplist=list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'])
+                                  '-rsb-'],
+                                  only_alphanum=only_alphanum)
 
         # filter non-simplex noun phrases
         for k, v in self.candidates.items():
@@ -422,7 +429,8 @@ class SEERLAB(SupervisedLoadFile):
     def candidate_selection(self,
                             dblp_candidates=None,
                             mf_unigrams=30,
-                            mf_non_unigrams=30):
+                            mf_non_unigrams=30,
+                            only_alphanum=True):
         """ Select keyphrase candidates.
 
             Args:
@@ -432,6 +440,8 @@ class SEERLAB(SupervisedLoadFile):
                     include in the candidates, defaults to 30.
                 mf_non_unigrams (int): the number of most frequent non-unigrams
                     to include in the candidates, defaults to 30.
+                only_alphanum (bool): filter candidates containing non (latin)
+                    alpha-numeric characters, defaults to True.
         """
 
         # select ngrams from 1 to 4 grams
@@ -441,7 +451,8 @@ class SEERLAB(SupervisedLoadFile):
         self.candidate_filtering(stoplist=stopwords.words(self.language) +
                                  list(string.punctuation) +
                                  ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'])
+                                  '-rsb-'],
+                                  only_alphanum=only_alphanum)
 
         # build the sets of unigrams, non-unigrams and acronyms
         unigrams = list()
