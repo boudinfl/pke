@@ -9,11 +9,9 @@ ships with supervised models trained on the
 
 `pke` works only for Python 2.x at the moment.
 
-If you use `pke`, please cite the following papers:
+If you use `pke`, please cite the following paper:
 
   * [Florian Boudin. **pke: an open source python-based keyphrase extraction toolkit**, *Proceedings of COLING 2016, the 26th International Conference on Computational Linguistics: System Demonstrations*](http://aclweb.org/anthology/C16-2015). [[bibtex](http://aclweb.org/anthology/C16-2015.bib)]
-
-  * [Florian Boudin. **Unsupervised Keyphrase Extraction with Multipartite Graphs**, *Proceedings of NAACL 2018*](http://naacl2018.org/).
 
 ## Table of Contents
 
@@ -171,16 +169,16 @@ input files are provided in the `examples/` directory):
 * Unsupervised models
   * Statistical models
     * TfIdf
-    * KPMiner [El-Beltagy and Rafea (2010)](http://www.aclweb.org/anthology/S10-1041.pdf)
+    * KPMiner [(El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf))
   * Graph-based models
-    * SingleRank [Wan and Xiao (2008)](http://www.aclweb.org/anthology/C08-1122.pdf)
-    * TopicRank [Bougouin et al. (2013)](http://aclweb.org/anthology/I13-1062.pdf)
-    * PositionRank [Florescu and Caragea (2017)](http://www.aclweb.org/anthology/P17-1102.pdf)
-    * MultipartiteRank [Boudin (2018)](https://arxiv.org/abs/1803.08721)
+    * SingleRank [(Wan and Xiao, 2008)](http://www.aclweb.org/anthology/C08-1122.pdf)
+    * TopicRank [(Bougouin et al., 2013)](http://aclweb.org/anthology/I13-1062.pdf)
+    * PositionRank [(Florescu and Caragea, 2017)](http://www.aclweb.org/anthology/P17-1102.pdf)
+    * MultipartiteRank [(Boudin, 2018)](https://arxiv.org/abs/1803.08721)
 * Supervised models
   * Feature-based models
-    * Kea [Witten et al. (2005)](https://www.cs.waikato.ac.nz/ml/publications/2005/chap_Witten-et-al_Windows.pdf)
-    * WINGNUS [Nguyen and Luong (2010)](http://www.aclweb.org/anthology/S10-1035.pdf)
+    * Kea [(Witten et al., 2005)](https://www.cs.waikato.ac.nz/ml/publications/2005/chap_Witten-et-al_Windows.pdf)
+    * WINGNUS [(Nguyen and Luong, 2010)](http://www.aclweb.org/anthology/S10-1035.pdf)
 
 ### Provided models
 

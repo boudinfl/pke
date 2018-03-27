@@ -6,7 +6,7 @@ setup(name='pke',
       author='Florian Boudin',
       author_email='florian.boudin@univ-nantes.fr',
       license='gnu',
-      packages=['pke'],
+      packages=['pke', 'pke.unsupervised', 'pke.supervised'],
       url="https://github.com/boudinfl/pke",
       install_requires=[
       	'nltk',
