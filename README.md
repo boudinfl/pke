@@ -21,7 +21,7 @@ If you use `pke`, please cite the following papers:
 * [Usage](#usage)
   - [Minimal example](#minimal-example)
   - [Input formats](#input-formats)
-  - [Implemented approaches](#implemented-approaches)
+  - [Implemented models](#implemented-models)
   - [Provided models](#provided-models)
   - [Document Frequency counts](#document-frequency-counts)
   - [Training supervised models](#training-supervised-models)
@@ -52,14 +52,14 @@ pip install git+https://github.com/boudinfl/pke.git
 ### Minimal example
 
 `pke` provides a standardized API for keyphrases from a document. Start by
-typing the 5 lines below. For using another model, simply replace TopicRank with
-Kea, KPMiner, TfIdf, etc. 
+typing the 5 lines below. For using another model, simply replace
+`pke.unsupervised.TopicRank` with another model ([list of implemented models](#implemented-models)).
 
 ```python
 import pke
 
 # initialize keyphrase extraction model, here TopicRank
-extractor = pke.TopicRank(input_file='/path/to/input')
+extractor = pke.unsupervised.TopicRank(input_file='/path/to/input')
 
 # load the content of the document, here document is expected to be in raw
 # format (i.e. a simple text file) and preprocessing is carried out using nltk
@@ -164,19 +164,30 @@ input files are provided in the `examples/` directory):
    extractor.read_document(format='corenlp')
    ```
 
-### Implemented approaches
+### Implemented models
 
-`pke` currently implements the following keyphrase extraction approaches:
+`pke` currently implements the following keyphrase extraction models:
 
-
-
+* Unsupervised models
+  * Statistical models
+    * TfIdf
+    * KPMiner [El-Beltagy and Rafea (2010)](http://www.aclweb.org/anthology/S10-1041.pdf)
+  * Graph-based models
+    * SingleRank [Wan and Xiao (2008)](http://www.aclweb.org/anthology/C08-1122.pdf)
+    * TopicRank [Bougouin et al. (2013)](http://aclweb.org/anthology/I13-1062.pdf)
+    * PositionRank [Florescu and Caragea (2017)](http://www.aclweb.org/anthology/P17-1102.pdf)
+    * MultipartiteRank [Boudin (2018)](https://arxiv.org/abs/1803.08721)
+* Supervised models
+  * Feature-based models
+    * Kea [Witten et al. (2005)](https://www.cs.waikato.ac.nz/ml/publications/2005/chap_Witten-et-al_Windows.pdf)
+    * WINGNUS [Nguyen and Luong (2010)](http://www.aclweb.org/anthology/S10-1035.pdf)
 
 ### Provided models
 
 `pke` ships with a collection of already trained models (for supervised
-keyphrase extraction approaches)and document frequency counts that were computed
-on the training set of the SemEval-2010 benchmark dataset. These models are
-located into the `pke/models/` directory.
+keyphrase extraction approaches) and document frequency counts that were
+computed on the training set of the SemEval-2010 benchmark dataset. These
+are located into the `pke/models/` directory.
 
 For details about the provided models, see [pke/models/README.md](pke/models/README.md).
 

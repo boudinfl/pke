@@ -123,7 +123,6 @@ def compute_document_frequency(input_dir,
                     str(len(frequencies[ngram])) + '\n')
 
 
-
 def train_supervised_model(input_dir,
                            reference_file,
                            model_file,

@@ -90,12 +90,18 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="base.html">Base classes</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Unsupervised models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#tfidf">TfIdf</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#kpminer">KPMiner</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#singlerank">SingleRank</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#topicrank">TopicRank</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#multipartiterank">MultipartiteRank</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#positionrank">PositionRank</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#statistical-models">Statistical models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#tfidf">TfIdf</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kpminer">KPMiner</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#graph-based-models">Graph-based models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#singlerank">SingleRank</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#topicrank">TopicRank</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#multipartiterank">MultipartiteRank</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#positionrank">PositionRank</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="supervised.html">Supervised models</a></li>
@@ -166,9 +172,10 @@
             
   <div class="section" id="module-pke.unsupervised">
 <span id="unsupervised-models"></span><h1>Unsupervised models<a class="headerlink" href="#module-pke.unsupervised" title="Permalink to this headline">¶</a></h1>
-<p>Unsupervised keyphrase extraction models.</p>
+<div class="section" id="statistical-models">
+<h2>Statistical models<a class="headerlink" href="#statistical-models" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="tfidf">
-<h2>TfIdf<a class="headerlink" href="#tfidf" title="Permalink to this headline">¶</a></h2>
+<h3>TfIdf<a class="headerlink" href="#tfidf" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="pke.unsupervised.TfIdf">
 <em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">TfIdf</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TfIdf" title="Permalink to this definition">¶</a></dt>
@@ -206,7 +213,7 @@ string.punctuation are not allowed.</div></blockquote>
 
 </div>
 <div class="section" id="kpminer">
-<h2>KPMiner<a class="headerlink" href="#kpminer" title="Permalink to this headline">¶</a></h2>
+<h3>KPMiner<a class="headerlink" href="#kpminer" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="pke.unsupervised.KPMiner">
 <em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">KPMiner</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.KPMiner" title="Permalink to this definition">¶</a></dt>
@@ -263,8 +270,11 @@ alpha (int): parameter for boosting factor, defaults to 2.3.</p>
 </dd></dl>
 
 </div>
+</div>
+<div class="section" id="graph-based-models">
+<h2>Graph-based models<a class="headerlink" href="#graph-based-models" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="singlerank">
-<h2>SingleRank<a class="headerlink" href="#singlerank" title="Permalink to this headline">¶</a></h2>
+<h3>SingleRank<a class="headerlink" href="#singlerank" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="pke.unsupervised.SingleRank">
 <em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">SingleRank</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.SingleRank" title="Permalink to this definition">¶</a></dt>
@@ -341,7 +351,7 @@ JJR, JJS).</dd>
 
 </div>
 <div class="section" id="topicrank">
-<h2>TopicRank<a class="headerlink" href="#topicrank" title="Permalink to this headline">¶</a></h2>
+<h3>TopicRank<a class="headerlink" href="#topicrank" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="pke.unsupervised.TopicRank">
 <em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">TopicRank</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TopicRank" title="Permalink to this definition">¶</a></dt>
@@ -441,7 +451,7 @@ X (matrix): vectorized representation of the candidates.</dd>
 
 </div>
 <div class="section" id="multipartiterank">
-<h2>MultipartiteRank<a class="headerlink" href="#multipartiterank" title="Permalink to this headline">¶</a></h2>
+<h3>MultipartiteRank<a class="headerlink" href="#multipartiterank" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="pke.unsupervised.MultipartiteRank">
 <em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">MultipartiteRank</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.MultipartiteRank" title="Permalink to this definition">¶</a></dt>
@@ -521,7 +531,7 @@ similarity.</dd>
 
 </div>
 <div class="section" id="positionrank">
-<h2>PositionRank<a class="headerlink" href="#positionrank" title="Permalink to this headline">¶</a></h2>
+<h3>PositionRank<a class="headerlink" href="#positionrank" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="pke.unsupervised.PositionRank">
 <em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">PositionRank</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.PositionRank" title="Permalink to this definition">¶</a></dt>
@@ -578,6 +588,7 @@ JJR, JJS).</dd>
 
 </dd></dl>
 
+</div>
 </div>
 </div>
 

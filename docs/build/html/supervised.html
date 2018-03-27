@@ -91,10 +91,12 @@
 <li class="toctree-l1"><a class="reference internal" href="base.html">Base classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unsupervised.html">Unsupervised models</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Supervised models</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#supervisedloadfile">SupervisedLoadFile</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#kea">Kea</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#wingnus">WINGNUS</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#seerlab">SEERLAB</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#feature-based-models">Feature-based models</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#supervisedloadfile">SupervisedLoadFile</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kea">Kea</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#wingnus">WINGNUS</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="readers.html">Reader classes</a></li>
@@ -164,9 +166,10 @@
             
   <div class="section" id="module-pke.supervised">
 <span id="supervised-models"></span><h1>Supervised models<a class="headerlink" href="#module-pke.supervised" title="Permalink to this headline">¶</a></h1>
-<p>Supervised keyphrase extraction models.</p>
+<div class="section" id="feature-based-models">
+<h2>Feature-based models<a class="headerlink" href="#feature-based-models" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="supervisedloadfile">
-<h2>SupervisedLoadFile<a class="headerlink" href="#supervisedloadfile" title="Permalink to this headline">¶</a></h2>
+<h3>SupervisedLoadFile<a class="headerlink" href="#supervisedloadfile" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="pke.supervised.SupervisedLoadFile">
 <em class="property">class </em><code class="descclassname">pke.supervised.</code><code class="descname">SupervisedLoadFile</code><span class="sig-paren">(</span><em>input_file=None</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.SupervisedLoadFile" title="Permalink to this definition">¶</a></dt>
@@ -214,7 +217,7 @@ supervised models.</p>
 
 </div>
 <div class="section" id="kea">
-<h2>Kea<a class="headerlink" href="#kea" title="Permalink to this headline">¶</a></h2>
+<h3>Kea<a class="headerlink" href="#kea" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="pke.supervised.Kea">
 <em class="property">class </em><code class="descclassname">pke.supervised.</code><code class="descname">Kea</code><span class="sig-paren">(</span><em>input_file=None</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.Kea" title="Permalink to this definition">¶</a></dt>
@@ -268,7 +271,7 @@ model_file (str): the model output file.</dd>
 
 </div>
 <div class="section" id="wingnus">
-<h2>WINGNUS<a class="headerlink" href="#wingnus" title="Permalink to this headline">¶</a></h2>
+<h3>WINGNUS<a class="headerlink" href="#wingnus" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="pke.supervised.WINGNUS">
 <em class="property">class </em><code class="descclassname">pke.supervised.</code><code class="descname">WINGNUS</code><span class="sig-paren">(</span><em>input_file=None</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.WINGNUS" title="Permalink to this definition">¶</a></dt>
@@ -323,61 +326,6 @@ model_file (str): the model output file.</dd>
 </dd></dl>
 
 </div>
-<div class="section" id="seerlab">
-<h2>SEERLAB<a class="headerlink" href="#seerlab" title="Permalink to this headline">¶</a></h2>
-<dl class="class">
-<dt id="pke.supervised.SEERLAB">
-<em class="property">class </em><code class="descclassname">pke.supervised.</code><code class="descname">SEERLAB</code><span class="sig-paren">(</span><em>input_file=None</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.SEERLAB" title="Permalink to this definition">¶</a></dt>
-<dd><p>SEERLAB keyphrase extraction model.</p>
-<dl class="method">
-<dt id="pke.supervised.SEERLAB.candidate_selection">
-<code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>dblp_candidates=None</em>, <em>mf_unigrams=30</em>, <em>mf_non_unigrams=30</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.SEERLAB.candidate_selection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Select keyphrase candidates.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>dblp_candidates (list): valid candidates according to the list</dt>
-<dd>of candidates extracted from the dblp titles.</dd>
-<dt>mf_unigrams (int): the number of most frequent unigrams to</dt>
-<dd>include in the candidates, defaults to 30.</dd>
-<dt>mf_non_unigrams (int): the number of most frequent non-unigrams</dt>
-<dd>to include in the candidates, defaults to 30.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pke.supervised.SEERLAB.feature_extraction">
-<code class="descname">feature_extraction</code><span class="sig-paren">(</span><em>df=None</em>, <em>training=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.SEERLAB.feature_extraction" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extract features (tf*idf, first occurrence and length) for each
-candidate.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>df (dict): document frequencies, the number of documents should</dt>
-<dd>be specified using the “–NB_DOC–” key.</dd>
-<dt>training (bool): indicates whether features are computed for the</dt>
-<dd>training set for computing IDF weights, defaults to false.</dd>
-</dl>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="staticmethod">
-<dt id="pke.supervised.SEERLAB.train">
-<em class="property">static </em><code class="descname">train</code><span class="sig-paren">(</span><em>training_classes</em>, <em>model_file</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.SEERLAB.train" title="Permalink to this definition">¶</a></dt>
-<dd><p>Train a Random Forest classifier and store the model in a file.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>training_instances (list): list of features.
-training_classes (list): list of binary values.
-model_file (str): the model output file.</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </div>
 </div>
 
