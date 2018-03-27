@@ -30,6 +30,6 @@ pke.train_supervised_model(input_dir=input_dir,
                            format="corenlp",
                            use_lemmas=False,
                            stemmer="porter",
-                           model=pke.Kea()
+                           model=pke.supervised.Kea()
                            language='english',
                            extension="xml")

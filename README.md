@@ -243,7 +243,7 @@ supervised models:
 import pke
 
 # initialize TfIdf model
-extractor = pke.TfIDF(input_file='/path/to/input')
+extractor = pke.unsupervised.TfIdf(input_file='/path/to/input')
 
 # load the DF counts from file
 df_counts = pke.load_document_frequency_file(input_file='/path/to/file')
@@ -280,7 +280,7 @@ pke.train_supervised_model(input_dir='/path/to/input/documents/',
                            reference_file='/path/to/reference/file',
                            model_file='/path/to/model/file',
                            df=df_counts,
-                           model=pke.Kea()) # here a we train a Kea model
+                           model=pke.supervised.Kea()) # here we train a Kea model
 ```
 
 The training data consists of a set of documents along with a reference file
@@ -314,7 +314,8 @@ import pke
 
 # initialize TopicRank and set the language to French (used during candidate
 # selection for filtering stopwords)
-extractor = pke.TopicRank(input_file='/path/to/input', language='French')
+extractor = pke.unsupervised.TopicRank(input_file='/path/to/input',
+                                       language='French')
 
 # load the content of the document and perform French stemming (instead of
 # Porter stemmer)
