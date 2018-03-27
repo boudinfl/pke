@@ -169,10 +169,11 @@ input files are provided in the `examples/` directory):
 * Unsupervised models
   * Statistical models
     * TfIdf
-    * KPMiner [(El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf))
+    * KPMiner [(El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf)
   * Graph-based models
     * SingleRank [(Wan and Xiao, 2008)](http://www.aclweb.org/anthology/C08-1122.pdf)
     * TopicRank [(Bougouin et al., 2013)](http://aclweb.org/anthology/I13-1062.pdf)
+    * TopicalPageRank [(Sterckx et al., 2015)](http://users.intec.ugent.be/cdvelder/papers/2015/sterckx2015wwwb.pdf)
     * PositionRank [(Florescu and Caragea, 2017)](http://www.aclweb.org/anthology/P17-1102.pdf)
     * MultipartiteRank [(Boudin, 2018)](https://arxiv.org/abs/1803.08721)
 * Supervised models

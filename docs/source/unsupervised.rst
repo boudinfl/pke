@@ -28,12 +28,17 @@ TopicRank
 .. autoclass:: pke.unsupervised.TopicRank
 	:members:
 
-MultipartiteRank
+TopicalPageRank
 ~~~~~~~~~~~~~~~~
-.. autoclass:: pke.unsupervised.MultipartiteRank
+.. autoclass:: pke.unsupervised.TopicalPageRank
 	:members:
 
 PositionRank
 ~~~~~~~~~~~~
 .. autoclass:: pke.unsupervised.PositionRank
+	:members:
+
+MultipartiteRank
+~~~~~~~~~~~~~~~~
+.. autoclass:: pke.unsupervised.MultipartiteRank
 	:members:

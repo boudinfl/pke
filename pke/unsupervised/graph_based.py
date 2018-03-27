@@ -7,10 +7,13 @@ from __future__ import division
 
 from pke.base import LoadFile
 
+import os
+import pickle
 import math
 import string
 import networkx as nx
 import numpy as np
+import gzip
 
 from itertools import combinations
 from collections import defaultdict
@@ -18,6 +21,10 @@ from collections import defaultdict
 from scipy.spatial.distance import pdist
 from scipy.cluster.hierarchy import linkage, fcluster
 from nltk.corpus import stopwords
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.decomposition import LatentDirichletAllocation
+# from sklearn.metrics.pairwise import cosine_similarity
+from scipy.spatial.distance import cosine
 
 
 class SingleRank(LoadFile):
@@ -583,6 +590,133 @@ class PositionRank(SingleRank):
         w = nx.pagerank(G=self.graph,
                         alpha=0.85,
                         personalization=self.positions,
+                        max_iter=100,
+                        weight='weight')
+
+        # loop through the candidates
+        for k in self.candidates.keys():
+            tokens = self.candidates[k].lexical_form
+            self.weights[k] = sum([w[t] for t in tokens])
+            if normalized:
+                self.weights[k] /= len(tokens)
+
+
+class TopicalPageRank(SingleRank):
+    """ Single TopicalPageRank keyphrase extraction model. 
+
+        This model was published and described in:
+
+        * Lucas Sterckx, Thomas Demeester, Johannes Deleu and Chris Develder,
+          Topical word importance for fast keyphrase extraction, *Proceedings
+          of WWW 2015*.
+    """
+
+    def __init__(self, input_file, language='english'):
+        """ Redefining initializer for TopicalPageRank. """
+
+        super(TopicalPageRank, self).__init__(input_file=input_file,
+                                              language=language)
+
+    def candidate_selection(self, pos=None, stoplist=None):
+        """ The candidate selection as described in the original TPR paper. """
+
+        grammar = r"""
+                NP:
+                    {<JJ.*>*<NN.*>+}
+                """
+
+        # select sequence of adjectives and nouns
+        self.grammar_selection(grammar=grammar)
+
+        # filter candidates
+        for k, v in self.candidates.items():
+            if len(v.lexical_form) > 3:
+                del self.candidates[k]
+
+
+    def candidate_weighting(self,
+                            window=10,
+                            pos=None,
+                            normalized=False,
+                            lda_model=None):
+        """ Candidate weight calculation using random walk.
+
+            Args:
+                window (int): the window within the sentence for connecting two
+                    words in the graph, defaults to 10.
+                pos (set): the set of valid pos for words to be considered as
+                    nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
+                    JJR, JJS).
+                normalized (False): normalize keyphrase score by their length,
+                    defaults to False.
+                lda_model (pickle.gz): an LDA model produced by sklearn in
+                    pickle compressed (.gz) format
+        """
+
+        # define default pos tags set
+        if pos is None:
+            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+
+        # build the word graph
+        self.build_word_graph(window=window, pos=pos)
+
+        # create a blank model
+        model = LatentDirichletAllocation()
+
+        # set the default LDA model if none provided
+        if lda_model is None:
+            lda_model = os.path.join(self._models,
+                                     "lda-500-semeval2010.pickle.gz")
+
+        # load parameters from file
+        with gzip.open(lda_model, 'rb') as f:
+            (dictionary,
+             model.components_,
+             model.exp_dirichlet_component_,
+             model.doc_topic_prior_) = pickle.load(f)
+
+        # build the document representation
+        doc = []
+        for s in self.sentences:
+            doc.extend([s.stems[i] for i in range(s.length)])
+
+        # vectorize document
+        tf_vectorizer = CountVectorizer(stop_words='english',
+                                        vocabulary=dictionary)
+        tf = tf_vectorizer.fit_transform([' '.join(doc)])
+
+        # compute the topic distribution over the document
+        distribution_topic_document = model.transform(tf)[0]
+
+        # compute the word distributions over topics
+        distributions = model.components_ / model.components_.sum(axis=1)[:, np.newaxis]
+
+        # compute the topical word importance
+        twi = {}
+        for word in self.graph.nodes():
+            if word in dictionary:
+                index = dictionary.index(word)
+                distribution_word_topic = [distributions[k][index] for k \
+                                     in range(len(distribution_topic_document))]
+
+                twi[word] = 1 - cosine(distribution_word_topic,
+                                       distribution_topic_document)
+
+        # assign default probabilities to OOV words
+        defauly_similarity = min(twi.values())
+        for word in self.graph.nodes():
+            if word not in twi:
+                twi[word] = defauly_similarity
+
+        # normalize the probabilities
+        norm = sum(twi.values())
+        for word in twi:
+            twi[word] /= norm
+
+        # compute the word scores using biaised random walk
+        w = nx.pagerank(G=self.graph,
+                        alpha=0.85,
+                        personalization=twi,
                         max_iter=100,
                         weight='weight')
 

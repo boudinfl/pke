@@ -5,16 +5,18 @@
 from __future__ import division
 from __future__ import absolute_import
 
+import re
 import csv
 import glob
+import pickle
 import gzip
 import codecs
 import logging
 from collections import defaultdict
 
-from .base import LoadFile
-# from .supervised import Kea
-
+from pke.base import LoadFile
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.decomposition import LatentDirichletAllocation
 from nltk.stem.snowball import SnowballStemmer as Stemmer
 
 
@@ -232,3 +234,84 @@ def load_references(input_file,
                     references[doc_id][i] = ' '.join(stems)
 
     return references
+
+
+def compute_lda_model(input_dir,
+                      output_file,
+                      n_topics=500,
+                      format="corenlp",
+                      extension="xml",
+                      use_lemmas=False,
+                      stemmer="porter",
+                      language="english"):
+    """ Compute a LDA model from a collection of documents. Latent Dirichlet
+        Allocation is computed using sklearn module.
+
+        Args:
+            input_dir (str): the input directory.
+            output_file (str): the output file.
+            n_topics (int): number of topics for the LDA model, defaults to 500.
+            format (str): the input files format, defaults to corenlp.
+            extension (str): file extension for input documents, defaults to
+                xml.
+            use_lemmas (bool): whether lemmas from stanford corenlp are used
+                instead of stems (computed by nltk), defaults to False.
+            stemmer (str): the stemmer in nltk to used (if used), defaults
+                to porter.
+            language (str): the language of the documents, used for stop_words
+                in sklearn CountVectorizer, defaults to 'english'.
+    """
+
+    # texts container
+    texts = []
+
+    # loop throught the documents
+    for input_file in glob.glob(input_dir+'/*.'+extension):
+
+        # initialize load file object
+        doc = LoadFile(input_file)
+
+        # read the input file
+        doc.read_document(format=format,
+                          use_lemmas=use_lemmas,
+                          stemmer=stemmer,
+                          sep='/')
+
+        # container for current document
+        text = []
+
+        # loop through sentences
+        for sentence in doc.sentences:
+
+            # get the tokens (stems) from the sentence if they are not
+            # punctuation marks 
+            text.extend([ sentence.stems[i] for i in range(sentence.length) \
+                          if not re.search('[^A-Z$]', sentence.pos[i]) ])
+        
+        # add the document to the texts container
+        texts.append(' '.join(text))
+
+    # vectorize dataset
+    tf_vectorizer = CountVectorizer(stop_words=language)
+    tf = tf_vectorizer.fit_transform(texts)
+
+    # extract vocabulary
+    vocabulary = tf_vectorizer.get_feature_names()
+
+    # create LDA model and train
+    lda_model = LatentDirichletAllocation(n_components=n_topics,
+                                          random_state=0,
+                                          learning_method='batch')
+    lda_model.fit(tf)
+
+    # save all data necessary for later prediction
+    saved_model = (vocabulary,
+                   lda_model.components_,
+                   lda_model.exp_dirichlet_component_,
+                   lda_model.doc_topic_prior_)
+
+    # Dump the df container
+    logging.info('writing LDA model to '+output_file)
+    with gzip.open(output_file, 'wb') as fp:
+        pickle.dump(saved_model, fp)
+

@@ -188,6 +188,32 @@ extension (str): file extension for input documents, defaults to</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="pke.utils.compute_lda_model">
+<code class="descclassname">pke.utils.</code><code class="descname">compute_lda_model</code><span class="sig-paren">(</span><em>input_dir</em>, <em>output_file</em>, <em>n_topics=500</em>, <em>format='corenlp'</em>, <em>extension='xml'</em>, <em>use_lemmas=False</em>, <em>stemmer='porter'</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.compute_lda_model" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute a LDA model from a collection of documents. Latent Dirichlet
+Allocation is computed using sklearn module.</p>
+<dl class="docutils">
+<dt>Args:</dt>
+<dd><p class="first">input_dir (str): the input directory.
+output_file (str): the output file.
+n_topics (int): number of topics for the LDA model, defaults to 500.
+format (str): the input files format, defaults to corenlp.
+extension (str): file extension for input documents, defaults to</p>
+<blockquote>
+<div>xml.</div></blockquote>
+<dl class="last docutils">
+<dt>use_lemmas (bool): whether lemmas from stanford corenlp are used</dt>
+<dd>instead of stems (computed by nltk), defaults to False.</dd>
+<dt>stemmer (str): the stemmer in nltk to used (if used), defaults</dt>
+<dd>to porter.</dd>
+<dt>language (str): the language of the documents, used for stop_words</dt>
+<dd>in sklearn CountVectorizer, defaults to ‘english’.</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
 <dt id="pke.utils.load_document_frequency_file">
 <code class="descclassname">pke.utils.</code><code class="descname">load_document_frequency_file</code><span class="sig-paren">(</span><em>input_file</em>, <em>delimiter='\t'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.load_document_frequency_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a csv file containing document frequencies. Automatically detects
