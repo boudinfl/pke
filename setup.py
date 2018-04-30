@@ -13,7 +13,8 @@ setup(name='pke',
       	'networkx',
       	'numpy',
       	'scipy',
-            'sklearn'
+            'sklearn',
+            'unidecode'
       ],
       package_data={'pke': ['models/*.pickle', 'models/*.gz']}
      )

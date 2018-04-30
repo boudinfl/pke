@@ -3,3 +3,4 @@ networkx
 numpy
 scipy
 sklearn
+unidecode
