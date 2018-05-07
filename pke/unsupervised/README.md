@@ -2,7 +2,7 @@
 
 ## Statistical models
 
-### [TfIdf (Term Frequency x Inverse Document Frequency)](https://en.wikipedia.org/wiki/Tf-idf)
+### [TfIdf](https://en.wikipedia.org/wiki/Tf-idf)
 	
 ```python
 from pke.unsupervised import TfIdf
@@ -48,3 +48,4 @@ keyphrases = extractor.get_n_best(n=10)
 # >>>                             stemming=stemming)
 ```
 
+### 

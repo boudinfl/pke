@@ -170,7 +170,7 @@ input files are provided in the `examples/` directory):
 
 * [Unsupervised models](pke/unsupervised/README.md)
   * Statistical models
-    * TfIdf
+    * [TfIdf](pke/unsupervised/README.md#tfidf)
     * KPMiner [(El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf)
   * Graph-based models
     * SingleRank [(Wan and Xiao, 2008)](http://www.aclweb.org/anthology/C08-1122.pdf)
