@@ -91,8 +91,8 @@ keyphrases = extractor.get_n_best(n=10)
 # >>> redundancy_removal=True
 # >>> stemming=False
 # >>> keyphrases = extractor.get_n_best(n=10,
-# >>>     redundancy_removal=redundancy_removal,
-# >>>     stemming=stemming)
+# >>>                                   redundancy_removal=redundancy_removal,
+# >>>                                   stemming=stemming)
 ```
 
 ## Graph-based models
@@ -139,8 +139,8 @@ keyphrases = extractor.get_n_best(n=10)
 # >>> redundancy_removal=True
 # >>> stemming=False
 # >>> keyphrases = extractor.get_n_best(n=10,
-# >>>     redundancy_removal=redundancy_removal,
-# >>>     stemming=stemming)
+# >>>                                   redundancy_removal=redundancy_removal,
+# >>>                                   stemming=stemming)
 ```
 
 ### [TopicRank](http://aclweb.org/anthology/I13-1062.pdf)
@@ -175,8 +175,8 @@ extractor.candidate_weighting()
 # >>> method = 'average'
 # >>> heuristic = frequent
 # >>> extractor.candidate_weighting(threshold=threshold,
-    method=method,
-    heuristic=heuristic)
+# >>>                               method=method,
+# >>>                               heuristic=heuristic)
 
 # get the 10-highest scored candidates as keyphrases
 keyphrases = extractor.get_n_best(n=10)
@@ -187,6 +187,6 @@ keyphrases = extractor.get_n_best(n=10)
 # >>> redundancy_removal=True
 # >>> stemming=False
 # >>> keyphrases = extractor.get_n_best(n=10,
-# >>>     redundancy_removal=redundancy_removal,
-# >>>     stemming=stemming)
+# >>>                                   redundancy_removal=redundancy_removal,
+# >>>                                   stemming=stemming)
 ```

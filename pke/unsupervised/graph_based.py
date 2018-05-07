@@ -230,8 +230,8 @@ class TopicRank(LoadFile):
         # >>> method = 'average'
         # >>> heuristic = frequent
         # >>> extractor.candidate_weighting(threshold=threshold,
-                                            method=method,
-                                            heuristic=heuristic)
+        # >>>                               method=method,
+        # >>>                               heuristic=heuristic)
 
         # get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
