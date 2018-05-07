@@ -29,14 +29,59 @@ from scipy.spatial.distance import cosine
 
 
 class SingleRank(LoadFile):
-    """ The SingleRank keyphrase extraction model.
+    """The SingleRank keyphrase extraction model.
 
-        This model was published and described in:
+    This model was published and described in:
 
-          * Xiaojun Wan and Jianguo Xiao, CollabRank: Towards a Collaborative
-            Approach to Single-Document Keyphrase Extraction, *Proceedings of
-            the 22nd International Conference on Computational Linguistics
-            (Coling 2008)*, pages 969-976, 2008.
+      * Xiaojun Wan and Jianguo Xiao, CollabRank: Towards a Collaborative
+        Approach to Single-Document Keyphrase Extraction, *Proceedings of the
+        22nd International Conference on Computational Linguistics (Coling
+        2008)*, pages 969-976, 2008.
+
+    Example and parameter settings::
+
+        from pke.unsupervised import SingleRank
+
+        # create a SingleRank extractor. The input file is considered to be in 
+        # Stanford XML CoreNLP.
+        extractor = SingleRank(input_file='C-1.xml')
+
+        # load the content of the document.
+        extractor.read_document(format='corenlp')
+
+        # select the keyphrase candidates, by default the longest sequences of 
+        # nouns and adjectives that do not contain punctuation marks or
+        # stopwords.
+        extractor.candidate_selection()
+
+        # available parameters are the Part-Of-Speech tags for selecting the
+        # sequences of words and the stoplist for filtering candidates.
+        # >>> pos = ["NN", "JJ"]
+        # >>> stoplist = ['the', 'of', '.', '?', ...]
+        # >>> extractor.candidate_selection(pos=pos, stoplist=stoplist)
+
+        # weight the candidates using a random walk.
+        extractor.candidate_weighting()
+
+        # available parameters are the window within the sentence for connecting
+        # two words in the graph. The set of valid pos for words to be
+        # considered as nodes in the graph.
+        # >>> window = 5
+        # >>> pos = set(["NN", "JJ"])
+        # >>> extractor.candidate_weighting(window=window, pos=pos)
+
+        # get the 10-highest scored candidates as keyphrases
+        keyphrases = extractor.get_n_best(n=10)
+
+        # available parameters are whether redundant candidates are filtered out
+        # (default to False) and if stemming is applied to candidates (default
+        # to True)
+        # >>> redundancy_removal=True
+        # >>> stemming=False
+        # >>> keyphrases = extractor.get_n_best(n=10,
+        # >>>                             redundancy_removal=redundancy_removal,
+        # >>>                             stemming=stemming)
+
     """
 
     def __init__(self, input_file, language='english'):
@@ -145,14 +190,61 @@ class SingleRank(LoadFile):
 
 
 class TopicRank(LoadFile):
-    """ The TopicRank keyphrase extraction model.
+    """The TopicRank keyphrase extraction model.
 
-        This model was published and described in:
+    This model was published and described in:
 
-          * Adrien Bougouin, Florian Boudin and Béatrice Daille, TopicRank:
-            Graph-Based Topic Ranking for Keyphrase Extraction, *Proceedings of
-            the Sixth International Joint Conference on Natural Language
-            Processing*, pages 543-551, 2013.
+      * Adrien Bougouin, Florian Boudin and Béatrice Daille, TopicRank:
+        Graph-Based Topic Ranking for Keyphrase Extraction, *Proceedings of
+        the Sixth International Joint Conference on Natural Language
+        Processing*, pages 543-551, 2013.
+
+    Example and parameter settings::
+
+        from pke.unsupervised import TopicRank
+
+        # create a TopicRank extractor. The input file is considered to be in 
+        # Stanford XML CoreNLP.
+        extractor = TopicRank(input_file='C-1.xml')
+
+        # load the content of the document.
+        extractor.read_document(format='corenlp')
+
+        # select the keyphrase candidates, by default the longest sequences of 
+        # nouns and adjectives that do not contain punctuation marks or
+        # stopwords.
+        extractor.candidate_selection()
+
+        # available parameters are the Part-Of-Speech tags for selecting the
+        # sequences of words and the stoplist for filtering candidates.
+        # >>> pos = ["NN", "JJ"]
+        # >>> stoplist = ['the', 'of', '.', '?', ...]
+        # >>> extractor.candidate_selection(pos=pos, stoplist=stoplist)
+
+        # weight the candidates using a random walk.
+        extractor.candidate_weighting()
+
+        # available parameters are the threshold for topic clustering, the
+        # linkage method and the heuristic for selecting candidates in topics.
+        # >>> threshold = 0.75
+        # >>> method = 'average'
+        # >>> heuristic = frequent
+        # >>> extractor.candidate_weighting(threshold=threshold,
+                                            method=method,
+                                            heuristic=heuristic)
+
+        # get the 10-highest scored candidates as keyphrases
+        keyphrases = extractor.get_n_best(n=10)
+
+        # available parameters are whether redundant candidates are filtered out
+        # (default to False) and if stemming is applied to candidates (default
+        # to True)
+        # >>> redundancy_removal=True
+        # >>> stemming=False
+        # >>> keyphrases = extractor.get_n_best(n=10,
+        # >>>                             redundancy_removal=redundancy_removal,
+        # >>>                             stemming=stemming)
+
     """
 
     def __init__(self, input_file, language='english'):

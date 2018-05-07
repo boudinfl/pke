@@ -94,3 +94,99 @@ keyphrases = extractor.get_n_best(n=10)
 # >>>     redundancy_removal=redundancy_removal,
 # >>>     stemming=stemming)
 ```
+
+## Graph-based models
+
+### [SingleRank](http://www.aclweb.org/anthology/C08-1122.pdf)
+
+```python
+from pke.unsupervised import SingleRank
+
+# create a SingleRank extractor. The input file is considered to be in 
+# Stanford XML CoreNLP.
+extractor = SingleRank(input_file='C-1.xml')
+
+# load the content of the document.
+extractor.read_document(format='corenlp')
+
+# select the keyphrase candidates, by default the longest sequences of 
+# nouns and adjectives that do not contain punctuation marks or
+# stopwords.
+extractor.candidate_selection()
+
+# available parameters are the Part-Of-Speech tags for selecting the
+# sequences of words and the stoplist for filtering candidates.
+# >>> pos = ["NN", "JJ"]
+# >>> stoplist = ['the', 'of', '.', '?', ...]
+# >>> extractor.candidate_selection(pos=pos, stoplist=stoplist)
+
+# weight the candidates using a random walk.
+extractor.candidate_weighting()
+
+# available parameters are the window within the sentence for connecting
+# two words in the graph. The set of valid pos for words to be
+# considered as nodes in the graph.
+# >>> window = 5
+# >>> pos = set(["NN", "JJ"])
+# >>> extractor.candidate_weighting(window=window, pos=pos)
+
+# get the 10-highest scored candidates as keyphrases
+keyphrases = extractor.get_n_best(n=10)
+
+# available parameters are whether redundant candidates are filtered out
+# (default to False) and if stemming is applied to candidates (default
+# to True)
+# >>> redundancy_removal=True
+# >>> stemming=False
+# >>> keyphrases = extractor.get_n_best(n=10,
+# >>>     redundancy_removal=redundancy_removal,
+# >>>     stemming=stemming)
+```
+
+### [TopicRank](http://aclweb.org/anthology/I13-1062.pdf)
+
+```python
+from pke.unsupervised import TopicRank
+
+# create a TopicRank extractor. The input file is considered to be in 
+# Stanford XML CoreNLP.
+extractor = TopicRank(input_file='C-1.xml')
+
+# load the content of the document.
+extractor.read_document(format='corenlp')
+
+# select the keyphrase candidates, by default the longest sequences of 
+# nouns and adjectives that do not contain punctuation marks or
+# stopwords.
+extractor.candidate_selection()
+
+# available parameters are the Part-Of-Speech tags for selecting the
+# sequences of words and the stoplist for filtering candidates.
+# >>> pos = ["NN", "JJ"]
+# >>> stoplist = ['the', 'of', '.', '?', ...]
+# >>> extractor.candidate_selection(pos=pos, stoplist=stoplist)
+
+# weight the candidates using a random walk.
+extractor.candidate_weighting()
+
+# available parameters are the threshold for topic clustering, the
+# linkage method and the heuristic for selecting candidates in topics.
+# >>> threshold = 0.75
+# >>> method = 'average'
+# >>> heuristic = frequent
+# >>> extractor.candidate_weighting(threshold=threshold,
+    method=method,
+    heuristic=heuristic)
+
+# get the 10-highest scored candidates as keyphrases
+keyphrases = extractor.get_n_best(n=10)
+
+# available parameters are whether redundant candidates are filtered out
+# (default to False) and if stemming is applied to candidates (default
+# to True)
+# >>> redundancy_removal=True
+# >>> stemming=False
+# >>> keyphrases = extractor.get_n_best(n=10,
+# >>>     redundancy_removal=redundancy_removal,
+# >>>     stemming=stemming)
+```

@@ -282,7 +282,7 @@ Semantic Evaluation</em>, pages 190-193, 2010.</li>
 <span class="c1"># create a KPMiner extractor and set the input language to English (used</span>
 <span class="c1"># for the stoplist in the candidate selection method). The input file</span>
 <span class="c1"># is considered to be in Stanford XML CoreNLP.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">TfIdf</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;C-1.xml&#39;</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">KPMiner</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;C-1.xml&#39;</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
 
 <span class="c1"># load the content of the document.</span>
 <span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
@@ -388,11 +388,55 @@ be specified using the “–NB_DOC–” key.</li>
 <blockquote>
 <div><ul class="simple">
 <li>Xiaojun Wan and Jianguo Xiao, CollabRank: Towards a Collaborative
-Approach to Single-Document Keyphrase Extraction, <em>Proceedings of
-the 22nd International Conference on Computational Linguistics
-(Coling 2008)</em>, pages 969-976, 2008.</li>
+Approach to Single-Document Keyphrase Extraction, <em>Proceedings of the
+22nd International Conference on Computational Linguistics (Coling
+2008)</em>, pages 969-976, 2008.</li>
 </ul>
 </div></blockquote>
+<p>Example and parameter settings:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pke.unsupervised</span> <span class="k">import</span> <span class="n">SingleRank</span>
+
+<span class="c1"># create a SingleRank extractor. The input file is considered to be in</span>
+<span class="c1"># Stanford XML CoreNLP.</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">SingleRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;C-1.xml&#39;</span><span class="p">)</span>
+
+<span class="c1"># load the content of the document.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+
+<span class="c1"># select the keyphrase candidates, by default the longest sequences of</span>
+<span class="c1"># nouns and adjectives that do not contain punctuation marks or</span>
+<span class="c1"># stopwords.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">()</span>
+
+<span class="c1"># available parameters are the Part-Of-Speech tags for selecting the</span>
+<span class="c1"># sequences of words and the stoplist for filtering candidates.</span>
+<span class="c1"># &gt;&gt;&gt; pos = [&quot;NN&quot;, &quot;JJ&quot;]</span>
+<span class="c1"># &gt;&gt;&gt; stoplist = [&#39;the&#39;, &#39;of&#39;, &#39;.&#39;, &#39;?&#39;, ...]</span>
+<span class="c1"># &gt;&gt;&gt; extractor.candidate_selection(pos=pos, stoplist=stoplist)</span>
+
+<span class="c1"># weight the candidates using a random walk.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">()</span>
+
+<span class="c1"># available parameters are the window within the sentence for connecting</span>
+<span class="c1"># two words in the graph. The set of valid pos for words to be</span>
+<span class="c1"># considered as nodes in the graph.</span>
+<span class="c1"># &gt;&gt;&gt; window = 5</span>
+<span class="c1"># &gt;&gt;&gt; pos = set([&quot;NN&quot;, &quot;JJ&quot;])</span>
+<span class="c1"># &gt;&gt;&gt; extractor.candidate_weighting(window=window, pos=pos)</span>
+
+<span class="c1"># get the 10-highest scored candidates as keyphrases</span>
+<span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># available parameters are whether redundant candidates are filtered out</span>
+<span class="c1"># (default to False) and if stemming is applied to candidates (default</span>
+<span class="c1"># to True)</span>
+<span class="c1"># &gt;&gt;&gt; redundancy_removal=True</span>
+<span class="c1"># &gt;&gt;&gt; stemming=False</span>
+<span class="c1"># &gt;&gt;&gt; keyphrases = extractor.get_n_best(n=10,</span>
+<span class="c1"># &gt;&gt;&gt;                             redundancy_removal=redundancy_removal,</span>
+<span class="c1"># &gt;&gt;&gt;                             stemming=stemming)</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="pke.unsupervised.SingleRank.build_word_graph">
 <code class="descname">build_word_graph</code><span class="sig-paren">(</span><em>window=10</em>, <em>pos=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.SingleRank.build_word_graph" title="Permalink to this definition">¶</a></dt>
@@ -482,6 +526,52 @@ the Sixth International Joint Conference on Natural Language
 Processing</em>, pages 543-551, 2013.</li>
 </ul>
 </div></blockquote>
+<p>Example and parameter settings:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pke.unsupervised</span> <span class="k">import</span> <span class="n">TopicRank</span>
+
+<span class="c1"># create a TopicRank extractor. The input file is considered to be in</span>
+<span class="c1"># Stanford XML CoreNLP.</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">TopicRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;C-1.xml&#39;</span><span class="p">)</span>
+
+<span class="c1"># load the content of the document.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+
+<span class="c1"># select the keyphrase candidates, by default the longest sequences of</span>
+<span class="c1"># nouns and adjectives that do not contain punctuation marks or</span>
+<span class="c1"># stopwords.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">()</span>
+
+<span class="c1"># available parameters are the Part-Of-Speech tags for selecting the</span>
+<span class="c1"># sequences of words and the stoplist for filtering candidates.</span>
+<span class="c1"># &gt;&gt;&gt; pos = [&quot;NN&quot;, &quot;JJ&quot;]</span>
+<span class="c1"># &gt;&gt;&gt; stoplist = [&#39;the&#39;, &#39;of&#39;, &#39;.&#39;, &#39;?&#39;, ...]</span>
+<span class="c1"># &gt;&gt;&gt; extractor.candidate_selection(pos=pos, stoplist=stoplist)</span>
+
+<span class="c1"># weight the candidates using a random walk.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">()</span>
+
+<span class="c1"># available parameters are the threshold for topic clustering, the</span>
+<span class="c1"># linkage method and the heuristic for selecting candidates in topics.</span>
+<span class="c1"># &gt;&gt;&gt; threshold = 0.75</span>
+<span class="c1"># &gt;&gt;&gt; method = &#39;average&#39;</span>
+<span class="c1"># &gt;&gt;&gt; heuristic = frequent</span>
+<span class="c1"># &gt;&gt;&gt; extractor.candidate_weighting(threshold=threshold,</span>
+                                    <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span>
+                                    <span class="n">heuristic</span><span class="o">=</span><span class="n">heuristic</span><span class="p">)</span>
+
+<span class="c1"># get the 10-highest scored candidates as keyphrases</span>
+<span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># available parameters are whether redundant candidates are filtered out</span>
+<span class="c1"># (default to False) and if stemming is applied to candidates (default</span>
+<span class="c1"># to True)</span>
+<span class="c1"># &gt;&gt;&gt; redundancy_removal=True</span>
+<span class="c1"># &gt;&gt;&gt; stemming=False</span>
+<span class="c1"># &gt;&gt;&gt; keyphrases = extractor.get_n_best(n=10,</span>
+<span class="c1"># &gt;&gt;&gt;                             redundancy_removal=redundancy_removal,</span>
+<span class="c1"># &gt;&gt;&gt;                             stemming=stemming)</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="pke.unsupervised.TopicRank.build_topic_graph">
 <code class="descname">build_topic_graph</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TopicRank.build_topic_graph" title="Permalink to this definition">¶</a></dt>
