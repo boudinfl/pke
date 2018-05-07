@@ -20,10 +20,10 @@ If you use `pke`, please cite the following paper:
   - [Minimal example](#minimal-example)
   - [Input formats](#input-formats)
   - [Implemented models](#implemented-models)
-  - [Provided models](#provided-models)
+  - [Already trained supervised models](#already-trained-supervised-models)
   - [Document Frequency counts](#document-frequency-counts)
   - [Training supervised models](#training-supervised-models)
-  - [Non English languages](#non-english-languages)
+* [Non English languages](#non-english-languages)
 * [Benchmarking](#benchmarking)
 * [Code documentation](#code-documentation)
 
@@ -38,6 +38,7 @@ nltk
 networkx
 sklearn
 unidecode
+future
 ```
 
 To pip install `pke` from github:
@@ -167,7 +168,7 @@ input files are provided in the `examples/` directory):
 
 `pke` currently implements the following keyphrase extraction models:
 
-* Unsupervised models
+* [Unsupervised models](pke/unsupervised/README.md)
   * Statistical models
     * TfIdf
     * KPMiner [(El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf)
@@ -182,7 +183,7 @@ input files are provided in the `examples/` directory):
     * Kea [(Witten et al., 2005)](https://www.cs.waikato.ac.nz/ml/publications/2005/chap_Witten-et-al_Windows.pdf)
     * WINGNUS [(Nguyen and Luong, 2010)](http://www.aclweb.org/anthology/S10-1035.pdf)
 
-### Provided models
+### Already trained supervised models
 
 `pke` ships with a collection of already trained models (for supervised
 keyphrase extraction approaches) and document frequency counts that were
@@ -290,7 +291,7 @@ containing annotated keyphrases in the SemEval-2010 [format](http://docs.google.
 A detailed example for training a supervised model is given in
 `examples/train-model.py`.
 
-### Non English languages
+## Non English languages
 
 While the default language in `pke` is English, extracting keyphrases from
 documents in other languages is easily achieved by inputting already
@@ -316,7 +317,7 @@ import pke
 # initialize TopicRank and set the language to French (used during candidate
 # selection for filtering stopwords)
 extractor = pke.unsupervised.TopicRank(input_file='/path/to/input',
-                                       language='French')
+                                       language='french')
 
 # load the content of the document and perform French stemming (instead of
 # Porter stemmer)
