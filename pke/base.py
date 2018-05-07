@@ -6,9 +6,10 @@ from .readers import MinimalCoreNLPParser, PreProcessedTextReader, RawTextReader
 from collections import defaultdict
 from nltk.stem.snowball import SnowballStemmer as Stemmer
 from nltk import RegexpParser
-from string import letters, digits, punctuation
+from string import ascii_letters, digits, punctuation
 import os
 
+from builtins import str
 from unidecode import unidecode
 
 class Sentence(object):
@@ -156,7 +157,8 @@ class LoadFile(object):
                 self.sentences[i].stems[j] = stem.lower()
 
             # add the meta-information
-            for k, infos in sentence.iteritems():
+            # for k, infos in sentence.iteritems(): -- Python 2/3 compatible
+            for (k, infos) in sentence.items():
                 if k not in set(['POS', 'lemmas', 'words']):
                     self.sentences[i].meta[k] = infos
 
@@ -496,8 +498,12 @@ class LoadFile(object):
         # if self.language == 'french':
         #     printable.update(set(u'éèêëïîàâçùûüöôÿæœ'))
 
-        # loop throught the candidates
-        for k, v in self.candidates.items():
+        # loop throught the candidates Python 2/3 compatible
+        # for (k, v) in self.candidates.items():
+        for k in list(self.candidates):
+
+            # get the candidate
+            v = self.candidates[k]
 
             # get the words from the first occurring surface form
             words = [u.lower() for u in v.surface_forms[0]]
@@ -528,7 +534,7 @@ class LoadFile(object):
 
             # discard if not containing only latin alpha-numeric characters
             if only_alphanum and k in self.candidates:
-                printable = set(letters + digits + valid_punctuation_marks)
-                characters = unidecode(unicode(''.join(words))).encode("ascii")  
+                printable = set(ascii_letters+digits+valid_punctuation_marks)
+                characters = ''.join([unidecode(str(w)) for w in words])
                 if not set(characters).issubset(printable):
                     del self.candidates[k]

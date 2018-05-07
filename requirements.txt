@@ -4,3 +4,4 @@ numpy
 scipy
 sklearn
 unidecode
+future

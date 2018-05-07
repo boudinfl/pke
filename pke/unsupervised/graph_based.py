@@ -4,6 +4,7 @@
 
 from __future__ import absolute_import
 from __future__ import division
+from __future__ import print_function
 
 from pke.base import LoadFile
 
@@ -206,13 +207,17 @@ class TopicRank(LoadFile):
 
         # build the vocabulary, i.e. setting the vector dimensions
         dim = set([])
-        for k, v in self.candidates.iteritems():
+        # for k, v in self.candidates.iteritems():
+        # iterate Python 2/3 compatible
+        for (k, v) in self.candidates.items():
             for w in v.lexical_form:
                 dim.add(w)
         dim = list(dim)
 
-        # vectorize the candidates
-        C = self.candidates.keys()
+        # vectorize the candidates Python 2/3 + sort for random issues
+        C = list(self.candidates) #.keys()
+        C.sort()
+
         X = np.zeros((len(C), len(dim)))
         for i, k in enumerate(C):
             for w in self.candidates[k].lexical_form:
@@ -243,7 +248,7 @@ class TopicRank(LoadFile):
         # form flat clusters
         clusters = fcluster(Z, t=threshold, criterion='distance')
 
-        # for each cluster id
+        # for each topic identifier
         for cluster_id in range(1, max(clusters)+1):
             self.topics.append([candidates[j] for j in range(len(clusters))
                                 if clusters[j] == cluster_id])
@@ -257,7 +262,7 @@ class TopicRank(LoadFile):
 
         # loop through the topics to connect the nodes
         for i, j in combinations(range(len(self.topics)), 2):
-            self.graph.add_edge(i, j, weight=0)
+            self.graph.add_edge(i, j, weight=0.0)
             for c_i in self.topics[i]:
                 for c_j in self.topics[j]:
                     for p_i in self.candidates[c_i].offsets:
