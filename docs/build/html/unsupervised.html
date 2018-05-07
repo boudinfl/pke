@@ -184,16 +184,15 @@
 <p>Example and parameter settings:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pke.unsupervised</span> <span class="k">import</span> <span class="n">TfIdf</span>
 
-<span class="c1"># create a TfIdf extractor and set the input language to English (used</span>
-<span class="c1"># for the stoplist in the candidate selection method). The input file</span>
-<span class="c1"># is considered to be in Stanford XML CoreNLP.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">TfIdf</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;C-1.xml&#39;</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
+<span class="c1"># create a TfIdf extractor. The input file is considered to be in</span>
+<span class="c1"># Stanford XML CoreNLP.</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">TfIdf</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;C-1.xml&#39;</span><span class="p">)</span>
 
 <span class="c1"># load the content of the document.</span>
 <span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
 
 <span class="c1"># select the keyphrase candidates, by default the 1-3-grams of words</span>
-<span class="c1"># that do not contain punctuation marks or stopwords.</span>
+<span class="c1"># that do not contain punctuation marks.</span>
 <span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">()</span>
 
 <span class="c1"># available parameters are the length of the n-grams and the stoplist</span>
@@ -277,6 +276,52 @@ SemEval-2, <em>Proceedings of the 5th International Workshop on
 Semantic Evaluation</em>, pages 190-193, 2010.</li>
 </ul>
 </div></blockquote>
+<p>Example and parameter settings:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pke.unsupervised</span> <span class="k">import</span> <span class="n">KPMiner</span>
+
+<span class="c1"># create a KPMiner extractor and set the input language to English (used</span>
+<span class="c1"># for the stoplist in the candidate selection method). The input file</span>
+<span class="c1"># is considered to be in Stanford XML CoreNLP.</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">TfIdf</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;C-1.xml&#39;</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
+
+<span class="c1"># load the content of the document.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+
+<span class="c1"># select the keyphrase candidates, by default the 1-5-grams of words</span>
+<span class="c1"># that do not contain punctuation marks or stopwords. Candidates</span>
+<span class="c1"># occurring less than 3 times or after the 400th word are filtered out.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">()</span>
+
+<span class="c1"># available parameters are the least allowable seen frequency and the</span>
+<span class="c1"># number of words after which candidates are filtered out.</span>
+<span class="c1"># &gt;&gt;&gt; lasf = 5</span>
+<span class="c1"># &gt;&gt;&gt; cutoff = 123</span>
+<span class="c1"># &gt;&gt;&gt; extractor.candidate_selection(lasf=lasf, cutoff=cutoff)</span>
+
+<span class="c1"># weight the candidates using KPMiner weighting function.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">()</span>
+
+<span class="c1"># available parameters are the `df` counts that can be provided to the</span>
+<span class="c1"># weighting function and the sigma and alpha values of the weighting</span>
+<span class="c1"># function.</span>
+<span class="c1"># &gt;&gt;&gt; counts = {&#39;--NB_DOC--&#39;: 3, word1&#39;: 3, &#39;word2&#39;: 1, &#39;word3&#39;: 2}</span>
+<span class="c1"># &gt;&gt;&gt; alpha = 2.3</span>
+<span class="c1"># &gt;&gt;&gt; sigma = 3.0</span>
+<span class="c1"># &gt;&gt;&gt; extractor.candidate_weighting(df=counts, alpha=alpha, sigma=sigma)</span>
+
+<span class="c1"># get the 10-highest scored candidates as keyphrases</span>
+<span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># available parameters are whether redundant candidates are filtered out</span>
+<span class="c1"># (default to False) and if stemming is applied to candidates (default</span>
+<span class="c1"># to True)</span>
+<span class="c1"># &gt;&gt;&gt; redundancy_removal=True</span>
+<span class="c1"># &gt;&gt;&gt; stemming=False</span>
+<span class="c1"># &gt;&gt;&gt; keyphrases = extractor.get_n_best(n=10,</span>
+<span class="c1"># &gt;&gt;&gt;                             redundancy_removal=redundancy_removal,</span>
+<span class="c1"># &gt;&gt;&gt;                             stemming=stemming)</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="pke.unsupervised.KPMiner.candidate_selection">
 <code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>lasf=3</em>, <em>cutoff=400</em>, <em>stoplist=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.KPMiner.candidate_selection" title="Permalink to this definition">¶</a></dt>

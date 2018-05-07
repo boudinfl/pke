@@ -20,16 +20,15 @@ class TfIdf(LoadFile):
 
         from pke.unsupervised import TfIdf
 
-        # create a TfIdf extractor and set the input language to English (used
-        # for the stoplist in the candidate selection method). The input file
-        # is considered to be in Stanford XML CoreNLP.
-        extractor = TfIdf(input_file='C-1.xml', language='english')
+        # create a TfIdf extractor. The input file is considered to be in 
+        # Stanford XML CoreNLP.
+        extractor = TfIdf(input_file='C-1.xml')
 
         # load the content of the document.
         extractor.read_document(format='corenlp')
 
         # select the keyphrase candidates, by default the 1-3-grams of words
-        # that do not contain punctuation marks or stopwords.
+        # that do not contain punctuation marks.
         extractor.candidate_selection()
 
         # available parameters are the length of the n-grams and the stoplist
@@ -116,13 +115,60 @@ class TfIdf(LoadFile):
 
 
 class KPMiner(LoadFile):
-    """ KP-Miner keyphrase extraction model.
+    """KP-Miner keyphrase extraction model.
 
-        This model was published and described in:
+    This model was published and described in:
 
-          * Samhaa R. El-Beltagy and Ahmed Rafea, KP-Miner: Participation in
-            SemEval-2, *Proceedings of the 5th International Workshop on
-            Semantic Evaluation*, pages 190-193, 2010.
+      * Samhaa R. El-Beltagy and Ahmed Rafea, KP-Miner: Participation in
+        SemEval-2, *Proceedings of the 5th International Workshop on
+        Semantic Evaluation*, pages 190-193, 2010.
+
+    Example and parameter settings::
+
+        from pke.unsupervised import KPMiner
+
+        # create a KPMiner extractor and set the input language to English (used
+        # for the stoplist in the candidate selection method). The input file
+        # is considered to be in Stanford XML CoreNLP.
+        extractor = KPMiner(input_file='C-1.xml', language='english')
+
+        # load the content of the document.
+        extractor.read_document(format='corenlp')
+
+        # select the keyphrase candidates, by default the 1-5-grams of words
+        # that do not contain punctuation marks or stopwords. Candidates
+        # occurring less than 3 times or after the 400th word are filtered out.
+        extractor.candidate_selection()
+
+        # available parameters are the least allowable seen frequency and the 
+        # number of words after which candidates are filtered out.
+        # >>> lasf = 5
+        # >>> cutoff = 123
+        # >>> extractor.candidate_selection(lasf=lasf, cutoff=cutoff)
+
+        # weight the candidates using KPMiner weighting function.
+        extractor.candidate_weighting()
+
+        # available parameters are the `df` counts that can be provided to the 
+        # weighting function and the sigma and alpha values of the weighting
+        # function.
+        # >>> counts = {'--NB_DOC--': 3, word1': 3, 'word2': 1, 'word3': 2}
+        # >>> alpha = 2.3
+        # >>> sigma = 3.0
+        # >>> extractor.candidate_weighting(df=counts, alpha=alpha, sigma=sigma)
+
+        # get the 10-highest scored candidates as keyphrases
+        keyphrases = extractor.get_n_best(n=10)
+
+        # available parameters are whether redundant candidates are filtered out
+        # (default to False) and if stemming is applied to candidates (default
+        # to True)
+        # >>> redundancy_removal=True
+        # >>> stemming=False
+        # >>> keyphrases = extractor.get_n_best(n=10,
+        # >>>                             redundancy_removal=redundancy_removal,
+        # >>>                             stemming=stemming)
+
     """
 
     def candidate_selection(self, lasf=3, cutoff=400, stoplist=None):
@@ -151,7 +197,11 @@ class KPMiner(LoadFile):
                                   stoplist)
 
         # further filter candidates using lasf and cutoff
-        for k, v in self.candidates.items():
+        # Python 2/3 compatible
+        for k in list(self.candidates):
+
+            # get the candidate
+            v = self.candidates[k]
 
             # delete if first candidate offset is greater than cutoff
             if v.offsets[0] > cutoff:
@@ -163,21 +213,21 @@ class KPMiner(LoadFile):
 
 
     def candidate_weighting(self, df=None, sigma=3.0, alpha=2.3):
-        """ Candidate weight calculation as described in the KP-Miner paper.
+        """Candidate weight calculation as described in the KP-Miner paper.
 
-            w = tf * idf * B * P_f
+        w = tf * idf * B * P_f
 
-            with:
-                B = N_d / (P_d * alpha) and B = min(sigma, B)
-                N_d = the number of all candidate terms
-                P_d = number of candidates whose length exceeds one
-                P_f = 1
+        with:
+            B = N_d / (P_d * alpha) and B = min(sigma, B)
+            N_d = the number of all candidate terms
+            P_d = number of candidates whose length exceeds one
+            P_f = 1
 
-            Args:
-                df (dict): document frequencies, the number of documents should
-                    be specified using the "--NB_DOC--" key.
-                sigma (int): parameter for boosting factor, defaults to 3.0.
-                alpha (int): parameter for boosting factor, defaults to 2.3.
+        Args:
+            df (dict): document frequencies, the number of documents should
+                be specified using the "--NB_DOC--" key.
+            sigma (int): parameter for boosting factor, defaults to 3.0.
+            alpha (int): parameter for boosting factor, defaults to 2.3.
         """
 
         # initialize default document frequency counts if none provided
