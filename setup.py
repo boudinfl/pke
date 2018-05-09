@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='pke',
-      version='1.6',
+      version='1.7',
       description='Python Keyphrase Extraction module',
       author='Florian Boudin',
       author_email='florian.boudin@univ-nantes.fr',
@@ -14,7 +14,8 @@ setup(name='pke',
       	'numpy',
       	'scipy',
             'sklearn',
-            'unidecode'
+            'unidecode',
+            'future'
       ],
       package_data={'pke': ['models/*.pickle', 'models/*.gz']}
      )

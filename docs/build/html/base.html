@@ -203,14 +203,21 @@
 <dt id="pke.base.LoadFile.add_candidate">
 <code class="descname">add_candidate</code><span class="sig-paren">(</span><em>words</em>, <em>stems</em>, <em>pos</em>, <em>offset</em>, <em>sentence_id</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.add_candidate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add a keyphrase candidate to the candidates container.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>words (list): the words (surface form) of the candidate.
-stems (list): the stemmed words of the candidate.
-pos (list): the Part-Of-Speeches of the words in the candidate.
-offset (int): the offset of the first word of the candidate.
-sentence_id (int): the sentence id of the candidate.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>words</strong> (<em>list</em>) – the words (surface form) of the candidate.</li>
+<li><strong>stems</strong> (<em>list</em>) – the stemmed words of the candidate.</li>
+<li><strong>pos</strong> (<em>list</em>) – the Part-Of-Speeches of the words in the candidate.</li>
+<li><strong>offset</strong> (<em>int</em>) – the offset of the first word of the candidate.</li>
+<li><strong>sentence_id</strong> (<em>int</em>) – the sentence id of the candidate.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -220,24 +227,27 @@ sentence_id (int): the sentence id of the candidate.</dd>
 keep the candidates containing alpha-numeric characters (if the
 non_latin_filter is set to True) and those length exceeds a given
 number of characters.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">stoplist (list): list of strings, defaults to None.
-mininum_length (int): minimum number of characters for a</p>
-<blockquote>
-<div>candidate, defaults to 3.</div></blockquote>
-<dl class="last docutils">
-<dt>mininum_word_size (int): minimum number of characters for a</dt>
-<dd>token to be considered as a valid word, defaults to 2.</dd>
-<dt>valid_punctuation_marks (str): punctuation marks that are valid</dt>
-<dd>for a candidate, defaults to ‘-‘.</dd>
-<dt>maximum_word_number (int): maximum length in words of the</dt>
-<dd>candidate, defaults to 5.</dd>
-<dt>only_alphanum (bool): filter candidates containing non (latin)</dt>
-<dd>alpha-numeric characters, defaults to True.</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stoplist</strong> (<em>list</em>) – list of strings, defaults to None.</li>
+<li><strong>mininum_length</strong> (<em>int</em>) – minimum number of characters for a
+candidate, defaults to 3.</li>
+<li><strong>mininum_word_size</strong> (<em>int</em>) – minimum number of characters for a
+token to be considered as a valid word, defaults to 2.</li>
+<li><strong>valid_punctuation_marks</strong> (<em>str</em>) – punctuation marks that are valid
+for a candidate, defaults to ‘-‘.</li>
+<li><strong>maximum_word_number</strong> (<em>int</em>) – maximum length in words of the
+candidate, defaults to 5.</li>
+<li><strong>only_alphanum</strong> (<em>bool</em>) – filter candidates containing non (latin)
+alpha-numeric characters, defaults to True.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -250,19 +260,22 @@ mininum_length (int): minimum number of characters for a</p>
 <dt id="pke.base.LoadFile.get_n_best">
 <code class="descname">get_n_best</code><span class="sig-paren">(</span><em>n=10</em>, <em>redundancy_removal=False</em>, <em>stemming=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.get_n_best" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the n-best candidates given the weights.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">n (int): the number of candidates, defaults to 10.
-redundancy_removal (bool): whether redundant keyphrases are</p>
-<blockquote>
-<div>filtered out from the n-best list, defaults to False.</div></blockquote>
-<dl class="last docutils">
-<dt>stemming (bool): whether to extract stems or surface forms</dt>
-<dd>(lowercased, first occurring form of candidate), default to
-stems.</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>n</strong> (<em>int</em>) – the number of candidates, defaults to 10.</li>
+<li><strong>redundancy_removal</strong> (<em>bool</em>) – whether redundant keyphrases are
+filtered out from the n-best list, defaults to False.</li>
+<li><strong>stemming</strong> (<em>bool</em>) – whether to extract stems or surface forms
+(lowercased, first occurring form of candidate), default to
+stems.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -270,10 +283,14 @@ stems.</dd>
 <code class="descname">grammar_selection</code><span class="sig-paren">(</span><em>grammar=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.grammar_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select candidates using nltk RegexpParser with a grammar defining
 noun phrases (NP).</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>grammar (str): grammar defining POS patterns of NPs.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>grammar</strong> (<em>str</em>) – grammar defining POS patterns of NPs.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -288,18 +305,21 @@ noun phrases (NP).</p>
 <dd><p>Test if one candidate is redundant with respect to a list of already
 selected candidates. A candidate is considered redundant if it is
 included in another candidate that is ranked higher in the list.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">candidate (str): the lexical form of the candidate.
-prev (list): the list of already selected candidates (lexical</p>
-<blockquote>
-<div>forms).</div></blockquote>
-<dl class="last docutils">
-<dt>mininum_length (int): minimum length (in words) of the candidate</dt>
-<dd>to be considered, defaults to 1.</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>candidate</strong> (<em>str</em>) – the lexical form of the candidate.</li>
+<li><strong>prev</strong> (<em>list</em>) – the list of already selected candidates (lexical
+forms).</li>
+<li><strong>mininum_length</strong> (<em>int</em>) – minimum length (in words) of the candidate
+to be considered, defaults to 1.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
@@ -312,20 +332,28 @@ prev (list): the list of already selected candidates (lexical</p>
 <dt id="pke.base.LoadFile.longest_pos_sequence_selection">
 <code class="descname">longest_pos_sequence_selection</code><span class="sig-paren">(</span><em>valid_pos=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.longest_pos_sequence_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select the longest sequences of given POS tags as candidates.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>valid_pos (set): the set of valid POS tags, defaults to None.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>valid_pos</strong> (<em>set</em>) – the set of valid POS tags, defaults to None.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pke.base.LoadFile.ngram_selection">
 <code class="descname">ngram_selection</code><span class="sig-paren">(</span><em>n=3</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.ngram_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select all the n-grams and populate the candidate container.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>n (int): the n-gram length, defaults to 3.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<em>int</em>) – the n-gram length, defaults to 3.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -333,68 +361,80 @@ prev (list): the list of already selected candidates (lexical</p>
 <code class="descname">read_corenlp_document</code><span class="sig-paren">(</span><em>use_lemmas=False</em>, <em>stemmer='porter'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.read_corenlp_document" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the input file in CoreNLP XML format and populate the sentence
 list.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>use_lemmas (bool): whether lemmas from stanford corenlp are used</dt>
-<dd>instead of stems (computed by nltk), defaults to False.</dd>
-<dt>stemmer (str): the stemmer in nltk to use (if used), defaults</dt>
-<dd>to porter (can be set to None for using word surface forms
-instead of stems).</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>use_lemmas</strong> (<em>bool</em>) – whether lemmas from stanford corenlp are used
+instead of stems (computed by nltk), defaults to False.</li>
+<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to use (if used), defaults
+to porter (can be set to None for using word surface forms
+instead of stems).</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pke.base.LoadFile.read_document">
 <code class="descname">read_document</code><span class="sig-paren">(</span><em>format='raw'</em>, <em>use_lemmas=False</em>, <em>stemmer='porter'</em>, <em>sep='/'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.read_document" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the input file in a given format.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">format (str): the input format, defaults to raw.
-use_lemmas (bool): whether lemmas from stanford corenlp are used</p>
-<blockquote>
-<div>instead of stems (computed by nltk), defaults to False.</div></blockquote>
-<dl class="docutils">
-<dt>stemmer (str): the stemmer in nltk to use (if used), defaults</dt>
-<dd>to porter (can be set to None for using word surface forms
-instead of stems).</dd>
-</dl>
-<p class="last">sep (str): the separator of the tagged word, defaults to /.</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>format</strong> (<em>str</em>) – the input format, defaults to raw.</li>
+<li><strong>use_lemmas</strong> (<em>bool</em>) – whether lemmas from stanford corenlp are used
+instead of stems (computed by nltk), defaults to False.</li>
+<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to use (if used), defaults
+to porter (can be set to None for using word surface forms
+instead of stems).</li>
+<li><strong>sep</strong> (<em>str</em>) – the separator of the tagged word, defaults to /.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pke.base.LoadFile.read_preprocessed_document">
 <code class="descname">read_preprocessed_document</code><span class="sig-paren">(</span><em>stemmer='porter'</em>, <em>sep='/'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.read_preprocessed_document" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the preprocessed input file and populate the sentence list.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first docutils">
-<dt>stemmer (str): the stemmer in nltk to use, defaults to porter</dt>
-<dd>(can be set to None for using word surface forms instead of
-stems).</dd>
-</dl>
-<p class="last">sep (str): the separator of the tagged word, defaults to /.</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to use, defaults to porter
+(can be set to None for using word surface forms instead of
+stems).</li>
+<li><strong>sep</strong> (<em>str</em>) – the separator of the tagged word, defaults to /.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pke.base.LoadFile.read_raw_document">
 <code class="descname">read_raw_document</code><span class="sig-paren">(</span><em>stemmer='porter'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.read_raw_document" title="Permalink to this definition">¶</a></dt>
 <dd><p>Read the raw input file and populate the sentence list.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>stemmer (str): the stemmer in nltk to use, defaults to porter</dt>
-<dd>(can be set to None for using word surface forms instead of
-stems).</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to use, defaults to porter
+(can be set to None for using word surface forms instead of
+stems).</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">

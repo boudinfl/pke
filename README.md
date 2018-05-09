@@ -7,7 +7,7 @@ easy benchmarking of state-of-the-art keyphrase extraction approaches, and
 ships with supervised models trained on the
 [SemEval-2010 dataset](http://aclweb.org/anthology/S10-1004).
 
-`pke` works only for Python 2.x at the moment.
+`pke` is compatible with Python 2.7 (Python 3.6 is WIP)
 
 If you use `pke`, please cite the following paper:
 
@@ -20,10 +20,10 @@ If you use `pke`, please cite the following paper:
   - [Minimal example](#minimal-example)
   - [Input formats](#input-formats)
   - [Implemented models](#implemented-models)
-  - [Provided models](#provided-models)
+  - [Already trained supervised models](#already-trained-supervised-models)
   - [Document Frequency counts](#document-frequency-counts)
   - [Training supervised models](#training-supervised-models)
-  - [Non English languages](#non-english-languages)
+* [Non English languages](#non-english-languages)
 * [Benchmarking](#benchmarking)
 * [Code documentation](#code-documentation)
 
@@ -38,6 +38,7 @@ nltk
 networkx
 sklearn
 unidecode
+future
 ```
 
 To pip install `pke` from github:
@@ -169,20 +170,20 @@ input files are provided in the `examples/` directory):
 
 * Unsupervised models
   * Statistical models
-    * TfIdf
-    * KPMiner [(El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf)
+    * [TfIdf](https://boudinfl.github.io/pke/build/html/unsupervised.html#tfidf)
+    * [KPMiner](https://boudinfl.github.io/pke/build/html/unsupervised.html#kpminer) [(El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf)
   * Graph-based models
-    * SingleRank [(Wan and Xiao, 2008)](http://www.aclweb.org/anthology/C08-1122.pdf)
-    * TopicRank [(Bougouin et al., 2013)](http://aclweb.org/anthology/I13-1062.pdf)
-    * TopicalPageRank [(Sterckx et al., 2015)](http://users.intec.ugent.be/cdvelder/papers/2015/sterckx2015wwwb.pdf)
-    * PositionRank [(Florescu and Caragea, 2017)](http://www.aclweb.org/anthology/P17-1102.pdf)
-    * MultipartiteRank [(Boudin, 2018)](https://arxiv.org/abs/1803.08721)
+    * [SingleRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#singlerank) [(Wan and Xiao, 2008)](http://www.aclweb.org/anthology/C08-1122.pdf)
+    * [TopicRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#topicrank) [(Bougouin et al., 2013)](http://aclweb.org/anthology/I13-1062.pdf)
+    * [TopicalPageRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#topicalpagerank) [(Sterckx et al., 2015)](http://users.intec.ugent.be/cdvelder/papers/2015/sterckx2015wwwb.pdf)
+    * [PositionRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#positionrank) [(Florescu and Caragea, 2017)](http://www.aclweb.org/anthology/P17-1102.pdf)
+    * [MultipartiteRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#multipartiterank) [(Boudin, 2018)](https://arxiv.org/abs/1803.08721)
 * Supervised models
   * Feature-based models
     * Kea [(Witten et al., 2005)](https://www.cs.waikato.ac.nz/ml/publications/2005/chap_Witten-et-al_Windows.pdf)
     * WINGNUS [(Nguyen and Luong, 2010)](http://www.aclweb.org/anthology/S10-1035.pdf)
 
-### Provided models
+### Already trained supervised models
 
 `pke` ships with a collection of already trained models (for supervised
 keyphrase extraction approaches) and document frequency counts that were
@@ -290,7 +291,7 @@ containing annotated keyphrases in the SemEval-2010 [format](http://docs.google.
 A detailed example for training a supervised model is given in
 `examples/train-model.py`.
 
-### Non English languages
+## Non English languages
 
 While the default language in `pke` is English, extracting keyphrases from
 documents in other languages is easily achieved by inputting already
@@ -316,7 +317,7 @@ import pke
 # initialize TopicRank and set the language to French (used during candidate
 # selection for filtering stopwords)
 extractor = pke.unsupervised.TopicRank(input_file='/path/to/input',
-                                       language='French')
+                                       language='french')
 
 # load the content of the document and perform French stemming (instead of
 # Porter stemmer)

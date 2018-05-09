@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-""" Statistical keyphrase extraction models. """
+"""Statistical keyphrase extraction models."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -14,16 +14,43 @@ from nltk.corpus import stopwords
 
 
 class TfIdf(LoadFile):
-    """ TF*IDF keyphrase extraction model. """
+    """TF*IDF keyphrase extraction model.
+
+    Parameterized example::
+
+        import string
+        import pke
+
+        # 1. create a TfIdf extractor.
+        extractor = pke.unsupervised.TfIdf(input_file='path/to/input.xml')
+
+        # 2. load the content of the document.
+        extractor.read_document(format='corenlp')
+
+        # 3. select {1-3}-grams not containing punctuation marks as candidates.
+        n = 3
+        stoplist = list(string.punctuation)
+        stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
+        extractor.candidate_selection(n=n, stoplist=stoplist)
+
+        # 4. weight the candidates using a `tf` x `idf`
+        df = pke.load_document_frequency_file(input_file='path/to/df.tsv.gz')
+        extractor.candidate_weighting(df=df)
+
+        # 5. get the 10-highest scored candidates as keyphrases
+        keyphrases = extractor.get_n_best(n=10)
+
+    """
 
     def candidate_selection(self, n=3, stoplist=None):
-        """ Select 1-3 grams as keyphrase candidates.
+        """Select 1-3 grams as keyphrase candidates.
 
-            Args:
-                n (int): the length of the n-grams, defaults to 3.
-                stoplist (list): the stoplist for filtering candidates, defaults
-                    to None. Words that are punctuation marks from
-                    string.punctuation are not allowed.
+        Args:
+            n (int): the length of the n-grams, defaults to 3.
+            stoplist (list): the stoplist for filtering candidates, defaults to
+                `None`. Words that are punctuation marks from
+                `string.punctuation` are not allowed.
+
         """
 
         # select ngrams from 1 to 3 grams
@@ -41,11 +68,11 @@ class TfIdf(LoadFile):
 
 
     def candidate_weighting(self, df=None):
-        """ Candidate weighting function using document frequencies.
+        """Candidate weighting function using document frequencies.
 
-            Args:
-                df (dict): document frequencies, the number of documents should
-                    be specified using the "--NB_DOC--" key.
+        Args:
+            df (dict): document frequencies, the number of documents should be
+                specified using the "--NB_DOC--" key.
         """
 
         # initialize default document frequency counts if none provided
@@ -69,13 +96,42 @@ class TfIdf(LoadFile):
 
 
 class KPMiner(LoadFile):
-    """ KP-Miner keyphrase extraction model.
+    """KP-Miner keyphrase extraction model.
 
-        This model was published and described in:
+    This model was published and described in:
 
-          * Samhaa R. El-Beltagy and Ahmed Rafea, KP-Miner: Participation in
-            SemEval-2, *Proceedings of the 5th International Workshop on
-            Semantic Evaluation*, pages 190-193, 2010.
+      * Samhaa R. El-Beltagy and Ahmed Rafea, KP-Miner: Participation in
+        SemEval-2, *Proceedings of the 5th International Workshop on
+        Semantic Evaluation*, pages 190-193, 2010.
+
+    Parameterized example::
+
+        import pke
+
+        # 1. create a KPMiner extractor. 
+        extractor = pke.unsupervised.KPMiner(input_file='path/to/input.xml',
+                                             language='english')
+
+        # 2. load the content of the document.
+        extractor.read_document(format='corenlp')
+
+        # 3. select {1-5}-grams that do not contain punctuation marks or
+        #    stopwords as keyphrase candidates. Set the least allowable seen
+        #    frequency to 5 and the number of words after which candidates are
+        #    filtered out to 200.
+        lasf = 5
+        cutoff = 200
+        extractor.candidate_selection(lasf=lasf, cutoff=cutoff)
+
+        # 4. weight the candidates using KPMiner weighting function.
+        df = pke.load_document_frequency_file(input_file='path/to/df.tsv.gz')
+        alpha = 2.3
+        sigma = 3.0
+        extractor.candidate_weighting(df=df, alpha=alpha, sigma=sigma)
+
+        # 5. get the 10-highest scored candidates as keyphrases
+        keyphrases = extractor.get_n_best(n=10)
+
     """
 
     def candidate_selection(self, lasf=3, cutoff=400, stoplist=None):
@@ -104,7 +160,11 @@ class KPMiner(LoadFile):
                                   stoplist)
 
         # further filter candidates using lasf and cutoff
-        for k, v in self.candidates.items():
+        # Python 2/3 compatible
+        for k in list(self.candidates):
+
+            # get the candidate
+            v = self.candidates[k]
 
             # delete if first candidate offset is greater than cutoff
             if v.offsets[0] > cutoff:
@@ -116,21 +176,22 @@ class KPMiner(LoadFile):
 
 
     def candidate_weighting(self, df=None, sigma=3.0, alpha=2.3):
-        """ Candidate weight calculation as described in the KP-Miner paper.
+        """Candidate weight calculation as described in the KP-Miner paper.
 
+        Note:
             w = tf * idf * B * P_f
+            with
+            
+              * B = N_d / (P_d * alpha) and B = min(sigma, B)
+              * N_d = the number of all candidate terms
+              * P_d = number of candidates whose length exceeds one
+              * P_f = 1
 
-            with:
-                B = N_d / (P_d * alpha) and B = min(sigma, B)
-                N_d = the number of all candidate terms
-                P_d = number of candidates whose length exceeds one
-                P_f = 1
-
-            Args:
-                df (dict): document frequencies, the number of documents should
-                    be specified using the "--NB_DOC--" key.
-                sigma (int): parameter for boosting factor, defaults to 3.0.
-                alpha (int): parameter for boosting factor, defaults to 2.3.
+        Args:
+            df (dict): document frequencies, the number of documents should
+                be specified using the "--NB_DOC--" key.
+            sigma (int): parameter for boosting factor, defaults to 3.0.
+            alpha (int): parameter for boosting factor, defaults to 2.3.
         """
 
         # initialize default document frequency counts if none provided

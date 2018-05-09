@@ -164,27 +164,30 @@
 <dd><p>Compute n-gram document frequencies from a set of input documents. An
 extra row is added to the output file for specifying the number of
 documents from which the frequencies were computed (–NB_DOC– tab XX).</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">input_dir (str): the input directory.
-output_file (str): the output file.
-format (str): the input files format, defaults to corenlp.
-extension (str): file extension for input documents, defaults to</p>
-<blockquote>
-<div>xml.</div></blockquote>
-<dl class="docutils">
-<dt>use_lemmas (bool): whether lemmas from stanford corenlp are used</dt>
-<dd>instead of stems (computed by nltk), defaults to False.</dd>
-<dt>stemmer (str): the stemmer in nltk to used (if used), defaults</dt>
-<dd>to porter.</dd>
-<dt>stoplist (list): the stop words for filtering n-grams, default to</dt>
-<dd>None.</dd>
-<dt>delimiter (str): the delimiter between n-grams and document</dt>
-<dd>frequencies, default to tabulation.</dd>
-</dl>
-<p class="last">n (int): the length for ngrams, defaults to 3.</p>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_dir</strong> (<em>str</em>) – the input directory.</li>
+<li><strong>output_file</strong> (<em>str</em>) – the output file.</li>
+<li><strong>format</strong> (<em>str</em>) – the input files format, defaults to corenlp.</li>
+<li><strong>extension</strong> (<em>str</em>) – file extension for input documents, defaults to
+xml.</li>
+<li><strong>use_lemmas</strong> (<em>bool</em>) – whether lemmas from stanford corenlp are used
+instead of stems (computed by nltk), defaults to False.</li>
+<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to used (if used), defaults
+to porter.</li>
+<li><strong>stoplist</strong> (<em>list</em>) – the stop words for filtering n-grams, default to
+None.</li>
+<li><strong>delimiter</strong> (<em>str</em>) – the delimiter between n-grams and document
+frequencies, default to tabulation.</li>
+<li><strong>n</strong> (<em>int</em>) – the length for ngrams, defaults to 3.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -192,25 +195,28 @@ extension (str): file extension for input documents, defaults to</p>
 <code class="descclassname">pke.utils.</code><code class="descname">compute_lda_model</code><span class="sig-paren">(</span><em>input_dir</em>, <em>output_file</em>, <em>n_topics=500</em>, <em>format='corenlp'</em>, <em>extension='xml'</em>, <em>use_lemmas=False</em>, <em>stemmer='porter'</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.compute_lda_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute a LDA model from a collection of documents. Latent Dirichlet
 Allocation is computed using sklearn module.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">input_dir (str): the input directory.
-output_file (str): the output file.
-n_topics (int): number of topics for the LDA model, defaults to 500.
-format (str): the input files format, defaults to corenlp.
-extension (str): file extension for input documents, defaults to</p>
-<blockquote>
-<div>xml.</div></blockquote>
-<dl class="last docutils">
-<dt>use_lemmas (bool): whether lemmas from stanford corenlp are used</dt>
-<dd>instead of stems (computed by nltk), defaults to False.</dd>
-<dt>stemmer (str): the stemmer in nltk to used (if used), defaults</dt>
-<dd>to porter.</dd>
-<dt>language (str): the language of the documents, used for stop_words</dt>
-<dd>in sklearn CountVectorizer, defaults to ‘english’.</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_dir</strong> (<em>str</em>) – the input directory.</li>
+<li><strong>output_file</strong> (<em>str</em>) – the output file.</li>
+<li><strong>n_topics</strong> (<em>int</em>) – number of topics for the LDA model, defaults to 500.</li>
+<li><strong>format</strong> (<em>str</em>) – the input files format, defaults to corenlp.</li>
+<li><strong>extension</strong> (<em>str</em>) – file extension for input documents, defaults to
+xml.</li>
+<li><strong>use_lemmas</strong> (<em>bool</em>) – whether lemmas from stanford corenlp are used
+instead of stems (computed by nltk), defaults to False.</li>
+<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to used (if used), defaults
+to porter.</li>
+<li><strong>language</strong> (<em>str</em>) – the language of the documents, used for stop_words
+in sklearn CountVectorizer, defaults to ‘english’.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -218,22 +224,31 @@ extension (str): file extension for input documents, defaults to</p>
 <code class="descclassname">pke.utils.</code><code class="descname">load_document_frequency_file</code><span class="sig-paren">(</span><em>input_file</em>, <em>delimiter='\t'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.load_document_frequency_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a csv file containing document frequencies. Automatically detects
 if input file is compressed (gzip) if extension is ‘.gz’.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>input_file (str): the input file containing document frequencies in</dt>
-<dd>csv format.</dd>
-<dt>delimiter (str): the delimiter used for separating term-document</dt>
-<dd>frequencies tuples, defauts to ‘        ‘.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>input_file</strong> (<em>str</em>) – the input file containing document frequencies in
+csv format.</li>
+<li><strong>delimiter</strong> (<em>str</em>) – the delimiter used for separating term-document
+frequencies tuples, defauts to ‘        ‘.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><dl class="docutils">
+<dt>a dictionary of the form {term_1: freq,</dt>
+<dd><p class="first last">term_2: freq}, freq being an integer.</p>
 </dd>
-<dt>Returns:</dt>
-<dd><dl class="first last docutils">
-<dt>frequencies (dic): a dictionary of the form {term_1: freq,</dt>
-<dd>term_2: freq}, freq being an integer.</dd>
 </dl>
-</dd>
-</dl>
+</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">frequencies (dic)</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -247,32 +262,32 @@ if input file is compressed (gzip) if extension is ‘.gz’.</p>
 <code class="descclassname">pke.utils.</code><code class="descname">train_supervised_model</code><span class="sig-paren">(</span><em>input_dir</em>, <em>reference_file</em>, <em>model_file</em>, <em>df=None</em>, <em>format='corenlp'</em>, <em>use_lemmas=False</em>, <em>stemmer='porter'</em>, <em>model=None</em>, <em>language='english'</em>, <em>extension='xml'</em>, <em>sep_doc_id=':'</em>, <em>sep_ref_keyphrases='</em>, <em>'</em>, <em>reference_stemming=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.train_supervised_model" title="Permalink to this definition">¶</a></dt>
 <dd><p>Build a supervised keyphrase extraction model from a set of documents
 and a reference file.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><p class="first">input_dir (str): the input directory.
-reference_file (str): the reference file.
-model_file (str): the model output file.
-df (dict): df weights dictionary.
-format (str): the input files format, defaults to corenlp.
-use_lemmas (bool): weither lemmas from stanford corenlp are used</p>
-<blockquote>
-<div>instead of stems (computed by nltk), defaults to False.</div></blockquote>
-<dl class="docutils">
-<dt>stemmer (str): the stemmer in nltk to used (if used), defaults</dt>
-<dd>to porter.</dd>
-</dl>
-<p>model (object): the supervised model to train, defaults to None.
-extension (str): file extension for input documents, defaults to</p>
-<blockquote>
-<div>xml.</div></blockquote>
-<dl class="last docutils">
-<dt>sep_doc_id (str): the separator used for doc_id in reference file,</dt>
-<dd>defaults to ‘:’.</dd>
-<dt>sep_ref_keyphrases (str): the separator used for keyphrases in</dt>
-<dd>reference file, defaults to ‘,’.</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_dir</strong> (<em>str</em>) – the input directory.</li>
+<li><strong>reference_file</strong> (<em>str</em>) – the reference file.</li>
+<li><strong>model_file</strong> (<em>str</em>) – the model output file.</li>
+<li><strong>df</strong> (<em>dict</em>) – df weights dictionary.</li>
+<li><strong>format</strong> (<em>str</em>) – the input files format, defaults to corenlp.</li>
+<li><strong>use_lemmas</strong> (<em>bool</em>) – weither lemmas from stanford corenlp are used
+instead of stems (computed by nltk), defaults to False.</li>
+<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to used (if used), defaults
+to porter.</li>
+<li><strong>model</strong> (<em>object</em>) – the supervised model to train, defaults to None.</li>
+<li><strong>extension</strong> (<em>str</em>) – file extension for input documents, defaults to
+xml.</li>
+<li><strong>sep_doc_id</strong> (<em>str</em>) – the separator used for doc_id in reference file,
+defaults to ‘:’.</li>
+<li><strong>sep_ref_keyphrases</strong> (<em>str</em>) – the separator used for keyphrases in
+reference file, defaults to ‘,’.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>

@@ -185,14 +185,15 @@ supervised models.</p>
 <dt id="pke.supervised.SupervisedLoadFile.classify_candidates">
 <code class="descname">classify_candidates</code><span class="sig-paren">(</span><em>model=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.SupervisedLoadFile.classify_candidates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Classify the candidates as keyphrase or not keyphrase.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>model (str): the path to load the model in pickle format,</dt>
-<dd>default to None.</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>model</strong> (<em>str</em>) – the path to load the model in pickle format,
+default to None.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -227,15 +228,16 @@ supervised models.</p>
 <code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>stoplist=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.Kea.candidate_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select 1-3 grams as keyphrase candidates. Candidates that start or
 end with a stopword are discarded.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>stoplist (list): the stoplist for filtering candidates, defaults</dt>
-<dd>to the nltk stoplist. Words that are punctuation marks from
-string.punctuation are not allowed.</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>stoplist</strong> (<em>list</em>) – the stoplist for filtering candidates, defaults
+to the nltk stoplist. Words that are punctuation marks from
+string.punctuation are not allowed.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -243,28 +245,39 @@ string.punctuation are not allowed.</dd>
 <code class="descname">feature_extraction</code><span class="sig-paren">(</span><em>df=None</em>, <em>training=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.Kea.feature_extraction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract features (tf*idf, first occurrence and length) for each
 candidate.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>df (dict): document frequencies, the number of documents should</dt>
-<dd>be specified using the “–NB_DOC–” key.</dd>
-<dt>training (bool): indicates whether features are computed for the</dt>
-<dd>training set for computing IDF weights, defaults to false.</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>dict</em>) – document frequencies, the number of documents should
+be specified using the “–NB_DOC–” key.</li>
+<li><strong>training</strong> (<em>bool</em>) – indicates whether features are computed for the
+training set for computing IDF weights, defaults to false.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pke.supervised.Kea.train">
 <em class="property">static </em><code class="descname">train</code><span class="sig-paren">(</span><em>training_classes</em>, <em>model_file</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.Kea.train" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train a Naive Bayes classifier and store the model in a file.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>training_instances (list): list of features.
-training_classes (list): list of binary values.
-model_file (str): the model output file.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>training_instances</strong> (<em>list</em>) – list of features.</li>
+<li><strong>training_classes</strong> (<em>list</em>) – list of binary values.</li>
+<li><strong>model_file</strong> (<em>str</em>) – the model output file.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -281,46 +294,61 @@ model_file (str): the model output file.</dd>
 <code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>NP='^((JJ|NN) ){</em>, <em>2}NN$'</em>, <em>NP_IN_NP='^((JJ|NN) )?NN IN ((JJ|NN) )?NN$'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.WINGNUS.candidate_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select noun phrases (NP) and NP containing a preprositional phrase
 (NP IN NP) as keyphrase candidates.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>NP (str): the pattern for noun phrases, defaults to</dt>
-<dd>‘^((JJ|NN) ){,2}NN$’.</dd>
-<dt>simplex_NP (str): the pattern for filtering simplex noun</dt>
-<dd>phrases, defaults to ‘^((JJ|NN) )?NN IN ((JJ|NN) )?NN$’.</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>NP</strong> (<em>str</em>) – the pattern for noun phrases, defaults to
+‘^((JJ|NN) ){,2}NN$’.</li>
+<li><strong>simplex_NP</strong> (<em>str</em>) – the pattern for filtering simplex noun
+phrases, defaults to ‘^((JJ|NN) )?NN IN ((JJ|NN) )?NN$’.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pke.supervised.WINGNUS.feature_extraction">
 <code class="descname">feature_extraction</code><span class="sig-paren">(</span><em>df=None</em>, <em>training=False</em>, <em>features_set=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.WINGNUS.feature_extraction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract features for each candidate.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd><dl class="first last docutils">
-<dt>df (dict): document frequencies, the number of documents should</dt>
-<dd>be specified using the “–NB_DOC–” key.</dd>
-<dt>training (bool): indicates whether features are computed for the</dt>
-<dd>training set for computing IDF weights, defaults to false.</dd>
-<dt>features_set (list): the set of features to use, defaults to</dt>
-<dd>[1, 4, 6].</dd>
-</dl>
-</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>df</strong> (<em>dict</em>) – document frequencies, the number of documents should
+be specified using the “–NB_DOC–” key.</li>
+<li><strong>training</strong> (<em>bool</em>) – indicates whether features are computed for the
+training set for computing IDF weights, defaults to false.</li>
+<li><strong>features_set</strong> (<em>list</em>) – the set of features to use, defaults to
+[1, 4, 6].</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="staticmethod">
 <dt id="pke.supervised.WINGNUS.train">
 <em class="property">static </em><code class="descname">train</code><span class="sig-paren">(</span><em>training_classes</em>, <em>model_file</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.WINGNUS.train" title="Permalink to this definition">¶</a></dt>
 <dd><p>Train a Naive Bayes classifier and store the model in a file.</p>
-<dl class="docutils">
-<dt>Args:</dt>
-<dd>training_instances (list): list of features.
-training_classes (list): list of binary values.
-model_file (str): the model output file.</dd>
-</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>training_instances</strong> (<em>list</em>) – list of features.</li>
+<li><strong>training_classes</strong> (<em>list</em>) – list of binary values.</li>
+<li><strong>model_file</strong> (<em>str</em>) – the model output file.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
