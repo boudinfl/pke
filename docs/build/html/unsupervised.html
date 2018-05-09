@@ -181,8 +181,9 @@
 <dt id="pke.unsupervised.TfIdf">
 <em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">TfIdf</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TfIdf" title="Permalink to this definition">¶</a></dt>
 <dd><p>TF*IDF keyphrase extraction model.</p>
-<p>Parameter settings:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pke.unsupervised</span> <span class="k">import</span> <span class="n">TfIdf</span>
+<p>Parameterized example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">pke.unsupervised</span> <span class="k">import</span> <span class="n">TfIdf</span>
 
 <span class="c1"># 1. create a TfIdf extractor.</span>
 <span class="n">extractor</span> <span class="o">=</span> <span class="n">TfIdf</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
@@ -190,9 +191,9 @@
 <span class="c1"># 2. load the content of the document.</span>
 <span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
 
-<span class="c1"># 3. select n-grams as keyphrase candidates</span>
-<span class="c1"># &gt;&gt;&gt; n = 5 (length of n-grams)</span>
-<span class="c1"># &gt;&gt;&gt; stoplist = [&#39;.&#39;, ...] (candidates containing these are removed)</span>
+<span class="c1"># 3. select n-grams not containing stopwords as keyphrase candidates</span>
+<span class="c1"># &gt;&gt;&gt; n = 3 (length of n-grams)</span>
+<span class="c1"># &gt;&gt;&gt; stoplist = [string.punctuation] (stopwords)</span>
 <span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
                               <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
 
@@ -362,48 +363,32 @@ Approach to Single-Document Keyphrase Extraction, <em>Proceedings of the
 2008)</em>, pages 969-976, 2008.</li>
 </ul>
 </div></blockquote>
-<p>Example and parameter settings:</p>
+<p>Parameter settings:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pke.unsupervised</span> <span class="k">import</span> <span class="n">SingleRank</span>
 
-<span class="c1"># create a SingleRank extractor. The input file is considered to be in</span>
-<span class="c1"># Stanford XML CoreNLP.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">SingleRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;C-1.xml&#39;</span><span class="p">)</span>
+<span class="c1"># 1. create a SingleRank extractor.</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">SingleRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
 
-<span class="c1"># load the content of the document.</span>
+<span class="c1"># 2. load the content of the document.</span>
 <span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
 
-<span class="c1"># select the keyphrase candidates, by default the longest sequences of</span>
-<span class="c1"># nouns and adjectives that do not contain punctuation marks or</span>
-<span class="c1"># stopwords.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">()</span>
+<span class="c1"># 3. select the the longest sequences of words with given POS-tags as</span>
+<span class="c1">#    keyphrase candidates.</span>
+<span class="c1"># &gt;&gt;&gt; pos = [&#39;NN&#39;, &#39;NNS&#39;, ...]</span>
+<span class="c1"># &gt;&gt;&gt; stoplist = [&#39;the&#39;, &#39;of&#39;, ...] (stoplist for filtering candidates)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span>
+                              <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
 
-<span class="c1"># available parameters are the Part-Of-Speech tags for selecting the</span>
-<span class="c1"># sequences of words and the stoplist for filtering candidates.</span>
-<span class="c1"># &gt;&gt;&gt; pos = [&quot;NN&quot;, &quot;JJ&quot;]</span>
-<span class="c1"># &gt;&gt;&gt; stoplist = [&#39;the&#39;, &#39;of&#39;, &#39;.&#39;, &#39;?&#39;, ...]</span>
-<span class="c1"># &gt;&gt;&gt; extractor.candidate_selection(pos=pos, stoplist=stoplist)</span>
+<span class="c1"># 4. weight the candidates using a random walk.</span>
+<span class="c1"># &gt;&gt;&gt; window = 5 (number of words within the sentence for connecting two</span>
+<span class="c1">#                 nodes in the graph)</span>
+<span class="c1"># &gt;&gt;&gt; pos = [&#39;NN&#39;, &#39;NNS&#39;, ...] (POS-tags of the words that are</span>
+<span class="c1">#                               considered as nodes in the graph)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span>
+                              <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">)</span>
 
-<span class="c1"># weight the candidates using a random walk.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">()</span>
-
-<span class="c1"># available parameters are the window within the sentence for connecting</span>
-<span class="c1"># two words in the graph. The set of valid pos for words to be</span>
-<span class="c1"># considered as nodes in the graph.</span>
-<span class="c1"># &gt;&gt;&gt; window = 5</span>
-<span class="c1"># &gt;&gt;&gt; pos = set([&quot;NN&quot;, &quot;JJ&quot;])</span>
-<span class="c1"># &gt;&gt;&gt; extractor.candidate_weighting(window=window, pos=pos)</span>
-
-<span class="c1"># get the 10-highest scored candidates as keyphrases</span>
+<span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
 <span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-
-<span class="c1"># available parameters are whether redundant candidates are filtered out</span>
-<span class="c1"># (default to False) and if stemming is applied to candidates (default</span>
-<span class="c1"># to True)</span>
-<span class="c1"># &gt;&gt;&gt; redundancy_removal=True</span>
-<span class="c1"># &gt;&gt;&gt; stemming=False</span>
-<span class="c1"># &gt;&gt;&gt; keyphrases = extractor.get_n_best(n=10,</span>
-<span class="c1"># &gt;&gt;&gt;                             redundancy_removal=redundancy_removal,</span>
-<span class="c1"># &gt;&gt;&gt;                             stemming=stemming)</span>
 </pre></div>
 </div>
 <dl class="method">

@@ -38,49 +38,33 @@ class SingleRank(LoadFile):
         22nd International Conference on Computational Linguistics (Coling
         2008)*, pages 969-976, 2008.
 
-    Example and parameter settings::
+    Parameter settings::
 
         from pke.unsupervised import SingleRank
 
-        # create a SingleRank extractor. The input file is considered to be in 
-        # Stanford XML CoreNLP.
-        extractor = SingleRank(input_file='C-1.xml')
+        # 1. create a SingleRank extractor.
+        extractor = SingleRank(input_file='path/to/input.xml')
 
-        # load the content of the document.
+        # 2. load the content of the document.
         extractor.read_document(format='corenlp')
 
-        # select the keyphrase candidates, by default the longest sequences of 
-        # nouns and adjectives that do not contain punctuation marks or
-        # stopwords.
-        extractor.candidate_selection()
+        # 3. select the the longest sequences of words with given POS-tags as
+        #    keyphrase candidates.
+        # >>> pos = ['NN', 'NNS', ...]
+        # >>> stoplist = ['the', 'of', ...] (stoplist for filtering candidates)
+        extractor.candidate_selection(pos=pos,
+                                      stoplist=stoplist)
 
-        # available parameters are the Part-Of-Speech tags for selecting the
-        # sequences of words and the stoplist for filtering candidates.
-        # >>> pos = ["NN", "JJ"]
-        # >>> stoplist = ['the', 'of', '.', '?', ...]
-        # >>> extractor.candidate_selection(pos=pos, stoplist=stoplist)
+        # 4. weight the candidates using a random walk.
+        # >>> window = 5 (number of words within the sentence for connecting two
+        #                 nodes in the graph)
+        # >>> pos = ['NN', 'NNS', ...] (POS-tags of the words that are
+        #                               considered as nodes in the graph)
+        extractor.candidate_weighting(window=window,
+                                      pos=pos)
 
-        # weight the candidates using a random walk.
-        extractor.candidate_weighting()
-
-        # available parameters are the window within the sentence for connecting
-        # two words in the graph. The set of valid pos for words to be
-        # considered as nodes in the graph.
-        # >>> window = 5
-        # >>> pos = set(["NN", "JJ"])
-        # >>> extractor.candidate_weighting(window=window, pos=pos)
-
-        # get the 10-highest scored candidates as keyphrases
+        # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
-
-        # available parameters are whether redundant candidates are filtered out
-        # (default to False) and if stemming is applied to candidates (default
-        # to True)
-        # >>> redundancy_removal=True
-        # >>> stemming=False
-        # >>> keyphrases = extractor.get_n_best(n=10,
-        # >>>                             redundancy_removal=redundancy_removal,
-        # >>>                             stemming=stemming)
 
     """
 

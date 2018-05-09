@@ -1,19 +1,20 @@
 # Parameterized example for each unsupervised model
 
 ## TfIdf
-	
+    
 ```python
+import string
 from pke.unsupervised import TfIdf
 
 # 1. create a TfIdf extractor.
-extractor = TfIdf(input_file='C-1.xml')
+extractor = TfIdf(input_file='path/to/input.xml')
 
 # 2. load the content of the document.
 extractor.read_document(format='corenlp')
 
-# 3. select n-grams as keyphrase candidates
-#    n = 5 (length of n-grams)
-#    stoplist = ['.', ...] (candidates containing these are removed)
+# 3. select n-grams not containing stopwords as keyphrase candidates
+# >>> n = 3 (length of n-grams)
+# >>> stoplist = [string.punctuation] (stopwords)
 extractor.candidate_selection(n=n, stoplist=stoplist)
 
 # 4. weight the candidates using a `tf` x `idf`
@@ -32,7 +33,7 @@ from pke.unsupervised import KPMiner
 # 1. create a KPMiner extractor. 
 #    language='english' (language used for the stoplist)
 extractor = KPMiner(input_file='path/to/input.xml',
-    language='english')
+                    language='english')
 
 # 2. load the content of the document.
 extractor.read_document(format='corenlp')
@@ -42,15 +43,15 @@ extractor.read_document(format='corenlp')
 # >>> lasf = 5 (least allowable seen frequency)
 # >>> cutoff = 200 (nb of words after which candidates are filtered out)
 extractor.candidate_selection(lasf=lasf,
-      cutoff=cutoff)
+                              cutoff=cutoff)
 
 # 4. weight the candidates using KPMiner weighting function.
 # >>> df_counts = {'--NB_DOC--': 3, word1': 3, 'word2': 1, 'word3': 2}
 # >>> alpha = 2.3
 # >>> sigma = 3.0
 extractor.candidate_weighting(df=df_counts,
-      alpha=alpha,
-      sigma=sigma)
+                              alpha=alpha,
+                              sigma=sigma)
 
 # 5. get the 10-highest scored candidates as keyphrases
 keyphrases = extractor.get_n_best(n=10)
@@ -63,45 +64,29 @@ keyphrases = extractor.get_n_best(n=10)
 ```python
 from pke.unsupervised import SingleRank
 
-# create a SingleRank extractor. The input file is considered to be in 
-# Stanford XML CoreNLP.
-extractor = SingleRank(input_file='C-1.xml')
+# 1. create a SingleRank extractor.
+extractor = SingleRank(input_file='path/to/input.xml')
 
-# load the content of the document.
+# 2. load the content of the document.
 extractor.read_document(format='corenlp')
 
-# select the keyphrase candidates, by default the longest sequences of 
-# nouns and adjectives that do not contain punctuation marks or
-# stopwords.
-extractor.candidate_selection()
+# 3. select the the longest sequences of words with given POS-tags as
+#    keyphrase candidates.
+# >>> pos = ['NN', 'NNS', ...]
+# >>> stoplist = ['the', 'of', ...] (stoplist for filtering candidates)
+extractor.candidate_selection(pos=pos,
+                              stoplist=stoplist)
 
-# available parameters are the Part-Of-Speech tags for selecting the
-# sequences of words and the stoplist for filtering candidates.
-# >>> pos = ["NN", "JJ"]
-# >>> stoplist = ['the', 'of', '.', '?', ...]
-# >>> extractor.candidate_selection(pos=pos, stoplist=stoplist)
+# 4. weight the candidates using a random walk.
+# >>> window = 5 (number of words within the sentence for connecting two
+# nodes in the graph)
+# >>> pos = ['NN', 'NNS', ...] (POS-tags of the words that are
+#                               considered as nodes in the graph)
+extractor.candidate_weighting(window=window,
+                              pos=pos)
 
-# weight the candidates using a random walk.
-extractor.candidate_weighting()
-
-# available parameters are the window within the sentence for connecting
-# two words in the graph. The set of valid pos for words to be
-# considered as nodes in the graph.
-# >>> window = 5
-# >>> pos = set(["NN", "JJ"])
-# >>> extractor.candidate_weighting(window=window, pos=pos)
-
-# get the 10-highest scored candidates as keyphrases
+# 5. get the 10-highest scored candidates as keyphrases
 keyphrases = extractor.get_n_best(n=10)
-
-# available parameters are whether redundant candidates are filtered out
-# (default to False) and if stemming is applied to candidates (default
-# to True)
-# >>> redundancy_removal=True
-# >>> stemming=False
-# >>> keyphrases = extractor.get_n_best(n=10,
-# >>>                                   redundancy_removal=redundancy_removal,
-# >>>                                   stemming=stemming)
 ```
 
 ### [TopicRank](http://aclweb.org/anthology/I13-1062.pdf)

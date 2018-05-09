@@ -16,8 +16,9 @@ from nltk.corpus import stopwords
 class TfIdf(LoadFile):
     """TF*IDF keyphrase extraction model.
 
-    Parameter settings::
+    Parameterized example::
 
+        import string
         from pke.unsupervised import TfIdf
 
         # 1. create a TfIdf extractor.
@@ -26,9 +27,9 @@ class TfIdf(LoadFile):
         # 2. load the content of the document.
         extractor.read_document(format='corenlp')
 
-        # 3. select n-grams as keyphrase candidates
-        # >>> n = 5 (length of n-grams)
-        # >>> stoplist = ['.', ...] (candidates containing these are removed)
+        # 3. select n-grams not containing stopwords as keyphrase candidates
+        # >>> n = 3 (length of n-grams)
+        # >>> stoplist = [string.punctuation] (stopwords)
         extractor.candidate_selection(n=n,
                                       stoplist=stoplist)
 
