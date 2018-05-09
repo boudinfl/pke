@@ -183,23 +183,23 @@
 <dd><p>TF*IDF keyphrase extraction model.</p>
 <p>Parameterized example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">string</span>
-<span class="kn">from</span> <span class="nn">pke.unsupervised</span> <span class="k">import</span> <span class="n">TfIdf</span>
+<span class="kn">import</span> <span class="nn">pke</span>
 
 <span class="c1"># 1. create a TfIdf extractor.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">TfIdf</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">TfIdf</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
 
 <span class="c1"># 2. load the content of the document.</span>
 <span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
 
-<span class="c1"># 3. select n-grams not containing stopwords as keyphrase candidates</span>
-<span class="c1"># &gt;&gt;&gt; n = 3 (length of n-grams)</span>
-<span class="c1"># &gt;&gt;&gt; stoplist = [string.punctuation] (stopwords)</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span>
-                              <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
+<span class="c1"># 3. select {1-3}-grams not containing punctuation marks as candidates.</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">3</span>
+<span class="n">stoplist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">)</span>
+<span class="n">stoplist</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-lrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lsb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rsb-&#39;</span><span class="p">]</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
 
 <span class="c1"># 4. weight the candidates using a `tf` x `idf`</span>
-<span class="c1"># &gt;&gt;&gt; df_counts = {&#39;--NB_DOC--&#39;: 3, word1&#39;: 3, &#39;word2&#39;: 1, &#39;word3&#39;: 2}</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df_counts</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">load_document_frequency_file</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/df.tsv.gz&#39;</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
 
 <span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
 <span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -257,31 +257,29 @@ SemEval-2, <em>Proceedings of the 5th International Workshop on
 Semantic Evaluation</em>, pages 190-193, 2010.</li>
 </ul>
 </div></blockquote>
-<p>Parameter settings:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pke.unsupervised</span> <span class="k">import</span> <span class="n">KPMiner</span>
+<p>Parameterized example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pke</span>
 
 <span class="c1"># 1. create a KPMiner extractor.</span>
-<span class="c1">#    language=&#39;english&#39; (language used for the stoplist)</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">KPMiner</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">,</span>
-                    <span class="n">language</span><span class="o">=</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">KPMiner</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">,</span>
+                                     <span class="n">language</span><span class="o">=</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
 
 <span class="c1"># 2. load the content of the document.</span>
 <span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
 
-<span class="c1"># 3. select {1, 5}-grams that do not contain punctuation marks or</span>
-<span class="c1">#    stopwords as keyphrase candidates.</span>
-<span class="c1"># &gt;&gt;&gt; lasf = 5 (least allowable seen frequency)</span>
-<span class="c1"># &gt;&gt;&gt; cutoff = 200 (nb of words after which candidates are filtered out)</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">lasf</span><span class="o">=</span><span class="n">lasf</span><span class="p">,</span>
-                              <span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">)</span>
+<span class="c1"># 3. select {1-5}-grams that do not contain punctuation marks or</span>
+<span class="c1">#    stopwords as keyphrase candidates. Set the least allowable seen</span>
+<span class="c1">#    frequency to 5 and the number of words after which candidates are</span>
+<span class="c1">#    filtered out to 200.</span>
+<span class="n">lasf</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">cutoff</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">lasf</span><span class="o">=</span><span class="n">lasf</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="n">cutoff</span><span class="p">)</span>
 
 <span class="c1"># 4. weight the candidates using KPMiner weighting function.</span>
-<span class="c1"># &gt;&gt;&gt; df_counts = {&#39;--NB_DOC--&#39;: 3, word1&#39;: 3, &#39;word2&#39;: 1, &#39;word3&#39;: 2}</span>
-<span class="c1"># &gt;&gt;&gt; alpha = 2.3</span>
-<span class="c1"># &gt;&gt;&gt; sigma = 3.0</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df_counts</span><span class="p">,</span>
-                              <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-                              <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">load_document_frequency_file</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/df.tsv.gz&#39;</span><span class="p">)</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="mf">2.3</span>
+<span class="n">sigma</span> <span class="o">=</span> <span class="mf">3.0</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
 
 <span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
 <span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -363,29 +361,30 @@ Approach to Single-Document Keyphrase Extraction, <em>Proceedings of the
 2008)</em>, pages 969-976, 2008.</li>
 </ul>
 </div></blockquote>
-<p>Parameter settings:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pke.unsupervised</span> <span class="k">import</span> <span class="n">SingleRank</span>
+<p>Parameterized example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pke</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="k">import</span> <span class="n">stopwords</span>
 
 <span class="c1"># 1. create a SingleRank extractor.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">SingleRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">SingleRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
 
 <span class="c1"># 2. load the content of the document.</span>
 <span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
 
-<span class="c1"># 3. select the the longest sequences of words with given POS-tags as</span>
-<span class="c1">#    keyphrase candidates.</span>
-<span class="c1"># &gt;&gt;&gt; pos = [&#39;NN&#39;, &#39;NNS&#39;, ...]</span>
-<span class="c1"># &gt;&gt;&gt; stoplist = [&#39;the&#39;, &#39;of&#39;, ...] (stoplist for filtering candidates)</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span>
-                              <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
+<span class="c1"># 3. select the the longest sequences of nouns and adjectives, that do</span>
+<span class="c1">#    not contain punctuation marks or stopwords as candidates.</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;NN&#39;</span><span class="p">,</span> <span class="s1">&#39;NNS&#39;</span><span class="p">,</span> <span class="s1">&#39;NNP&#39;</span><span class="p">,</span> <span class="s1">&#39;NNPS&#39;</span><span class="p">,</span> <span class="s1">&#39;JJ&#39;</span><span class="p">,</span> <span class="s1">&#39;JJR&#39;</span><span class="p">,</span> <span class="s1">&#39;JJS&#39;</span><span class="p">])</span>
+<span class="n">stoplist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">)</span>
+<span class="n">stoplist</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-lrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lsb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rsb-&#39;</span><span class="p">]</span>
+<span class="n">stoplist</span> <span class="o">+=</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
 
-<span class="c1"># 4. weight the candidates using a random walk.</span>
-<span class="c1"># &gt;&gt;&gt; window = 5 (number of words within the sentence for connecting two</span>
-<span class="c1">#                 nodes in the graph)</span>
-<span class="c1"># &gt;&gt;&gt; pos = [&#39;NN&#39;, &#39;NNS&#39;, ...] (POS-tags of the words that are</span>
-<span class="c1">#                               considered as nodes in the graph)</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span>
-                              <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">)</span>
+<span class="c1"># 4. weight the candidates using the sum of their word&#39;s scores that are</span>
+<span class="c1">#    computed using random walk. In the graph, nodes are words (nouns</span>
+<span class="c1">#    and adjectives only) that are connected if they occur in a window</span>
+<span class="c1">#    of 10 words.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">)</span>
 
 <span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
 <span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -480,50 +479,32 @@ the Sixth International Joint Conference on Natural Language
 Processing</em>, pages 543-551, 2013.</li>
 </ul>
 </div></blockquote>
-<p>Example and parameter settings:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pke.unsupervised</span> <span class="k">import</span> <span class="n">TopicRank</span>
+<p>Parameterized example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pke</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="k">import</span> <span class="n">stopwords</span>
 
-<span class="c1"># create a TopicRank extractor. The input file is considered to be in</span>
-<span class="c1"># Stanford XML CoreNLP.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">TopicRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;C-1.xml&#39;</span><span class="p">)</span>
+<span class="c1"># 1. create a TopicRank extractor.</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">TopicRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
 
-<span class="c1"># load the content of the document.</span>
+<span class="c1"># 2. load the content of the document.</span>
 <span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
 
-<span class="c1"># select the keyphrase candidates, by default the longest sequences of</span>
-<span class="c1"># nouns and adjectives that do not contain punctuation marks or</span>
-<span class="c1"># stopwords.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">()</span>
+<span class="c1"># 3. select the the longest sequences of nouns and adjectives, that do</span>
+<span class="c1">#    not contain punctuation marks or stopwords as candidates.</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;NN&#39;</span><span class="p">,</span> <span class="s1">&#39;NNS&#39;</span><span class="p">,</span> <span class="s1">&#39;NNP&#39;</span><span class="p">,</span> <span class="s1">&#39;NNPS&#39;</span><span class="p">,</span> <span class="s1">&#39;JJ&#39;</span><span class="p">,</span> <span class="s1">&#39;JJR&#39;</span><span class="p">,</span> <span class="s1">&#39;JJS&#39;</span><span class="p">])</span>
+<span class="n">stoplist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">)</span>
+<span class="n">stoplist</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-lrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lsb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rsb-&#39;</span><span class="p">]</span>
+<span class="n">stoplist</span> <span class="o">+=</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
 
-<span class="c1"># available parameters are the Part-Of-Speech tags for selecting the</span>
-<span class="c1"># sequences of words and the stoplist for filtering candidates.</span>
-<span class="c1"># &gt;&gt;&gt; pos = [&quot;NN&quot;, &quot;JJ&quot;]</span>
-<span class="c1"># &gt;&gt;&gt; stoplist = [&#39;the&#39;, &#39;of&#39;, &#39;.&#39;, &#39;?&#39;, ...]</span>
-<span class="c1"># &gt;&gt;&gt; extractor.candidate_selection(pos=pos, stoplist=stoplist)</span>
+<span class="c1"># 4. build topics by grouping candidates with HAC (average linkage,</span>
+<span class="c1">#    threshold of 1/4 of shared stems). Weight the topics using random</span>
+<span class="c1">#    walk, and select the first occuring candidate from each topic.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.74</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">)</span>
 
-<span class="c1"># weight the candidates using a random walk.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">()</span>
-
-<span class="c1"># available parameters are the threshold for topic clustering, the</span>
-<span class="c1"># linkage method and the heuristic for selecting candidates in topics.</span>
-<span class="c1"># &gt;&gt;&gt; threshold = 0.75</span>
-<span class="c1"># &gt;&gt;&gt; method = &#39;average&#39;</span>
-<span class="c1"># &gt;&gt;&gt; heuristic = frequent</span>
-<span class="c1"># &gt;&gt;&gt; extractor.candidate_weighting(threshold=threshold,</span>
-<span class="c1"># &gt;&gt;&gt;                               method=method,</span>
-<span class="c1"># &gt;&gt;&gt;                               heuristic=heuristic)</span>
-
-<span class="c1"># get the 10-highest scored candidates as keyphrases</span>
+<span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
 <span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-
-<span class="c1"># available parameters are whether redundant candidates are filtered out</span>
-<span class="c1"># (default to False) and if stemming is applied to candidates (default</span>
-<span class="c1"># to True)</span>
-<span class="c1"># &gt;&gt;&gt; redundancy_removal=True</span>
-<span class="c1"># &gt;&gt;&gt; stemming=False</span>
-<span class="c1"># &gt;&gt;&gt; keyphrases = extractor.get_n_best(n=10,</span>
-<span class="c1"># &gt;&gt;&gt;                             redundancy_removal=redundancy_removal,</span>
-<span class="c1"># &gt;&gt;&gt;                             stemming=stemming)</span>
 </pre></div>
 </div>
 <dl class="method">
@@ -748,10 +729,42 @@ defaults to False.</li>
 <em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">MultipartiteRank</code><span class="sig-paren">(</span><em>input_file</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.MultipartiteRank" title="Permalink to this definition">¶</a></dt>
 <dd><p>Multipartite graph keyphrase extraction model.</p>
 <p>This model was published and described in:</p>
-<ul class="simple">
+<blockquote>
+<div><ul class="simple">
 <li>Florian Boudin, Unsupervised Keyphrase Extraction with Multipartite
 Graphs, <em>Proceedings of NAACL</em>, 2018.</li>
 </ul>
+</div></blockquote>
+<p>Parameterized example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pke</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="k">import</span> <span class="n">stopwords</span>
+
+<span class="c1"># 1. create a MultipartiteRank extractor.</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">MultipartiteRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;input.xml&#39;</span><span class="p">)</span>
+
+<span class="c1"># 2. load the content of the document.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+
+<span class="c1"># 3. select the the longest sequences of nouns and adjectives, that do</span>
+<span class="c1">#    not contain punctuation marks or stopwords as candidates.</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;NN&#39;</span><span class="p">,</span> <span class="s1">&#39;NNS&#39;</span><span class="p">,</span> <span class="s1">&#39;NNP&#39;</span><span class="p">,</span> <span class="s1">&#39;NNPS&#39;</span><span class="p">,</span> <span class="s1">&#39;JJ&#39;</span><span class="p">,</span> <span class="s1">&#39;JJR&#39;</span><span class="p">,</span> <span class="s1">&#39;JJS&#39;</span><span class="p">])</span>
+<span class="n">stoplist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">)</span>
+<span class="n">stoplist</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-lrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lsb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rsb-&#39;</span><span class="p">]</span>
+<span class="n">stoplist</span> <span class="o">+=</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
+
+<span class="c1"># 4. build the Multipartite graph and rank candidates using random walk,</span>
+<span class="c1">#    alpha controls the weight adjustment mechanism, see TopicRank for</span>
+<span class="c1">#    threshold/method parameters.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span>
+                              <span class="n">threshold</span><span class="o">=</span><span class="mf">0.74</span><span class="p">,</span>
+                              <span class="n">method</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">)</span>
+
+<span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
+<span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="pke.unsupervised.MultipartiteRank.build_topic_graph">
 <code class="descname">build_topic_graph</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.MultipartiteRank.build_topic_graph" title="Permalink to this definition">¶</a></dt>

@@ -38,30 +38,31 @@ class SingleRank(LoadFile):
         22nd International Conference on Computational Linguistics (Coling
         2008)*, pages 969-976, 2008.
 
-    Parameter settings::
+    Parameterized example::
 
-        from pke.unsupervised import SingleRank
+        import pke
+        import string
+        from nltk.corpus import stopwords
 
         # 1. create a SingleRank extractor.
-        extractor = SingleRank(input_file='path/to/input.xml')
+        extractor = pke.unsupervised.SingleRank(input_file='path/to/input.xml')
 
         # 2. load the content of the document.
         extractor.read_document(format='corenlp')
 
-        # 3. select the the longest sequences of words with given POS-tags as
-        #    keyphrase candidates.
-        # >>> pos = ['NN', 'NNS', ...]
-        # >>> stoplist = ['the', 'of', ...] (stoplist for filtering candidates)
-        extractor.candidate_selection(pos=pos,
-                                      stoplist=stoplist)
+        # 3. select the the longest sequences of nouns and adjectives, that do
+        #    not contain punctuation marks or stopwords as candidates.
+        pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+        stoplist = list(string.punctuation)
+        stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
+        stoplist += stopwords.words('english')
+        extractor.candidate_selection(pos=pos, stoplist=stoplist)
 
-        # 4. weight the candidates using a random walk.
-        # >>> window = 5 (number of words within the sentence for connecting two
-        #                 nodes in the graph)
-        # >>> pos = ['NN', 'NNS', ...] (POS-tags of the words that are
-        #                               considered as nodes in the graph)
-        extractor.candidate_weighting(window=window,
-                                      pos=pos)
+        # 4. weight the candidates using the sum of their word's scores that are
+        #    computed using random walk. In the graph, nodes are words (nouns
+        #    and adjectives only) that are connected if they occur in a window
+        #    of 10 words.
+        extractor.candidate_weighting(window=10, pos=pos)
 
         # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
@@ -183,51 +184,33 @@ class TopicRank(LoadFile):
         the Sixth International Joint Conference on Natural Language
         Processing*, pages 543-551, 2013.
 
-    Example and parameter settings::
+    Parameterized example::
 
-        from pke.unsupervised import TopicRank
+        import pke
+        import string
+        from nltk.corpus import stopwords
 
-        # create a TopicRank extractor. The input file is considered to be in 
-        # Stanford XML CoreNLP.
-        extractor = TopicRank(input_file='C-1.xml')
+        # 1. create a TopicRank extractor.
+        extractor = pke.unsupervised.TopicRank(input_file='path/to/input.xml')
 
-        # load the content of the document.
+        # 2. load the content of the document.
         extractor.read_document(format='corenlp')
 
-        # select the keyphrase candidates, by default the longest sequences of 
-        # nouns and adjectives that do not contain punctuation marks or
-        # stopwords.
-        extractor.candidate_selection()
+        # 3. select the the longest sequences of nouns and adjectives, that do
+        #    not contain punctuation marks or stopwords as candidates.
+        pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+        stoplist = list(string.punctuation)
+        stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
+        stoplist += stopwords.words('english')
+        extractor.candidate_selection(pos=pos, stoplist=stoplist)
 
-        # available parameters are the Part-Of-Speech tags for selecting the
-        # sequences of words and the stoplist for filtering candidates.
-        # >>> pos = ["NN", "JJ"]
-        # >>> stoplist = ['the', 'of', '.', '?', ...]
-        # >>> extractor.candidate_selection(pos=pos, stoplist=stoplist)
+        # 4. build topics by grouping candidates with HAC (average linkage,
+        #    threshold of 1/4 of shared stems). Weight the topics using random
+        #    walk, and select the first occuring candidate from each topic.
+        extractor.candidate_weighting(threshold=0.74, method='average')
 
-        # weight the candidates using a random walk.
-        extractor.candidate_weighting()
-
-        # available parameters are the threshold for topic clustering, the
-        # linkage method and the heuristic for selecting candidates in topics.
-        # >>> threshold = 0.75
-        # >>> method = 'average'
-        # >>> heuristic = frequent
-        # >>> extractor.candidate_weighting(threshold=threshold,
-        # >>>                               method=method,
-        # >>>                               heuristic=heuristic)
-
-        # get the 10-highest scored candidates as keyphrases
+        # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
-
-        # available parameters are whether redundant candidates are filtered out
-        # (default to False) and if stemming is applied to candidates (default
-        # to True)
-        # >>> redundancy_removal=True
-        # >>> stemming=False
-        # >>> keyphrases = extractor.get_n_best(n=10,
-        # >>>                             redundancy_removal=redundancy_removal,
-        # >>>                             stemming=stemming)
 
     """
 
@@ -400,12 +383,42 @@ class TopicRank(LoadFile):
 
 
 class MultipartiteRank(TopicRank):
-    """ Multipartite graph keyphrase extraction model.
+    """Multipartite graph keyphrase extraction model.
 
-        This model was published and described in:
+    This model was published and described in:
 
-        * Florian Boudin, Unsupervised Keyphrase Extraction with Multipartite
-          Graphs, *Proceedings of NAACL*, 2018.
+      * Florian Boudin, Unsupervised Keyphrase Extraction with Multipartite
+        Graphs, *Proceedings of NAACL*, 2018.
+
+    Parameterized example::
+
+        import pke
+        import string
+        from nltk.corpus import stopwords
+
+        # 1. create a MultipartiteRank extractor.
+        extractor = pke.unsupervised.MultipartiteRank(input_file='input.xml')
+
+        # 2. load the content of the document.
+        extractor.read_document(format='corenlp')
+
+        # 3. select the the longest sequences of nouns and adjectives, that do
+        #    not contain punctuation marks or stopwords as candidates.
+        pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+        stoplist = list(string.punctuation)
+        stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
+        stoplist += stopwords.words('english')
+        extractor.candidate_selection(pos=pos, stoplist=stoplist)
+
+        # 4. build the Multipartite graph and rank candidates using random walk,
+        #    alpha controls the weight adjustment mechanism, see TopicRank for
+        #    threshold/method parameters.
+        extractor.candidate_weighting(alpha=1.1,
+                                      threshold=0.74,
+                                      method='average')
+
+        # 5. get the 10-highest scored candidates as keyphrases
+        keyphrases = extractor.get_n_best(n=10)
     """
 
     def __init__(self, input_file, language='english'):
@@ -519,8 +532,9 @@ class MultipartiteRank(TopicRank):
             # get the first occurring variant
             first = variants[offsets.index(min(offsets))]
 
-            # find the nodes to which it connects
-            for start, end in self.graph.edges_iter(first):
+            # find the nodes to which it connects -- Python 2/3 compatible
+            # for start, end in self.graph.edges_iter(first):
+            for start, end in self.graph.edges(first):
 
                 boosters = []
                 for v in variants:
@@ -530,8 +544,9 @@ class MultipartiteRank(TopicRank):
                 if boosters:
                     weighted_edges[(start, end)] = np.sum(boosters)
 
-        # update edge weights
-        for nodes, boosters in weighted_edges.iteritems():
+        # update edge weights -- Python 2/3 compatible
+        # for nodes, boosters in weighted_edges.iteritems():
+        for nodes, boosters in weighted_edges.items():
             node_i, node_j = nodes
             position_i = 1.0 / (1 + self.candidates[node_i].offsets[0])
             position_i = math.exp(position_i)

@@ -19,23 +19,23 @@ class TfIdf(LoadFile):
     Parameterized example::
 
         import string
-        from pke.unsupervised import TfIdf
+        import pke
 
         # 1. create a TfIdf extractor.
-        extractor = TfIdf(input_file='path/to/input.xml')
+        extractor = pke.unsupervised.TfIdf(input_file='path/to/input.xml')
 
         # 2. load the content of the document.
         extractor.read_document(format='corenlp')
 
-        # 3. select n-grams not containing stopwords as keyphrase candidates
-        # >>> n = 3 (length of n-grams)
-        # >>> stoplist = [string.punctuation] (stopwords)
-        extractor.candidate_selection(n=n,
-                                      stoplist=stoplist)
+        # 3. select {1-3}-grams not containing punctuation marks as candidates.
+        n = 3
+        stoplist = list(string.punctuation)
+        stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
+        extractor.candidate_selection(n=n, stoplist=stoplist)
 
         # 4. weight the candidates using a `tf` x `idf`
-        # >>> df_counts = {'--NB_DOC--': 3, word1': 3, 'word2': 1, 'word3': 2}
-        extractor.candidate_weighting(df=df_counts)
+        df = pke.load_document_frequency_file(input_file='path/to/df.tsv.gz')
+        extractor.candidate_weighting(df=df)
 
         # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
@@ -104,32 +104,30 @@ class KPMiner(LoadFile):
         SemEval-2, *Proceedings of the 5th International Workshop on
         Semantic Evaluation*, pages 190-193, 2010.
 
-    Parameter settings::
+    Parameterized example::
 
-        from pke.unsupervised import KPMiner
+        import pke
 
         # 1. create a KPMiner extractor. 
-        #    language='english' (language used for the stoplist)
-        extractor = KPMiner(input_file='path/to/input.xml',
-                            language='english')
+        extractor = pke.unsupervised.KPMiner(input_file='path/to/input.xml',
+                                             language='english')
 
         # 2. load the content of the document.
         extractor.read_document(format='corenlp')
 
-        # 3. select {1, 5}-grams that do not contain punctuation marks or
-        #    stopwords as keyphrase candidates.
-        # >>> lasf = 5 (least allowable seen frequency)
-        # >>> cutoff = 200 (nb of words after which candidates are filtered out)
-        extractor.candidate_selection(lasf=lasf,
-                                      cutoff=cutoff)
+        # 3. select {1-5}-grams that do not contain punctuation marks or
+        #    stopwords as keyphrase candidates. Set the least allowable seen
+        #    frequency to 5 and the number of words after which candidates are
+        #    filtered out to 200.
+        lasf = 5
+        cutoff = 200
+        extractor.candidate_selection(lasf=lasf, cutoff=cutoff)
 
         # 4. weight the candidates using KPMiner weighting function.
-        # >>> df_counts = {'--NB_DOC--': 3, word1': 3, 'word2': 1, 'word3': 2}
-        # >>> alpha = 2.3
-        # >>> sigma = 3.0
-        extractor.candidate_weighting(df=df_counts,
-                                      alpha=alpha,
-                                      sigma=sigma)
+        df = pke.load_document_frequency_file(input_file='path/to/df.tsv.gz')
+        alpha = 2.3
+        sigma = 3.0
+        extractor.candidate_weighting(df=df, alpha=alpha, sigma=sigma)
 
         # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
@@ -183,6 +181,7 @@ class KPMiner(LoadFile):
         Note:
             w = tf * idf * B * P_f
             with
+            
               * B = N_d / (P_d * alpha) and B = min(sigma, B)
               * N_d = the number of all candidate terms
               * P_d = number of candidates whose length exceeds one
