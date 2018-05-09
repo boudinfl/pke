@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-""" Statistical keyphrase extraction models. """
+"""Statistical keyphrase extraction models."""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -16,48 +16,28 @@ from nltk.corpus import stopwords
 class TfIdf(LoadFile):
     """TF*IDF keyphrase extraction model.
 
-    Example and parameter settings::
+    Parameter settings::
 
         from pke.unsupervised import TfIdf
 
-        # create a TfIdf extractor. The input file is considered to be in 
-        # Stanford XML CoreNLP.
-        extractor = TfIdf(input_file='C-1.xml')
+        # 1. create a TfIdf extractor.
+        extractor = TfIdf(input_file='path/to/input.xml')
 
-        # load the content of the document.
+        # 2. load the content of the document.
         extractor.read_document(format='corenlp')
 
-        # select the keyphrase candidates, by default the 1-3-grams of words
-        # that do not contain punctuation marks.
-        extractor.candidate_selection()
+        # 3. select n-grams as keyphrase candidates
+        # >>> n = 5 (length of n-grams)
+        # >>> stoplist = ['.', ...] (candidates containing these are removed)
+        extractor.candidate_selection(n=n,
+                                      stoplist=stoplist)
 
-        # available parameters are the length of the n-grams and the stoplist
-        # for filtering candidates.
-        # >>> n = 5
-        # >>> stoplist = ['the', 'of', '.', '?', ...]
-        # >>> extractor.candidate_selection(n=n, stoplist=stoplist)
+        # 4. weight the candidates using a `tf` x `idf`
+        # >>> df_counts = {'--NB_DOC--': 3, word1': 3, 'word2': 1, 'word3': 2}
+        extractor.candidate_weighting(df=df_counts)
 
-        # weight the candidates using a `term frequency` x `inverse document
-        # frequency`, by defaults the document counts (df) are those computed
-        # on the training set of the SemEval-2010 dataset.
-        extractor.candidate_weighting()
-
-        # available parameters are the `df` counts that can be provided to the 
-        # weighting function.
-        # >>> counts = {'--NB_DOC--': 3, word1': 3, 'word2': 1, 'word3': 2}
-        # >>> extractor.candidate_weighting(df=counts)
-
-        # get the 10-highest scored candidates as keyphrases
+        # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
-
-        # available parameters are whether redundant candidates are filtered out
-        # (default to False) and if stemming is applied to candidates (default
-        # to True)
-        # >>> redundancy_removal=True
-        # >>> stemming=False
-        # >>> keyphrases = extractor.get_n_best(n=10,
-        # >>>                             redundancy_removal=redundancy_removal,
-        # >>>                             stemming=stemming)
 
     """
 
@@ -123,51 +103,35 @@ class KPMiner(LoadFile):
         SemEval-2, *Proceedings of the 5th International Workshop on
         Semantic Evaluation*, pages 190-193, 2010.
 
-    Example and parameter settings::
+    Parameter settings::
 
         from pke.unsupervised import KPMiner
 
-        # create a KPMiner extractor and set the input language to English (used
-        # for the stoplist in the candidate selection method). The input file
-        # is considered to be in Stanford XML CoreNLP.
-        extractor = KPMiner(input_file='C-1.xml', language='english')
+        # 1. create a KPMiner extractor. 
+        #    language='english' (language used for the stoplist)
+        extractor = KPMiner(input_file='path/to/input.xml',
+                            language='english')
 
-        # load the content of the document.
+        # 2. load the content of the document.
         extractor.read_document(format='corenlp')
 
-        # select the keyphrase candidates, by default the 1-5-grams of words
-        # that do not contain punctuation marks or stopwords. Candidates
-        # occurring less than 3 times or after the 400th word are filtered out.
-        extractor.candidate_selection()
+        # 3. select {1, 5}-grams that do not contain punctuation marks or
+        #    stopwords as keyphrase candidates.
+        # >>> lasf = 5 (least allowable seen frequency)
+        # >>> cutoff = 200 (nb of words after which candidates are filtered out)
+        extractor.candidate_selection(lasf=lasf,
+                                      cutoff=cutoff)
 
-        # available parameters are the least allowable seen frequency and the 
-        # number of words after which candidates are filtered out.
-        # >>> lasf = 5
-        # >>> cutoff = 123
-        # >>> extractor.candidate_selection(lasf=lasf, cutoff=cutoff)
-
-        # weight the candidates using KPMiner weighting function.
-        extractor.candidate_weighting()
-
-        # available parameters are the `df` counts that can be provided to the 
-        # weighting function and the sigma and alpha values of the weighting
-        # function.
-        # >>> counts = {'--NB_DOC--': 3, word1': 3, 'word2': 1, 'word3': 2}
+        # 4. weight the candidates using KPMiner weighting function.
+        # >>> df_counts = {'--NB_DOC--': 3, word1': 3, 'word2': 1, 'word3': 2}
         # >>> alpha = 2.3
         # >>> sigma = 3.0
-        # >>> extractor.candidate_weighting(df=counts, alpha=alpha, sigma=sigma)
+        extractor.candidate_weighting(df=df_counts,
+                                      alpha=alpha,
+                                      sigma=sigma)
 
-        # get the 10-highest scored candidates as keyphrases
+        # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
-
-        # available parameters are whether redundant candidates are filtered out
-        # (default to False) and if stemming is applied to candidates (default
-        # to True)
-        # >>> redundancy_removal=True
-        # >>> stemming=False
-        # >>> keyphrases = extractor.get_n_best(n=10,
-        # >>>                             redundancy_removal=redundancy_removal,
-        # >>>                             stemming=stemming)
 
     """
 
@@ -215,13 +179,13 @@ class KPMiner(LoadFile):
     def candidate_weighting(self, df=None, sigma=3.0, alpha=2.3):
         """Candidate weight calculation as described in the KP-Miner paper.
 
-        w = tf * idf * B * P_f
-
-        with:
-            B = N_d / (P_d * alpha) and B = min(sigma, B)
-            N_d = the number of all candidate terms
-            P_d = number of candidates whose length exceeds one
-            P_f = 1
+        Note:
+            w = tf * idf * B * P_f
+            with
+              * B = N_d / (P_d * alpha) and B = min(sigma, B)
+              * N_d = the number of all candidate terms
+              * P_d = number of candidates whose length exceeds one
+              * P_f = 1
 
         Args:
             df (dict): document frequencies, the number of documents should
