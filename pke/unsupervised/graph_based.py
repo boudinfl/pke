@@ -581,13 +581,13 @@ class MultipartiteRank(TopicRank):
 
 
 class PositionRank(SingleRank):
-    """ PositionRank keyphrase extraction model. 
+    """PositionRank keyphrase extraction model. 
 
-        This model was published and described in:
+    This model was published and described in:
 
-        * Corina Florescu and Cornelia Caragea. PositionRank: An Unsupervised
-          Approach to Keyphrase Extraction from Scholarly Documents,
-          *Proceedings of ACL*, pages 1105-1115, 2017.
+      * Corina Florescu and Cornelia Caragea. PositionRank: An Unsupervised
+        Approach to Keyphrase Extraction from Scholarly Documents,
+        *Proceedings of ACL*, pages 1105-1115, 2017.
     """
 
     def __init__(self, input_file, language='english'):
@@ -600,9 +600,9 @@ class PositionRank(SingleRank):
 
 
     def candidate_selection(self):
-        """ The candidate selection heuristic described in the PositionRank
-            paper, i.e. noun phrases that match the regular expression
-            (adjective)*(noun)+, of length up to three.
+        """The candidate selection heuristic described in the PositionRank
+           paper, i.e. noun phrases that match the regular expression
+           (adjective)*(noun)+, of length up to three.
         """
 
         grammar = r"""
@@ -614,20 +614,23 @@ class PositionRank(SingleRank):
         self.grammar_selection(grammar=grammar)
 
         # filter candidates
-        for k, v in self.candidates.items():
+        # for k, v in self.candidates.items():
+        # Python 2/3 compatible
+        for k in list(self.candidates):
+            v = self.candidates[k]
             if len(v.lexical_form) > 3:
                 del self.candidates[k]
 
 
     def build_word_graph(self, window=10, pos=None):
-        """ Build the word graph from the document.
+        """Build the word graph from the document.
 
-            Args:
-                window (int): the window within the sentence for connecting two
-                    words in the graph, defaults to 10.
-                pos (set): the set of valid pos for words to be considered as
-                    nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
-                    JJR, JJS).
+        Args:
+            window (int): the window within the sentence for connecting two
+                words in the graph, defaults to 10.
+            pos (set): the set of valid pos for words to be considered as
+                nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
+                JJR, JJS).
         """
 
         # define default pos tags set
@@ -658,16 +661,16 @@ class PositionRank(SingleRank):
 
 
     def candidate_weighting(self, window=10, pos=None, normalized=False):
-        """ Candidate weight calculation using random walk.
+        """Candidate weight calculation using random walk.
 
-            Args:
-                window (int): the window within the sentence for connecting two
-                    words in the graph, defaults to 10.
-                pos (set): the set of valid pos for words to be considered as
-                    nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
-                    JJR, JJS).
-                normalized (False): normalize keyphrase score by their length,
-                    defaults to False.
+        Args:
+            window (int): the window within the sentence for connecting two
+                words in the graph, defaults to 10.
+            pos (set): the set of valid pos for words to be considered as
+                nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
+                JJR, JJS).
+            normalized (False): normalize keyphrase score by their length,
+                defaults to False.
         """
 
         # define default pos tags set
@@ -698,13 +701,13 @@ class PositionRank(SingleRank):
 
 
 class TopicalPageRank(SingleRank):
-    """ Single TopicalPageRank keyphrase extraction model. 
+    """Single TopicalPageRank keyphrase extraction model. 
 
-        This model was published and described in:
+    This model was published and described in:
 
-        * Lucas Sterckx, Thomas Demeester, Johannes Deleu and Chris Develder,
-          Topical word importance for fast keyphrase extraction, *Proceedings
-          of WWW 2015*.
+      * Lucas Sterckx, Thomas Demeester, Johannes Deleu and Chris Develder,
+        Topical word importance for fast keyphrase extraction, *Proceedings
+        of WWW 2015*.
     """
 
     def __init__(self, input_file, language='english'):
@@ -725,7 +728,10 @@ class TopicalPageRank(SingleRank):
         self.grammar_selection(grammar=grammar)
 
         # filter candidates
-        for k, v in self.candidates.items():
+        # for k, v in self.candidates.items():
+        # Python 2/3 compatible
+        for k in list(self.candidates):
+            v = self.candidates[k]
             if len(v.lexical_form) > 3:
                 del self.candidates[k]
 
@@ -735,18 +741,18 @@ class TopicalPageRank(SingleRank):
                             pos=None,
                             normalized=False,
                             lda_model=None):
-        """ Candidate weight calculation using random walk.
+        """Candidate weight calculation using random walk.
 
-            Args:
-                window (int): the window within the sentence for connecting two
-                    words in the graph, defaults to 10.
-                pos (set): the set of valid pos for words to be considered as
-                    nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
-                    JJR, JJS).
-                normalized (False): normalize keyphrase score by their length,
-                    defaults to False.
-                lda_model (pickle.gz): an LDA model produced by sklearn in
-                    pickle compressed (.gz) format
+        Args:
+            window (int): the window within the sentence for connecting two
+                words in the graph, defaults to 10.
+            pos (set): the set of valid pos for words to be considered as
+                nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
+                JJR, JJS).
+            normalized (False): normalize keyphrase score by their length,
+                defaults to False.
+            lda_model (pickle.gz): an LDA model produced by sklearn in
+                pickle compressed (.gz) format
         """
 
         # define default pos tags set
