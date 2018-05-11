@@ -69,7 +69,7 @@ class SingleRank(LoadFile):
 
     """
 
-    def __init__(self, input_file, language='english'):
+    def __init__(self, input_file=None, language='english'):
         """ Redefining initializer for SingleRank. """
 
         super(SingleRank, self).__init__(input_file=input_file,
@@ -214,7 +214,7 @@ class TopicRank(LoadFile):
 
     """
 
-    def __init__(self, input_file, language='english'):
+    def __init__(self, input_file=None, language='english'):
         """ Redefining initializer for TopicRank. """
 
         super(TopicRank, self).__init__(input_file=input_file,
@@ -421,7 +421,7 @@ class MultipartiteRank(TopicRank):
         keyphrases = extractor.get_n_best(n=10)
     """
 
-    def __init__(self, input_file, language='english'):
+    def __init__(self, input_file=None, language='english'):
         """ Redefining initializer for MultipartiteRank. """
 
         super(MultipartiteRank, self).__init__(input_file=input_file,
@@ -590,7 +590,7 @@ class PositionRank(SingleRank):
         *Proceedings of ACL*, pages 1105-1115, 2017.
     """
 
-    def __init__(self, input_file, language='english'):
+    def __init__(self, input_file=None, language='english'):
         """ Redefining initializer for PositionRank. """
 
         super(PositionRank, self).__init__(input_file=input_file,
@@ -710,7 +710,7 @@ class TopicalPageRank(SingleRank):
         of WWW 2015*.
     """
 
-    def __init__(self, input_file, language='english'):
+    def __init__(self, input_file=None, language='english'):
         """ Redefining initializer for TopicalPageRank. """
 
         super(TopicalPageRank, self).__init__(input_file=input_file,

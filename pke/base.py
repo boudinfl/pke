@@ -57,7 +57,7 @@ class Candidate(object):
 class LoadFile(object):
     """ The LoadFile class that provides base functions. """
 
-    def __init__(self, input_file, language='english'):
+    def __init__(self, input_file=None, language='english'):
         """ Initializer for LoadFile class.
 
             Args:
@@ -102,7 +102,7 @@ class LoadFile(object):
                 stemmer (str): the stemmer in nltk to use (if used), defaults
                     to porter (can be set to None for using word surface forms
                     instead of stems).
-                sep (str): the separator of the tagged word, defaults to /.
+                sep (str): the separator of the tagged word, defaults to `/`.
         """
 
         if format == 'raw':
@@ -111,6 +111,19 @@ class LoadFile(object):
             self.read_preprocessed_document(stemmer=stemmer, sep=sep)
         elif format == 'corenlp':
             self.read_corenlp_document(use_lemmas=use_lemmas, stemmer=stemmer)
+
+
+    def read_text(self, input_text=None, stemmer='porter'):
+        """ Read text as input.
+
+            Args:
+                input_text (str): the input text.
+                stemmer (str): the stemmer in nltk to use, defaults to porter
+                    (can be set to None for using word surface forms instead of
+                    stems).
+        """
+
+        self.read_raw_document(stemmer=stemmer, input_text=input_text)
 
 
     def read_corenlp_document(self, use_lemmas=False, stemmer='porter'):
@@ -199,17 +212,19 @@ class LoadFile(object):
                 self.sentences[i].stems[j] = stem.lower()
 
 
-    def read_raw_document(self, stemmer='porter'):
+    def read_raw_document(self, stemmer='porter', input_text=None):
         """ Read the raw input file and populate the sentence list.
 
             Args:
                 stemmer (str): the stemmer in nltk to use, defaults to porter
                     (can be set to None for using word surface forms instead of
                     stems).
+                input_text (str): the text if directly given as input, defaults
+                    to None (i.e. using an input file).
         """
 
         # parse the document using the preprocessed text parser
-        parse = RawTextReader(self.input_file)
+        parse = RawTextReader(path=self.input_file, input_text=input_text)
 
         # loop through the parsed sentences
         for i, sentence in enumerate(parse.sentences):

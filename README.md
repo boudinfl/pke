@@ -16,13 +16,14 @@ If you use `pke`, please cite the following paper:
 ## Table of Contents
 
 * [Installation](#installation)
+* [Minimal example](#minimal-example)
 * [Usage](#usage)
-  - [Minimal example](#minimal-example)
   - [Input formats](#input-formats)
   - [Implemented models](#implemented-models)
   - [Already trained supervised models](#already-trained-supervised-models)
   - [Document Frequency counts](#document-frequency-counts)
   - [Training supervised models](#training-supervised-models)
+  - [Extracting keyphrases from an input text](#extracting-keyphrases-from-an-input-text)
 * [Non English languages](#non-english-languages)
 * [Benchmarking](#benchmarking)
 * [Code documentation](#code-documentation)
@@ -47,9 +48,7 @@ To pip install `pke` from github:
 pip install git+https://github.com/boudinfl/pke.git
 ```
 
-## Usage
-
-### Minimal example
+## Minimal example
 
 `pke` provides a standardized API for keyphrases from a document. Start by
 typing the 5 lines below. For using another model, simply replace
@@ -74,14 +73,16 @@ extractor.candidate_weighting()
 
 # N-best selection, keyphrases contains the 10 highest scored candidates as
 # (keyphrase, score) tuples
-keyphrases = extractor.get_n_best(n=10)
+keyphrases = extractor.get_n_best(n=10, stemming=False)
 ```
 
 A detailed example is provided in the `examples/` directory.
 
+## Usage
+
 ### Input formats
 
-`pke` currently supports the following input formats (examples of formatted
+`pke` currently supports the following input file formats (examples of formatted
 input files are provided in the `examples/` directory):
 
 1. *raw text*: text preprocessing (i.e. tokenization, sentence splitting and 
@@ -290,6 +291,28 @@ containing annotated keyphrases in the SemEval-2010 [format](http://docs.google.
 
 A detailed example for training a supervised model is given in
 `examples/train-model.py`.
+
+### Extracting keyphrases from an input text
+
+While `pke` is first intended to process input files, it can be used to directly
+extract keyphrases from a given input text:
+
+```python
+import pke
+
+extractor = pke.unsupervised.TopicRank()
+
+input_text = u"""Keyphrase extraction is the task of identifying single or
+                 multi-word expressions that represent the main topics of a
+                 document. In this paper we present TopicRank, a graph-based
+                 keyphrase extraction method that relies on a topical
+                 representation of the document."""
+
+extractor.read_text(input_text)
+extractor.candidate_selection()
+extractor.candidate_weighting()
+keyphrases = extractor.get_n_best(n=10, stemming=False)
+```
 
 ## Non English languages
 
