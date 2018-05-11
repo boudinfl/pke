@@ -41,13 +41,16 @@ class PreProcessedTextReader(object):
 
 class RawTextReader(object):
     """ Reader for raw text. """
-    def __init__(self, path):
+    def __init__(self, path=None, input_text=None):
         self.sentences = []
-        with codecs.open(path, 'r', 'utf-8') as f:
-            sentences = [word_tokenize(s) for s in sent_tokenize(f.read())]
-            tuples = pos_tag_sents(sentences)
-            for sentence in tuples:
-                self.sentences.append({
-                    "words" : [u[0] for u in sentence],
-                    "POS" : [u[1] for u in sentence]
-                })
+        raw_text = input_text
+        if path is not None:
+            with codecs.open(path, 'r', 'utf-8') as f:
+                raw_text = f.read()
+        sentences = [word_tokenize(s) for s in sent_tokenize(raw_text)]
+        tuples = pos_tag_sents(sentences)
+        for sentence in tuples:
+            self.sentences.append({
+                "words" : [u[0] for u in sentence],
+                "POS" : [u[1] for u in sentence]
+            })

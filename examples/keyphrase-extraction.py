@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # this example uses TopicRank
-from pke.unsupervised import TopicRank 
+from pke.unsupervised import TopicRank
 
 # create a TopicRank extractor and set the input language to English (used for
 # the stoplist in the candidate selection method)
@@ -27,4 +27,5 @@ extractor.candidate_weighting(threshold=0.74,
                               method='average')
 
 # print the n-highest (10) scored candidates
-print (';'.join([u for u, v in extractor.get_n_best(n=10)])).encode('utf-8')
+for (keyphrase, score) in extractor.get_n_best(n=10):
+	print(keyphrase, score)
