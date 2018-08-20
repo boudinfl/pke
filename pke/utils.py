@@ -93,6 +93,8 @@ def compute_document_frequency(input_dir,
     # loop throught the documents
     for input_file in glob.glob(input_dir+'/*.'+extension):
 
+        logging.info('reading file '+input_file)
+
         # initialize load file object
         doc = LoadFile(input_file)
 
@@ -115,14 +117,15 @@ def compute_document_frequency(input_dir,
         nb_documents += 1
 
     # Dump the df container
-    with gzip.open(output_file, 'w') as f:
+    with gzip.open(output_file, 'wb') as f:
 
         # add the number of documents as special token
-        f.write('--NB_DOC--'+delimiter+str(nb_documents)+'\n')
+        first_line = '--NB_DOC--' + delimiter + str(nb_documents)
+        f.write(first_line.encode('utf-8') + b'\n')
 
         for ngram in frequencies:
-            f.write((ngram).encode('utf-8') + delimiter +
-                    str(len(frequencies[ngram])) + '\n')
+            line = ngram + delimiter + str(len(frequencies[ngram]))
+            f.write(line.encode('utf-8') + b'\n')
 
 
 def train_supervised_model(input_dir,
