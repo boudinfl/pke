@@ -451,6 +451,13 @@ class MultipartiteRank(TopicRank):
                 method (str): the linkage method, defaults to average.
         """
 
+        # handle document with only one candidate
+        if len(self.candidates) == 1:
+            candidate = list(self.candidates)[0]
+            self.topics.append([candidate])
+            self.topic_identifiers[candidate] = 0
+            return
+
         # vectorize the candidates
         candidates, X = self.vectorize_candidates()
 
