@@ -295,6 +295,11 @@ class TopicRank(LoadFile):
                 method (str): the linkage method, defaults to average.
         """
 
+        # handle document with only one candidate
+        if len(self.candidates) == 1:
+            self.topics.append([list(self.candidates)[0]])
+            return
+
         # vectorize the candidates
         candidates, X = self.vectorize_candidates()
 
