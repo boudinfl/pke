@@ -205,6 +205,9 @@ class KPMiner(LoadFile):
         P_d = sum([len(v.surface_forms) for v in self.candidates.values()
                    if len(v.lexical_form) > 1])
 
+        # fall back to 1 if all candidates are words
+        P_d = max(1, P_d)
+
         # compute the number of all candidate terms
         N_d = sum([len(v.surface_forms) for v in self.candidates.values()])
 
