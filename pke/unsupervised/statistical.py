@@ -372,6 +372,10 @@ class YAKE(LoadFile):
         for i, j in combinations(range(len(words)), 2):
             for t_i in self.words[words[i]]:
                 for t_j in self.words[words[j]]:
+                    # skip if they do not occur within the same sentence
+                    if t_i[2] != t_j[2]:
+                        continue
+
                     if math.fabs(t_i[0]-t_j[0]) < window:
                         if t_i[0] > t_j[0]:
                             WL[words[i]].append(words[j])
