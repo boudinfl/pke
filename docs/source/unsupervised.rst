@@ -15,6 +15,11 @@ KPMiner
 .. autoclass:: pke.unsupervised.KPMiner
 	:members:
 
+YAKE
+~~~~~~~
+.. autoclass:: pke.unsupervised.YAKE
+	:members:
+
 Graph-based models
 ------------------
 
