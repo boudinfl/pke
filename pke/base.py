@@ -484,7 +484,7 @@ class LoadFile(object):
 
 
     def candidate_filtering(self,
-                            stoplist=None,
+                            stoplist=[],
                             mininum_length=3,
                             mininum_word_size=2,
                             valid_punctuation_marks='-',
@@ -496,7 +496,7 @@ class LoadFile(object):
             number of characters.
             
             Args:
-                stoplist (list): list of strings, defaults to None.
+                stoplist (list): list of strings, defaults to [].
                 mininum_length (int): minimum number of characters for a
                     candidate, defaults to 3.
                 mininum_word_size (int): minimum number of characters for a
