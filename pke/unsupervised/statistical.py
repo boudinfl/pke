@@ -7,10 +7,15 @@ from __future__ import division
 
 import string
 import math
+import numpy
+
+from itertools import combinations
+from collections import defaultdict
 
 from pke.base import LoadFile
 from pke.utils import load_document_frequency_file
 from nltk.corpus import stopwords
+from nltk.metrics import edit_distance
 
 
 class TfIdf(LoadFile):
@@ -228,4 +233,291 @@ class KPMiner(LoadFile):
             idf = math.log(N / candidate_df, 2)
 
             self.weights[k] = len(v.surface_forms) * B * idf
+
+
+class YAKE(LoadFile):
+    """YAKE keyphrase extraction model.
+
+    This model was published and described in:
+
+      * Ricardo Campos, Vítor Mangaravite, Arian Pasquali, Alípio Mário Jorge,
+        Célia Nunes and Adam Jatowt.
+        YAKE! Collection-Independent Automatic Keyword Extractor.
+        *Proceedings of ECIR 2018.*, pages 806-810.
+
+    Parameterized example::
+
+        import pke
+        from nltk.corpus import stopwords
+
+        # 1. create a YAKE extractor.
+        extractor = pke.unsupervised.YAKE(input_file='path/to/input.xml')
+
+        # 2. load the content of the document.
+        extractor.read_document(format='corenlp')
+
+        # 3. select {1-3}-grams not containing punctuation marks and not
+        #    beginning/ending with a stopword as candidates.
+        stoplist = stopwords.words('english')
+        extractor.candidate_selection(n=3, stoplist=stoplist)
+
+        # 4. weight the candidates usinh YAKE weighting scheme, a window (in
+             words) for computing left/right contexts can be specified.
+        window = 2
+        extractor.candidate_weighting(window=window)
+
+        # 5. get the 10-highest scored candidates as keyphrases.
+        #    redundant keyphrases are removed from the output using levenshtein
+        #    distance and a threshold.
+        threshold = 0.8
+        keyphrases = extractor.get_n_best(n=10, threshold=threshold)
+
+    """
+
+    def __init__(self, input_file=None, language='english'):
+        """ Redefining initializer for YAKE. """
+
+        super(YAKE, self).__init__(input_file=input_file, language=language)
+
+        self.words = defaultdict(set)
+        """ A word container. """
+
+
+    def candidate_selection(self, n=3, stoplist=None):
+        """Select 1-3 grams as keyphrase candidates. Candidates beginning or
+        ending with a stopword are filtered out. Words that are punctuation
+        marks from `string.punctuation` are not allowed.
+
+        Args:
+            n (int): the n-gram length, defaults to 3.
+            stoplist (list): the stoplist for filtering candidates, defaults to
+                the nltk stoplist.
+        """
+
+        # punctuation marks
+        punctuation = list(string.punctuation)
+        punctuation += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
+
+        # initialize stoplist list if not provided
+        if stoplist is None:
+            stoplist = stopwords.words(self.language)
+
+        # loop through the sentences
+        for i, sentence in enumerate(self.sentences):
+
+            # limit the maximum n for short sentence
+            skip = min(n, sentence.length)
+
+            # compute the offset shift for the sentence
+            shift = sum([s.length for s in self.sentences[0:i]])
+
+            # generate the ngrams
+            for j in range(sentence.length):
+                for k in range(j+1, min(j+1+skip, sentence.length+1)):
+
+                    words = sentence.words[j:k]
+                    lowercase_words = [w.lower() for w in words]
+                    stems = sentence.stems[j:k]
+                    pos = sentence.pos[j:k]
+                    lexical_form = ' '.join(lowercase_words)
+
+                    # skip candidate if it contains punctuation marks
+                    if len( set(lowercase_words) & set(punctuation) ):
+                        continue
+
+                    # skip candidate if it starts/ends with a stopword
+                    elif lowercase_words[0] in stoplist or\
+                         lowercase_words[-1] in stoplist:
+                        continue
+
+                    # add the ngram to the candidate container
+                    self.candidates[lexical_form].surface_forms.append(words)
+                    self.candidates[lexical_form].lexical_form = stems
+                    self.candidates[lexical_form].pos_patterns.append(pos)
+                    self.candidates[lexical_form].offsets.append(shift+j)
+                    self.candidates[lexical_form].sentence_ids.append(i)
+
+                    # add the lowercased words
+                    for offset, w in enumerate(lowercase_words):
+                        self.words[w].add((shift+j+offset, shift, i,
+                                           words[offset]))
+
+        # filter candidates containing punctuation marks
+        self.candidate_filtering()
+
+
+    def candidate_weighting(self, window=2):
+        """Candidate weight calculation as described in the YAKE paper.
+
+        Args:
+            window (int): the size in words of the sliding window used for
+                computing the co-occurrence matrix, defaults to 2.
+        """
+
+        # get a container for 'individual' word weights
+        word_weights = defaultdict(float)
+
+        # get a static word index
+        words = list(self.words)
+
+        # get frequency statistics
+        frequencies = [len(t) for t in self.words]
+        mean_freq = numpy.mean(frequencies)
+        std_freq = numpy.std(frequencies)
+        max_freq = max(frequencies)
+
+        # compute Left/Right co-occurrence contexts
+        WL = defaultdict(list)
+        WR = defaultdict(list)
+        for i, j in combinations(range(len(words)), 2):
+            for t_i in self.words[words[i]]:
+                for t_j in self.words[words[j]]:
+                    if math.fabs(t_i[0]-t_j[0]) < window:
+                        if t_i[0] > t_j[0]:
+                            WL[words[i]].append(words[j])
+                            WR[words[j]].append(words[i])
+                        else:
+                            WL[words[j]].append(words[i])
+                            WR[words[i]].append(words[j])            
+
+        features = defaultdict(dict)
+    
+        # Loop through the words to compute features and weights
+        for word in words:
+
+            # compute the term frequency
+            features[word]['TF'] = len(self.words[word])
+
+            # compute the uppercase/acronym term frequencies
+            features[word]['TF_A'] = 0
+            features[word]['TF_U'] = 0
+            for (offset, shift, sent_id, surface_form) in self.words[word]:
+                if surface_form.isupper() and len(word) > 1:
+                    features[word]['TF_A'] += 1
+                elif surface_form[0].isupper() and offset != shift:
+                    features[word]['TF_U'] += 1
+
+            # compute the casing feature
+            features[word]['CASING'] = max(features[word]['TF_A'],
+                                           features[word]['TF_U'])
+            features[word]['CASING'] /= 1.0 + math.log(features[word]['TF'], 2)
+
+            # compute the position feature
+            sentence_ids = [t[2] for t in self.words[word]]
+            features[word]['POS'] = math.log(3+numpy.median(sentence_ids), 2)
+            features[word]['POS'] = math.log(features[word]['POS'], 2)
+
+            # compute the frequency feature
+            features[word]['FREQ'] = features[word]['TF']
+            features[word]['FREQ'] /= (mean_freq + std_freq)
+
+            # compute the word relatedness feature
+            features[word]['WL'] = 0.0
+            if len(WL[word]):
+                features[word]['WL'] = len(set(WL[word])) / len(WL[word])
+            features[word]['PL'] = len(set(WL[word])) / max_freq
+
+            features[word]['WR'] = 0.0
+            if len(WR[word]):
+                features[word]['WR'] = len(set(WR[word])) / len(WR[word])
+            features[word]['PR'] = len(set(WR[word])) / max_freq
+
+            features[word]['REL'] = 0.5 + ((features[word]['WL'] * \
+                      (features[word]['TF'] / max_freq)) + features[word]['PL'])
+            features[word]['REL'] += 0.5 + ((features[word]['WR'] * \
+                      (features[word]['TF'] / max_freq)) + features[word]['PR'])
+
+            # compute the DifSentence feature
+            features[word]['DIF'] = len(set(sentence_ids)) / len(self.sentences)
+
+            # compute the word weight from its features
+            word_weights[word] = features[word]['REL'] * features[word]['POS']
+            word_weights[word] /= ( features[word]['CASING'] +\
+                               (features[word]['FREQ']/features[word]['REL']) +\
+                               (features[word]['DIF']/features[word]['REL']) )
+
+        # loop throught the candidates to compute their weights
+        for k, v in self.candidates.items():
+            candidate_weights = [ word_weights[word.lower()] for word in\
+                                  v.surface_forms[0] ]
+
+            self.weights[k] = numpy.prod(candidate_weights)
+            self.weights[k] /= len(v.offsets) * (1 + sum(candidate_weights))
+
+
+    def is_redundant(self, candidate, prev, threshold=0.8):
+        """ Test if one candidate is redundant with respect to a list of already
+            selected candidates. A candidate is considered redundant if its
+            levenshtein distance, with another candidate that is ranked higher
+            in the list, is greater than a threshold.
+
+            Args:
+                candidate (str): the lexical form of the candidate.
+                prev (list): the list of already selected candidates (lexical
+                    forms).
+                threshold (float): the threshold used when computing the
+                    levenshtein distance, defaults to 0.8.
+        """
+
+        # loop through the already selected candidates
+        for prev_candidate in prev:
+            dist = edit_distance(candidate, prev_candidate)
+            dist /= max(len(candidate), len(prev_candidate))
+            if (1.0 - dist) > threshold:
+                return True
+        return False
+
+
+    def get_n_best(self, n=10, redundancy_removal=True, stemming=True,
+                   threshold=0.8):
+        """ Returns the n-best candidates given the weights.
+
+            Args:
+                n (int): the number of candidates, defaults to 10.
+                redundancy_removal (bool): whether redundant keyphrases are
+                    filtered out from the n-best list using levenshtein
+                    distance, defaults to True.
+                stemming (bool): whether to extract stems or surface forms
+                    (lowercased, first occurring form of candidate), default to
+                    stems.
+                threshold (float): the threshold used when computing the
+                    levenshtein distance, defaults to 0.8.
+        """
+
+        # sort candidates by ascending weight
+        best = sorted(self.weights, key=self.weights.get, reverse=False)
+
+        # remove redundant candidates
+        if redundancy_removal:
+
+            # initialize a new container for non redundant candidates
+            non_redundant_best = []
+
+            # loop through the best candidates
+            for candidate in best:
+
+                # test wether candidate is redundant
+                if self.is_redundant(candidate, non_redundant_best):
+                    continue
+
+                # add the candidate otherwise
+                non_redundant_best.append(candidate)
+
+                # break computation if the n-best are found
+                if len(non_redundant_best) >= n:
+                    break
+
+            # copy non redundant candidates in best container
+            best = non_redundant_best
+
+        # get the list of best candidates as (lexical form, weight) tuples
+        n_best = [(u, self.weights[u]) for u in best[:min(n, len(best))]]
+
+        # replace with surface forms is no stemming
+        if stemming:
+            n_best = [(' '.join(self.candidates[u].lexical_form).lower(),
+                       self.weights[u]) for u in best[:min(n, len(best))]]
+
+        # return the list of best candidates
+        return n_best
 
