@@ -8,6 +8,7 @@ from __future__ import division
 import string
 import math
 import numpy
+import re
 
 from itertools import combinations
 from collections import defaultdict
@@ -263,7 +264,7 @@ class YAKE(LoadFile):
 
         # 4. weight the candidates usinh YAKE weighting scheme, a window (in
              words) for computing left/right contexts can be specified.
-        window = 2
+        window = 3
         extractor.candidate_weighting(window=window)
 
         # 5. get the 10-highest scored candidates as keyphrases.
@@ -299,8 +300,9 @@ class YAKE(LoadFile):
         punctuation += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
 
         # initialize stoplist list if not provided
+        self.stoplist = stoplist
         if stoplist is None:
-            stoplist = stopwords.words(self.language)
+            self.stoplist = stopwords.words(self.language)
 
         # loop through the sentences
         for i, sentence in enumerate(self.sentences):
@@ -321,13 +323,19 @@ class YAKE(LoadFile):
                     pos = sentence.pos[j:k]
                     lexical_form = ' '.join(lowercase_words)
 
+                    # add the lowercased words
+                    for offset, w in enumerate(lowercase_words):
+                        if re.search('\w', w):
+                            self.words[w].add((shift+j+offset, shift, i,
+                                               words[offset]))
+
                     # skip candidate if it contains punctuation marks
                     if len( set(lowercase_words) & set(punctuation) ):
                         continue
 
                     # skip candidate if it starts/ends with a stopword
-                    elif lowercase_words[0] in stoplist or\
-                         lowercase_words[-1] in stoplist:
+                    elif lowercase_words[0] in self.stoplist or\
+                         lowercase_words[-1] in self.stoplist:
                         continue
 
                     # add the ngram to the candidate container
@@ -337,16 +345,11 @@ class YAKE(LoadFile):
                     self.candidates[lexical_form].offsets.append(shift+j)
                     self.candidates[lexical_form].sentence_ids.append(i)
 
-                    # add the lowercased words
-                    for offset, w in enumerate(lowercase_words):
-                        self.words[w].add((shift+j+offset, shift, i,
-                                           words[offset]))
-
         # filter candidates containing punctuation marks
         self.candidate_filtering()
 
 
-    def candidate_weighting(self, window=2):
+    def candidate_weighting(self, window=3):
         """Candidate weight calculation as described in the YAKE paper.
 
         Args:
@@ -361,9 +364,11 @@ class YAKE(LoadFile):
         words = list(self.words)
 
         # get frequency statistics
-        frequencies = [len(t) for t in self.words]
-        mean_freq = numpy.mean(frequencies)
-        std_freq = numpy.std(frequencies)
+        frequencies = [len(self.words[t]) for t in self.words]
+        valid_frequencies = [ len(self.words[t]) for t in self.words\
+                              if t not in self.stoplist ]
+        mean_freq = numpy.mean(valid_frequencies)
+        std_freq = numpy.std(valid_frequencies)
         max_freq = max(frequencies)
 
         # compute Left/Right co-occurrence contexts
@@ -385,7 +390,7 @@ class YAKE(LoadFile):
                             WR[words[i]].append(words[j])            
 
         features = defaultdict(dict)
-    
+
         # Loop through the words to compute features and weights
         for word in words:
 
@@ -404,12 +409,12 @@ class YAKE(LoadFile):
             # compute the casing feature
             features[word]['CASING'] = max(features[word]['TF_A'],
                                            features[word]['TF_U'])
-            features[word]['CASING'] /= 1.0 + math.log(features[word]['TF'], 2)
+            features[word]['CASING'] /= 1.0 + math.log(features[word]['TF'])
 
             # compute the position feature
-            sentence_ids = [t[2] for t in self.words[word]]
-            features[word]['POS'] = math.log(3+numpy.median(sentence_ids), 2)
-            features[word]['POS'] = math.log(features[word]['POS'], 2)
+            sentence_ids = list(set([t[2] for t in self.words[word]]))
+            features[word]['POS'] = math.log(3+numpy.median(sentence_ids))
+            features[word]['POS'] = math.log(features[word]['POS'])
 
             # compute the frequency feature
             features[word]['FREQ'] = features[word]['TF']
