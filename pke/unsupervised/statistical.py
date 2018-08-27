@@ -281,7 +281,7 @@ class YAKE(LoadFile):
     def __init__(self, input_file=None, language='english'):
         """ Redefining initializer for YAKE. """
 
-        super(YAKE2, self).__init__(input_file=input_file, language=language)
+        super(YAKE, self).__init__(input_file=input_file, language=language)
 
         self.words = defaultdict(set)
         """ Container for the vocabulary. """
