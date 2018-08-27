@@ -280,7 +280,7 @@ class LoadFile(object):
         return False
 
 
-    def get_n_best(self, n=10, redundancy_removal=False, stemming=True):
+    def get_n_best(self, n=10, redundancy_removal=False, stemming=False):
         """ Returns the n-best candidates given the weights.
 
             Args:
@@ -289,7 +289,7 @@ class LoadFile(object):
                     filtered out from the n-best list, defaults to False.
                 stemming (bool): whether to extract stems or surface forms
                     (lowercased, first occurring form of candidate), default to
-                    stems.
+                    False.
         """
 
         # sort candidates by descending weight
@@ -321,7 +321,7 @@ class LoadFile(object):
         # get the list of best candidates as (lexical form, weight) tuples
         n_best = [(u, self.weights[u]) for u in best[:min(n, len(best))]]
 
-        # replace with surface forms is no stemming
+        # replace with surface forms if no stemming
         if not stemming:
             n_best = [(' '.join(self.candidates[u].surface_forms[0]).lower(),
                        self.weights[u]) for u in best[:min(n, len(best))]]
