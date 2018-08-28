@@ -82,7 +82,7 @@ class Kea(SupervisedLoadFile):
         # find the maximum offset
         maximum_offset = float(sum([s.length for s in self.sentences]))
 
-        for k, v in self.candidates.iteritems():
+        for k, v in self.candidates.items():
 
             # get candidate document frequency
             candidate_df = 1 + df.get(k, 0)
@@ -204,7 +204,7 @@ class WINGNUS(SupervisedLoadFile):
         maximum_offset = float(sum([s.length for s in self.sentences]))
 
         # loop through the candidates
-        for k, v in self.candidates.iteritems():
+        for k, v in self.candidates.items():
 
             # initialize features array
             feature_array = []
