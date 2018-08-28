@@ -18,6 +18,7 @@ from pke.base import LoadFile
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 from nltk.stem.snowball import SnowballStemmer as Stemmer
+from nltk.corpus import stopwords
 
 
 def load_document_frequency_file(input_file,
@@ -295,7 +296,9 @@ def compute_lda_model(input_dir,
         texts.append(' '.join(text))
 
     # vectorize dataset
-    tf_vectorizer = CountVectorizer(stop_words=language)
+    # get the stoplist from nltk because CountVectorizer only contains english
+    # stopwords atm
+    tf_vectorizer = CountVectorizer(stop_words=stopwords.words(language))
     tf = tf_vectorizer.fit_transform(texts)
 
     # extract vocabulary
