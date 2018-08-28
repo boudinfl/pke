@@ -10,6 +10,7 @@ import pickle
 
 from pke.base import LoadFile
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.externals import joblib
 
 class SupervisedLoadFile(LoadFile):
     """ The SupervisedLoadFile class that provides extra base functions for
@@ -54,8 +55,9 @@ class SupervisedLoadFile(LoadFile):
             model = os.path.join(self._models, instance+"-semeval2010.pickle")
 
         # load the model
-        with open(model, 'rb') as f:
-            clf = pickle.load(f)
+        clf = joblib.load(model)
+        # with open(model, 'rb') as f:
+        #     clf = pickle.load(f)
 
         # get matrix of instances
         candidates = self.instances.keys()

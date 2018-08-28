@@ -17,6 +17,7 @@ from nltk.corpus import stopwords
 
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.preprocessing import MinMaxScaler
+from sklearn.externals import joblib
 
 
 class Kea(SupervisedLoadFile):
@@ -114,8 +115,9 @@ class Kea(SupervisedLoadFile):
 
         clf = MultinomialNB()
         clf.fit(training_instances, training_classes)
-        with open(model_file, 'wb') as f:
-            pickle.dump(clf, f)
+        joblib.dump(clf, model_file)
+        # with open(model_file, 'wb') as f:
+        #     pickle.dump(clf, f)
 
 
 class WINGNUS(SupervisedLoadFile):
@@ -335,6 +337,7 @@ class WINGNUS(SupervisedLoadFile):
 
         clf = MultinomialNB()
         clf.fit(training_instances, training_classes)
-        with open(model_file, 'wb') as f:
-            pickle.dump(clf, f)
+        joblib.dump(clf, model_file)
+        # with open(model_file, 'wb') as f:
+        #     pickle.dump(clf, f)
 
