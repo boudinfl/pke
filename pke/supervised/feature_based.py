@@ -52,7 +52,11 @@ class Kea(SupervisedLoadFile):
             stoplist = stopwords.words(self.language)
 
         # filter candidates that start or end with a stopword
-        for k, v in self.candidates.items():
+        # Python 2/3 compatible
+        for k in list(self.candidates):
+
+            # get the candidate
+            v = self.candidates[k]
 
             # delete if candidate contains a stopword in first/last position
             words = [u.lower() for u in v.surface_forms[0]]
@@ -152,7 +156,11 @@ class WINGNUS(SupervisedLoadFile):
                                   '-rsb-'])
 
         # filter non-simplex noun phrases
-        for k, v in self.candidates.items():
+        # Python 2/3 compatible
+        for k in list(self.candidates):
+
+            # get the candidate
+            v = self.candidates[k]
 
             # valid surface forms container
             valid_surface_forms = []
