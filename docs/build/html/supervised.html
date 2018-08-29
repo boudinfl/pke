@@ -241,6 +241,25 @@ string.punctuation are not allowed.</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="pke.supervised.Kea.candidate_weighting">
+<code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>model_file=None</em>, <em>df=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.Kea.candidate_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract features and classify candidates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model_file</strong> (<em>str</em>) – path to the model file.</li>
+<li><strong>df</strong> (<em>dict</em>) – document frequencies, the number of documents should
+be specified using the “–NB_DOC–” key.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="pke.supervised.Kea.feature_extraction">
 <code class="descname">feature_extraction</code><span class="sig-paren">(</span><em>df=None</em>, <em>training=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.Kea.feature_extraction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract features (tf*idf, first occurrence and length) for each
@@ -303,6 +322,25 @@ training set for computing IDF weights, defaults to false.</li>
 ‘^((JJ|NN) ){,2}NN$’.</li>
 <li><strong>simplex_NP</strong> (<em>str</em>) – the pattern for filtering simplex noun
 phrases, defaults to ‘^((JJ|NN) )?NN IN ((JJ|NN) )?NN$’.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.supervised.WINGNUS.candidate_weighting">
+<code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>model_file=None</em>, <em>df=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.WINGNUS.candidate_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract features and classify candidates.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>model_file</strong> (<em>str</em>) – path to the model file.</li>
+<li><strong>df</strong> (<em>dict</em>) – document frequencies, the number of documents should
+be specified using the “–NB_DOC–” key.</li>
 </ul>
 </td>
 </tr>

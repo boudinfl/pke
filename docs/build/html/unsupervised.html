@@ -374,10 +374,13 @@ YAKE! Collection-Independent Automatic Keyword Extractor.
 <span class="n">stoplist</span> <span class="o">=</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
 <span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
 
-<span class="c1"># 4. weight the candidates usinh YAKE weighting scheme, a window (in</span>
+<span class="c1"># 4. weight the candidates using YAKE weighting scheme, a window (in</span>
      <span class="n">words</span><span class="p">)</span> <span class="k">for</span> <span class="n">computing</span> <span class="n">left</span><span class="o">/</span><span class="n">right</span> <span class="n">contexts</span> <span class="n">can</span> <span class="n">be</span> <span class="n">specified</span><span class="o">.</span>
 <span class="n">window</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">)</span>
+<span class="n">use_stems</span> <span class="o">=</span> <span class="kc">False</span> <span class="c1"># use stems instead of words for weighting</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span>
+                              <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">,</span>
+                              <span class="n">use_stems</span><span class="o">=</span><span class="n">use_stems</span><span class="p">)</span>
 
 <span class="c1"># 5. get the 10-highest scored candidates as keyphrases.</span>
 <span class="c1">#    redundant keyphrases are removed from the output using levenshtein</span>
@@ -390,8 +393,8 @@ YAKE! Collection-Independent Automatic Keyword Extractor.
 <dt id="pke.unsupervised.YAKE.candidate_selection">
 <code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>n=3</em>, <em>stoplist=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.YAKE.candidate_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select 1-3 grams as keyphrase candidates. Candidates beginning or
-ending with a stopword are filtered out. Words that are punctuation
-marks from <cite>string.punctuation</cite> are not allowed.</p>
+ending with a stopword are filtered out. Words that do not contain
+at least one alpha-numeric character are not allowed.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -409,22 +412,41 @@ the nltk stoplist.</li>
 
 <dl class="method">
 <dt id="pke.unsupervised.YAKE.candidate_weighting">
-<code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>window=2</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.YAKE.candidate_weighting" title="Permalink to this definition">¶</a></dt>
+<code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>window=2</em>, <em>stoplist=None</em>, <em>use_stems=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.YAKE.candidate_weighting" title="Permalink to this definition">¶</a></dt>
 <dd><p>Candidate weight calculation as described in the YAKE paper.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>window</strong> (<em>int</em>) – the size in words of the sliding window used for
-computing the co-occurrence matrix, defaults to 2.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>stoplist</strong> (<em>list</em>) – the stoplist for filtering candidates, defaults to
+the nltk stoplist.</li>
+<li><strong>use_stems</strong> (<em>bool</em>) – whether to use stems instead of lowercase words
+for weighting, defaults to False.</li>
+<li><strong>window</strong> (<em>int</em>) – the size in words of the window used for computing
+co-occurrence counts, defaults to 2.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="pke.unsupervised.YAKE.contexts">
+<code class="descname">contexts</code><em class="property"> = None</em><a class="headerlink" href="#pke.unsupervised.YAKE.contexts" title="Permalink to this definition">¶</a></dt>
+<dd><p>Container for word contexts.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.unsupervised.YAKE.features">
+<code class="descname">features</code><em class="property"> = None</em><a class="headerlink" href="#pke.unsupervised.YAKE.features" title="Permalink to this definition">¶</a></dt>
+<dd><p>Container for word features.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="pke.unsupervised.YAKE.get_n_best">
-<code class="descname">get_n_best</code><span class="sig-paren">(</span><em>n=10</em>, <em>redundancy_removal=True</em>, <em>stemming=True</em>, <em>threshold=0.8</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.YAKE.get_n_best" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_n_best</code><span class="sig-paren">(</span><em>n=10</em>, <em>redundancy_removal=True</em>, <em>stemming=False</em>, <em>threshold=0.8</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.YAKE.get_n_best" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the n-best candidates given the weights.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -452,16 +474,15 @@ levenshtein distance, defaults to 0.8.</li>
 <code class="descname">is_redundant</code><span class="sig-paren">(</span><em>candidate</em>, <em>prev</em>, <em>threshold=0.8</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.YAKE.is_redundant" title="Permalink to this definition">¶</a></dt>
 <dd><p>Test if one candidate is redundant with respect to a list of already
 selected candidates. A candidate is considered redundant if its
-levenshtein distance, with another candidate that is ranked higher
-in the list, is greater than a threshold.</p>
+levenshtein distance, with another candidate that is ranked higher in
+the list, is greater than a threshold.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>candidate</strong> (<em>str</em>) – the lexical form of the candidate.</li>
-<li><strong>prev</strong> (<em>list</em>) – the list of already selected candidates (lexical
-forms).</li>
+<li><strong>prev</strong> (<em>list</em>) – the list of already selected candidates.</li>
 <li><strong>threshold</strong> (<em>float</em>) – the threshold used when computing the
 levenshtein distance, defaults to 0.8.</li>
 </ul>
@@ -472,9 +493,15 @@ levenshtein distance, defaults to 0.8.</li>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="pke.unsupervised.YAKE.surface_to_lexical">
+<code class="descname">surface_to_lexical</code><em class="property"> = None</em><a class="headerlink" href="#pke.unsupervised.YAKE.surface_to_lexical" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mapping from surface form to lexical form.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="pke.unsupervised.YAKE.words">
 <code class="descname">words</code><em class="property"> = None</em><a class="headerlink" href="#pke.unsupervised.YAKE.words" title="Permalink to this definition">¶</a></dt>
-<dd><p>A word container.</p>
+<dd><p>Container for the vocabulary.</p>
 </dd></dl>
 
 </dd></dl>
