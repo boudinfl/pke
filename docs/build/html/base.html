@@ -258,7 +258,7 @@ alpha-numeric characters, defaults to True.</li>
 
 <dl class="method">
 <dt id="pke.base.LoadFile.get_n_best">
-<code class="descname">get_n_best</code><span class="sig-paren">(</span><em>n=10</em>, <em>redundancy_removal=False</em>, <em>stemming=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.get_n_best" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_n_best</code><span class="sig-paren">(</span><em>n=10</em>, <em>redundancy_removal=False</em>, <em>stemming=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.get_n_best" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the n-best candidates given the weights.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -270,7 +270,7 @@ alpha-numeric characters, defaults to True.</li>
 filtered out from the n-best list, defaults to False.</li>
 <li><strong>stemming</strong> (<em>bool</em>) – whether to extract stems or surface forms
 (lowercased, first occurring form of candidate), default to
-stems.</li>
+False.</li>
 </ul>
 </td>
 </tr>

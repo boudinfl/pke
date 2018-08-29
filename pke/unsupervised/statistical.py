@@ -263,7 +263,7 @@ class YAKE(LoadFile):
         extractor.candidate_selection(n=3, stoplist=stoplist)
 
         # 4. weight the candidates using YAKE weighting scheme, a window (in
-             words) for computing left/right contexts can be specified.
+        #    words) for computing left/right contexts can be specified.
         window = 2
         use_stems = False # use stems instead of words for weighting
         extractor.candidate_weighting(window=window,

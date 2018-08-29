@@ -290,8 +290,8 @@ pke.train_supervised_model(input_dir='/path/to/input/documents/',
 The training data consists of a set of documents along with a reference file
 containing annotated keyphrases in the SemEval-2010 [format](http://docs.google.com/Doc?id=ddshp584_46gqkkjng4).
 
-A detailed example for training a supervised model is given in
-`examples/train-model.py`.
+A detailed example for training and testing a supervised model is given in
+`examples/training_and_testing_a_kea_model/`.
 
 ### Extracting keyphrases from an input text
 

@@ -10,18 +10,19 @@ import pke
 logging.basicConfig(level=logging.INFO)
 
 # path to the collection of documents
-input_dir = sys.argv[1]
+input_dir = 'train/'
 
 # path to the reference file
-reference_file = sys.argv[2]
+reference_file = "gold-annotation.txt"
 
 # path to the df file
-df_file = sys.argv[3]
-logging.info('loading df counts from '+df_file)
-df_counts = pke.load_document_frequency_file(df_file, delimiter='\t')
+df_file = "df.tsv.gz"
+logging.info('Loading df counts from {}'.format(df_file))
+df_counts = pke.load_document_frequency_file(input_file=df_file,
+											 delimiter='\t')
 
 # path to the model, saved as a pickle
-output_mdl = sys.argv[4]
+output_mdl = "model.pickle"
 
 pke.train_supervised_model(input_dir=input_dir,
                            reference_file=reference_file,
