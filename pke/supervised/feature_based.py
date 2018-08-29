@@ -107,6 +107,19 @@ class Kea(SupervisedLoadFile):
         self.feature_scaling()
 
 
+    def candidate_weighting(self, model_file=None, df=None):
+        """Extract features and classify candidates.
+
+        Args:
+            model_file (str): path to the model file.
+            df (dict): document frequencies, the number of documents should
+                    be specified using the "--NB_DOC--" key.
+        """
+        
+        self.feature_extraction(df=df)
+        self.classify_candidates(model=model_file)
+
+
     @staticmethod
     def train(training_instances, training_classes, model_file):
         """ Train a Naive Bayes classifier and store the model in a file.
@@ -331,6 +344,19 @@ class WINGNUS(SupervisedLoadFile):
 
         # scale features
         self.feature_scaling()
+
+
+    def candidate_weighting(self, model_file=None, df=None):
+        """Extract features and classify candidates.
+
+        Args:
+            model_file (str): path to the model file.
+            df (dict): document frequencies, the number of documents should
+                    be specified using the "--NB_DOC--" key.
+        """
+        
+        self.feature_extraction(df=df)
+        self.classify_candidates(model=model_file)
 
 
     @staticmethod
