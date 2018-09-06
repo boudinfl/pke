@@ -6,11 +6,10 @@ from .readers import MinimalCoreNLPParser, PreProcessedTextReader, RawTextReader
 from collections import defaultdict
 from nltk.stem.snowball import SnowballStemmer as Stemmer
 from nltk import RegexpParser
-from string import ascii_letters, digits, punctuation
+from string import punctuation
 import os
 
 from builtins import str
-from unidecode import unidecode
 
 class Sentence(object):
     """ The sentence data structure. """
@@ -483,6 +482,20 @@ class LoadFile(object):
                                        sentence_id=i)
 
 
+    def _is_alphanum(self, word, valid_punctuation_marks='-'):
+        """Check if a word is valid, i.e. it contains only alpha-numeric
+        characters and valid punctuation marks.
+
+        Args:
+            word (string): a word.
+            valid_punctuation_marks (str): punctuation marks that are valid
+                    for a candidate, defaults to '-'.
+        """
+        for punct in valid_punctuation_marks.split():
+            word = word.replace(punct, '')
+        return word.isalnum()
+
+
     def candidate_filtering(self,
                             stoplist=[],
                             mininum_length=3,
@@ -509,12 +522,7 @@ class LoadFile(object):
                     alpha-numeric characters, defaults to True.
         """
 
-        # add accents for other languages
-        # if self.language == 'french':
-        #     printable.update(set(u'éèêëïîàâçùûüöôÿæœ'))
-
-        # loop throught the candidates Python 2/3 compatible
-        # for (k, v) in self.candidates.items():
+        # loop throught the candidates
         for k in list(self.candidates):
 
             # get the candidate
@@ -526,10 +534,6 @@ class LoadFile(object):
             # discard if words are in the stoplist
             if set(words).intersection(stoplist):
                 del self.candidates[k]
-
-            # # discard if not containing only alpha-numeric characters
-            # elif not set(''.join(words)).issubset(printable):
-            #     del self.candidates[k]
 
             # discard if containing tokens composed of only punctuation
             elif any([set(u).issubset(set(punctuation)) for u in words]):
@@ -547,9 +551,8 @@ class LoadFile(object):
             elif len(v.lexical_form) > maximum_word_number:
                 del self.candidates[k]
 
-            # discard if not containing only latin alpha-numeric characters
+            # discard if not containing only alpha-numeric characters
             if only_alphanum and k in self.candidates:
-                printable = set(ascii_letters+digits+valid_punctuation_marks)
-                characters = ''.join([unidecode(str(w)) for w in words])
-                if not set(characters).issubset(printable):
+                if not all([self._is_alphanum(w) for w in words]):
                     del self.candidates[k]
+
