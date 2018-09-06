@@ -350,7 +350,7 @@ class YAKE(LoadFile):
             for j, word in enumerate(sentence.words):
 
                 # consider words containing at least one alpha-numeric character
-                if re.search('\w', word) and \
+                if self._is_alphanum(word) and \
                    not re.search('(?i)^-[lr][rcs]b-$', word):
 
                     # get the word or stem
@@ -569,7 +569,6 @@ class YAKE(LoadFile):
                     self.weights[candidate] = numpy.prod(weights)
                     self.weights[candidate] /= TF * (1 + sum(weights))
                     self.surface_to_lexical[candidate] = k
-
 
 
     def is_redundant(self, candidate, prev, threshold=0.8):
