@@ -272,6 +272,8 @@ def compute_lda_model(input_dir,
     # loop throught the documents
     for input_file in glob.glob(input_dir+'/*.'+extension):
 
+        logging.info('reading file '+input_file)
+
         # initialize load file object
         doc = LoadFile(input_file)
 

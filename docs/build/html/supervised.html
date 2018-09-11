@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Supervised models &mdash; pke 1.6 documentation</title>
+  <title>Supervised models &mdash; pke 1.72 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="pke 1.6 documentation" href="index.html"/>
+    <link rel="top" title="pke 1.72 documentation" href="index.html"/>
         <link rel="next" title="Reader classes" href="readers.html"/>
         <link rel="prev" title="Unsupervised models" href="unsupervised.html"/> 
 
@@ -223,6 +223,30 @@ default to None.</td>
 <dt id="pke.supervised.Kea">
 <em class="property">class </em><code class="descclassname">pke.supervised.</code><code class="descname">Kea</code><span class="sig-paren">(</span><em>input_file=None</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.Kea" title="Permalink to this definition">¶</a></dt>
 <dd><p>Kea keyphrase extraction model.</p>
+<p>Parameterized example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pke</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="k">import</span> <span class="n">stopwords</span>
+
+<span class="c1"># 1. create a Kea extractor.</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">supervised</span><span class="o">.</span><span class="n">Kea</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
+
+<span class="c1"># 2. load the content of the document.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+
+<span class="c1"># 3. select 1-3 grams that do not start or end with a stopword as</span>
+<span class="c1">#    candidates.</span>
+<span class="n">stoplist</span> <span class="o">=</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
+
+<span class="c1"># 4. classify candidates as keyphrase or not keyphrase.</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">load_document_frequency_file</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/df.tsv.gz&#39;</span><span class="p">)</span>
+<span class="n">model_file</span> <span class="o">=</span> <span class="s1">&#39;path/to/kea_model&#39;</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="o">=</span><span class="n">model_file</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+
+<span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
+<span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="pke.supervised.Kea.candidate_selection">
 <code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>stoplist=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.Kea.candidate_selection" title="Permalink to this definition">¶</a></dt>
@@ -269,8 +293,8 @@ candidate.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>df</strong> (<em>dict</em>) – document frequencies, the number of documents should
-be specified using the “–NB_DOC–” key.</li>
+<li><strong>df</strong> (<em>dict</em>) – document frequencies, the number of documents should be
+specified using the “–NB_DOC–” key.</li>
 <li><strong>training</strong> (<em>bool</em>) – indicates whether features are computed for the
 training set for computing IDF weights, defaults to false.</li>
 </ul>
@@ -308,6 +332,27 @@ training set for computing IDF weights, defaults to false.</li>
 <dt id="pke.supervised.WINGNUS">
 <em class="property">class </em><code class="descclassname">pke.supervised.</code><code class="descname">WINGNUS</code><span class="sig-paren">(</span><em>input_file=None</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.WINGNUS" title="Permalink to this definition">¶</a></dt>
 <dd><p>WINGNUS keyphrase extraction model.</p>
+<p>Parameterized example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pke</span>
+
+<span class="c1"># 1. create a WINGNUS extractor.</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">supervised</span><span class="o">.</span><span class="n">WINGNUS</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
+
+<span class="c1"># 2. load the content of the document.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+
+<span class="c1"># 3. select simplex noun phrases as candidates.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">()</span>
+
+<span class="c1"># 4. classify candidates as keyphrase or not keyphrase.</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">load_document_frequency_file</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/df.tsv.gz&#39;</span><span class="p">)</span>
+<span class="n">model_file</span> <span class="o">=</span> <span class="s1">&#39;path/to/wingnus_model&#39;</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_file</span><span class="o">=</span><span class="n">model_file</span><span class="p">,</span> <span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+
+<span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
+<span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
 <dl class="method">
 <dt id="pke.supervised.WINGNUS.candidate_selection">
 <code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>NP='^((JJ|NN) ){</em>, <em>2}NN$'</em>, <em>NP_IN_NP='^((JJ|NN) )?NN IN ((JJ|NN) )?NN$'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.supervised.WINGNUS.candidate_selection" title="Permalink to this definition">¶</a></dt>
@@ -357,8 +402,8 @@ be specified using the “–NB_DOC–” key.</li>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>df</strong> (<em>dict</em>) – document frequencies, the number of documents should
-be specified using the “–NB_DOC–” key.</li>
+<li><strong>df</strong> (<em>dict</em>) – document frequencies, the number of documents should be
+specified using the “–NB_DOC–” key.</li>
 <li><strong>training</strong> (<em>bool</em>) – indicates whether features are computed for the
 training set for computing IDF weights, defaults to false.</li>
 <li><strong>features_set</strong> (<em>list</em>) – the set of features to use, defaults to
@@ -439,7 +484,7 @@ training set for computing IDF weights, defaults to false.</li>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.6',
+            VERSION:'1.72',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,
