@@ -7,7 +7,7 @@ easy benchmarking of state-of-the-art keyphrase extraction approaches, and
 ships with supervised models trained on the
 [SemEval-2010 dataset](http://aclweb.org/anthology/S10-1004).
 
-`pke` is compatible with Python 2.7 (Python 3.6 is WIP)
+`pke` is compatible with Python 2.7 and Python 3.6
 
 If you use `pke`, please cite the following paper:
 
