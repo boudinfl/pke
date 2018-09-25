@@ -222,7 +222,7 @@
 
 <dl class="method">
 <dt id="pke.base.LoadFile.candidate_filtering">
-<code class="descname">candidate_filtering</code><span class="sig-paren">(</span><em>stoplist=[]</em>, <em>mininum_length=3</em>, <em>mininum_word_size=2</em>, <em>valid_punctuation_marks='-'</em>, <em>maximum_word_number=5</em>, <em>only_alphanum=True</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.candidate_filtering" title="Permalink to this definition">¶</a></dt>
+<code class="descname">candidate_filtering</code><span class="sig-paren">(</span><em>stoplist=[]</em>, <em>mininum_length=3</em>, <em>mininum_word_size=2</em>, <em>valid_punctuation_marks='-'</em>, <em>maximum_word_number=5</em>, <em>only_alphanum=True</em>, <em>pos_blacklist=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.candidate_filtering" title="Permalink to this definition">¶</a></dt>
 <dd><p>Filter the candidates containing strings from the stoplist. Only
 keep the candidates containing alpha-numeric characters (if the
 non_latin_filter is set to True) and those length exceeds a given
@@ -243,6 +243,8 @@ for a candidate, defaults to ‘-‘.</li>
 candidate, defaults to 5.</li>
 <li><strong>only_alphanum</strong> (<em>bool</em>) – filter candidates containing non (latin)
 alpha-numeric characters, defaults to True.</li>
+<li><strong>pos_blacklist</strong> (<em>list</em>) – list of unwanted Part-Of-Speeches in
+candidates, defaults to [].</li>
 </ul>
 </td>
 </tr>
