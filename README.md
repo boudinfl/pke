@@ -378,14 +378,18 @@ recall (R) and f-measure (F) at the top 10 keyphrases. We use the set of
 combined (stemmed) author- and reader-assigned keyphrases as reference
 keyphrases.
 
-| Approach   | P@10 | R@10 | F@10 |
-| ---------- | ---- | ---- | ---- |
-| TfIdf      | 20.0 | 14.1 | 16.4 |
-| TopicRank  | 15.6 | 10.8 | 12.6 |
-| SingleRank | 2.2  | 1.5  | 1.8  |
-| KP-Miner   | 24.1 | 17.0 | 19.8 |
-| Kea        | 23.5 | 16.6 | 19.3 |
-| WINGNUS    | 24.7 | 17.3 | 20.2 |
+| Approach         | F@10 | MAP  |
+| ---------------- | ---- | ---- |
+| TfIdf            | 16.0 | 10.0 |
+| KP-Miner         | 21.2 | 13.7 |
+| YAKE             | 13.8 |  9.2 |
+| TopicRank        | 11.9 |  7.3 |
+| TopicalPageRank  |  3.1 |  2.1 |
+| PositionRank     |  6.7 |  3.8 |
+| MultipartiteRank | 14.2 | 10.4 |
+| Kea              | 18.2 | 13.2 |
+| WINGNUS          | 19.7 | 13.4 |
+
 
 ## Code documentation
 

@@ -502,7 +502,8 @@ class LoadFile(object):
                             mininum_word_size=2,
                             valid_punctuation_marks='-',
                             maximum_word_number=5,
-                            only_alphanum=True):
+                            only_alphanum=True,
+                            pos_blacklist=[]):
         """ Filter the candidates containing strings from the stoplist. Only
             keep the candidates containing alpha-numeric characters (if the
             non_latin_filter is set to True) and those length exceeds a given
@@ -520,6 +521,8 @@ class LoadFile(object):
                     candidate, defaults to 5.
                 only_alphanum (bool): filter candidates containing non (latin)
                     alpha-numeric characters, defaults to True.
+                pos_blacklist (list): list of unwanted Part-Of-Speeches in
+                    candidates, defaults to [].
         """
 
         # loop throught the candidates
@@ -533,6 +536,10 @@ class LoadFile(object):
 
             # discard if words are in the stoplist
             if set(words).intersection(stoplist):
+                del self.candidates[k]
+
+            # discard if tags are in the pos_blacklist
+            elif set(v.pos_patterns[0]).intersection(pos_blacklist):
                 del self.candidates[k]
 
             # discard if containing tokens composed of only punctuation
