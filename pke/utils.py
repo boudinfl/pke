@@ -7,16 +7,21 @@ from __future__ import absolute_import
 
 import re
 import csv
+import math
 import glob
 import pickle
 import gzip
 import codecs
 import logging
+
 from collections import defaultdict
+from itertools import combinations
 
 from pke.base import LoadFile
+
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
+
 from nltk.stem.snowball import SnowballStemmer as Stemmer
 from nltk.corpus import stopwords
 
@@ -322,4 +327,102 @@ def compute_lda_model(input_dir,
     logging.info('writing LDA model to '+output_file)
     with gzip.open(output_file, 'wb') as fp:
         pickle.dump(saved_model, fp)
+
+
+def compute_pairwise_similarity_matrix(input_dir,
+                                       output_file,
+                                       df=None,
+                                       format="corenlp",
+                                       extension="xml",
+                                       use_lemmas=False,
+                                       stemmer="porter",
+                                       stoplist=[]):
+    """Compute the pairwise similarity for documents in `input_dir`. Similarity
+    scores are computed using a cosine similarity over TF x IDF term weights.
+
+    Args:
+        input_dir (str): the input directory.
+        output_file (str): the output file.
+        df (dict): df weights dictionary.
+        format (str): the input files format, defaults to corenlp.
+        extension (str): file extension for input documents, defaults to xml.
+        use_lemmas (bool): whether lemmas from stanford corenlp are used
+            instead of stems (computed by nltk), defaults to False.
+        stemmer (str): the stemmer in nltk to used (if used), defaults
+            to porter.
+        stoplist (list): the stop words for filtering tokens, default to [].
+    """
+
+    # vector container
+    vectors = {}
+
+    # initialize the number of documents as --NB_DOC-- + 1 (current)
+    N = 1 + df.get('--NB_DOC--', 0)
+
+    # loop throught the documents
+    for input_file in glob.glob(input_dir+'/*.'+extension):
+
+        doc_id = input_file.split('/')[-1][0:-len(extension)-1]
+        logging.info('reading file '+doc_id)
+
+        # initialize load file object
+        doc = LoadFile(input_file)
+
+        # read the input file
+        doc.read_document(format=format,
+                          use_lemmas=use_lemmas,
+                          stemmer=stemmer,
+                          sep='/')
+
+        # initialize document vector
+        vectors[doc_id] = defaultdict(int)
+
+        # loop through the sentences
+        for i, sentence in enumerate(doc.sentences):
+
+            # loop through the tokens
+            for j, stem in enumerate(sentence.stems):
+
+                # skip stem if it occurs in the stoplist
+                if stem in stoplist:
+                    continue
+
+                # count the occurrence of the stem
+                vectors[doc_id][stem] += 1
+
+        # compute TF*IDF weights
+        for stem in vectors[doc_id]:
+
+            # get the candidate document frequency
+            candidate_df = 1 + df.get(stem, 0)
+
+            # compute the idf score
+            idf = math.log(N / candidate_df, 2)
+
+            # compute tf*idf
+            vectors[doc_id][stem] *= idf
+
+    # open the output file in gzip mode
+    with gzip.open(output_file, 'wb') as f:
+
+        # compute pairwise similarity scores 
+        for doc_i, doc_j in combinations(list(vectors), 2):
+
+            # inner product
+            inner = 0.0
+            for stem in set(vectors[doc_i]) & set(vectors[doc_j]):
+                inner += vectors[doc_i][stem]*vectors[doc_j][stem]
+
+            # norms
+            norm_i = sum([math.pow(vectors[doc_i][t], 2) for t in vectors[doc_i]])
+            norm_i = math.sqrt(norm_i)
+            norm_j = sum([math.pow(vectors[doc_j][t], 2) for t in vectors[doc_j]])
+            norm_j = math.sqrt(norm_j)
+
+            # compute cosine
+            cosine = inner / (norm_i * norm_j)
+
+            # encode line and write to output file
+            line = doc_i + '\t' + doc_j + '\t' + str(cosine) + '\n'
+            f.write(line.encode('utf-8'))
 
