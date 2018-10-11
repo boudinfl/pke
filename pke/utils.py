@@ -374,8 +374,8 @@ def load_document_as_bos(input_file,
 
 
 def compute_pairwise_similarity_matrix(input_dir,
-                                       collection_dir=None,
                                        output_file,
+                                       collection_dir=None,
                                        df=None,
                                        format="corenlp",
                                        extension="xml",
@@ -390,9 +390,9 @@ def compute_pairwise_similarity_matrix(input_dir,
 
     Args:
         input_dir (str): path to the input directory.
+        output_file (str): path to the output file.
         collection_dir (str): path to the collection of documents, defaults to
             None.
-        output_file (str): path to the output file.
         df (dict): df weights dictionary.
         format (str): the input files format, defaults to corenlp.
         extension (str): file extension for input documents, defaults to xml.

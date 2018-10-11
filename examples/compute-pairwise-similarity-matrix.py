@@ -17,14 +17,17 @@ from pke import load_document_frequency_file, compute_pairwise_similarity_matrix
 # setting info in terminal
 logging.basicConfig(level=logging.INFO)
 
-# path to the collection of documents
+# path to the input set of documents
 input_dir = sys.argv[1]
 
 # path to the pairwise similarity scores
 output_file = sys.argv[2]
 
+# path to the collection of documents
+collection_dir = sys.argv[3]
+
 # path to the df counts, saved as a gzipped csv file
-df_file = sys.argv[3]
+df_file = sys.argv[4]
 
 # load the DF counts
 df_counts = load_document_frequency_file(input_file=df_file)
@@ -37,6 +40,7 @@ stoplist += stopwords.words('english')
 # compute the pairwise similarity measures and write output
 compute_pairwise_similarity_matrix(input_dir=input_dir,
                                    output_file=output_file,
+                                   collection_dir=collection_dir,
                                    df=df_counts,
                                    format="corenlp",
                                    extension="xml",
