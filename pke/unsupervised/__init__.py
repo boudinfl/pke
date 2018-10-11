@@ -9,6 +9,8 @@ from pke.unsupervised.graph_based.multipartiterank import *
 from pke.unsupervised.graph_based.positionrank import *
 from pke.unsupervised.graph_based.single_tpr import *
 from pke.unsupervised.graph_based.expandrank import *
+from pke.unsupervised.graph_based.pketextrank import *
+from pke.unsupervised.graph_based.textrank import *
 
 from pke.unsupervised.statistical.tfidf import *
 from pke.unsupervised.statistical.kpminer import *
