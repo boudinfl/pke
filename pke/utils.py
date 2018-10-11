@@ -426,8 +426,8 @@ def compute_pairwise_similarity_matrix(input_dir,
                                                           stoplist=stoplist)
 
             # compute TF*IDF weights
-            for stem in collection_vec[doc_id]:
-                collection_vec[doc_id][stem] *= math.log(N / df.get(stem, 0), 2)
+            for stem in collection[doc_id]:
+                collection[doc_id][stem] *= math.log(N / df.get(stem, 0), 2)
 
         # update N if a collection of documents is provided
         N += 1
@@ -445,7 +445,7 @@ def compute_pairwise_similarity_matrix(input_dir,
                                                      stoplist=stoplist)
 
         # compute TF*IDF weights
-        for stem in collection_vec[doc_id]:
+        for stem in documents[doc_id]:
             documents[doc_id][stem] *= math.log(N / (1 + df.get(stem, 0) ), 2)
 
     # consider input documents as collection if None provided
