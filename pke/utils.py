@@ -427,6 +427,7 @@ def compute_pairwise_similarity_matrix(input_dir,
 
             # compute TF*IDF weights
             for stem in collection[input_file]:
+                print(stem)
                 collection[input_file][stem] *= math.log(N / df.get(stem, 0), 2)
 
         # update N if a collection of documents is provided
