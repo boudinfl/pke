@@ -15,7 +15,6 @@ import codecs
 import logging
 
 from collections import defaultdict
-from itertools import combinations
 
 from pke.base import LoadFile
 
@@ -329,7 +328,53 @@ def compute_lda_model(input_dir,
         pickle.dump(saved_model, fp)
 
 
+def load_document_as_bos(input_file,
+                         format="corenlp",
+                         use_lemmas=False,
+                         stemmer="porter",
+                         stoplist=[]):
+    """Load a document as a bag of stems.
+
+    Args:
+        input_file (str): path to input file.
+        format (str): the input files format, defaults to corenlp.
+        use_lemmas (bool): whether lemmas from stanford corenlp are used
+            instead of stems (computed by nltk), defaults to False.
+        stemmer (str): the stemmer in nltk to used (if used), defaults
+            to porter.
+        stoplist (list): the stop words for filtering tokens, default to [].
+    """
+
+    # initialize load file object
+    doc = LoadFile(input_file)
+
+    # read the input file
+    doc.read_document(format=format,
+                      use_lemmas=use_lemmas,
+                      stemmer=stemmer,
+                      sep='/')
+
+    # initialize document vector
+    vector = defaultdict(int)
+
+    # loop through the sentences
+    for i, sentence in enumerate(doc.sentences):
+
+        # loop through the tokens
+        for j, stem in enumerate(sentence.stems):
+
+            # skip stem if it occurs in the stoplist
+            if stem in stoplist:
+                continue
+
+            # count the occurrence of the stem
+            vector[stem] += 1    
+
+    return vector
+
+
 def compute_pairwise_similarity_matrix(input_dir,
+                                       collection_dir=None,
                                        output_file,
                                        df=None,
                                        format="corenlp",
@@ -337,12 +382,17 @@ def compute_pairwise_similarity_matrix(input_dir,
                                        use_lemmas=False,
                                        stemmer="porter",
                                        stoplist=[]):
-    """Compute the pairwise similarity for documents in `input_dir`. Similarity
-    scores are computed using a cosine similarity over TF x IDF term weights.
+    """Compute the pairwise similarity between documents in `input_dir` and
+    documents in `collection_dir`. Similarity scores are computed using a cosine
+    similarity over TF x IDF term weights. If there is no collection to compute
+    those scores, the similarities between documents in input_dir are returned
+    instead.
 
     Args:
-        input_dir (str): the input directory.
-        output_file (str): the output file.
+        input_dir (str): path to the input directory.
+        collection_dir (str): path to the collection of documents, defaults to
+            None.
+        output_file (str): path to the output file.
         df (dict): df weights dictionary.
         format (str): the input files format, defaults to corenlp.
         extension (str): file extension for input documents, defaults to xml.
@@ -353,76 +403,79 @@ def compute_pairwise_similarity_matrix(input_dir,
         stoplist (list): the stop words for filtering tokens, default to [].
     """
 
-    # vector container
-    vectors = {}
+    # containers
+    collection = {}
+    documents = {}
 
-    # initialize the number of documents as --NB_DOC-- + 1 (current)
-    N = 1 + df.get('--NB_DOC--', 0)
+    # initialize the number of documents
+    N = df.get('--NB_DOC--', 1)
 
-    # loop throught the documents
+    # build collection tf*idf vectors
+    if collection_dir is not None:
+
+        # loop throught the documents in the collection
+        for input_file in glob.glob(collection_dir+'/*.'+extension):
+
+            logging.info('Reading file from {}'.format(input_file))
+
+            # initialize document vector
+            collection[input_file] = load_document_as_bos(input_file=input_file,
+                                                          format=format,
+                                                          use_lemmas=use_lemmas,
+                                                          stemmer=stemmer,
+                                                          stoplist=stoplist)
+
+            # compute TF*IDF weights
+            for stem in collection_vec[doc_id]:
+                collection_vec[doc_id][stem] *= math.log(N / df.get(stem, 0), 2)
+
+        # update N if a collection of documents is provided
+        N += 1
+
+    # loop throught the documents in the input directory
     for input_file in glob.glob(input_dir+'/*.'+extension):
 
-        doc_id = input_file.split('/')[-1][0:-len(extension)-1]
-        logging.info('reading file '+doc_id)
-
-        # initialize load file object
-        doc = LoadFile(input_file)
-
-        # read the input file
-        doc.read_document(format=format,
-                          use_lemmas=use_lemmas,
-                          stemmer=stemmer,
-                          sep='/')
+        logging.info('Reading file from {}'.format(input_file))
 
         # initialize document vector
-        vectors[doc_id] = defaultdict(int)
-
-        # loop through the sentences
-        for i, sentence in enumerate(doc.sentences):
-
-            # loop through the tokens
-            for j, stem in enumerate(sentence.stems):
-
-                # skip stem if it occurs in the stoplist
-                if stem in stoplist:
-                    continue
-
-                # count the occurrence of the stem
-                vectors[doc_id][stem] += 1
+        documents[input_file] = load_document_as_bos(input_file=input_file,
+                                                     format=format,
+                                                     use_lemmas=use_lemmas,
+                                                     stemmer=stemmer,
+                                                     stoplist=stoplist)
 
         # compute TF*IDF weights
-        for stem in vectors[doc_id]:
+        for stem in collection_vec[doc_id]:
+            documents[doc_id][stem] *= math.log(N / (1 + df.get(stem, 0) ), 2)
 
-            # get the candidate document frequency
-            candidate_df = 1 + df.get(stem, 0)
-
-            # compute the idf score
-            idf = math.log(N / candidate_df, 2)
-
-            # compute tf*idf
-            vectors[doc_id][stem] *= idf
+    # consider input documents as collection if None provided
+    if not collection:
+        collection = documents
 
     # open the output file in gzip mode
     with gzip.open(output_file, 'wb') as f:
 
-        # compute pairwise similarity scores 
-        for doc_i, doc_j in combinations(list(vectors), 2):
+        # compute pairwise similarity scores
+        for doc_i in documents:
+            for doc_j in collection:
+                if doc_i == doc_j:
+                    continue
 
-            # inner product
-            inner = 0.0
-            for stem in set(vectors[doc_i]) & set(vectors[doc_j]):
-                inner += vectors[doc_i][stem]*vectors[doc_j][stem]
+                # inner product
+                inner = 0.0
+                for stem in set(documents[doc_i]) & set(collection[doc_j]):
+                    inner += documents[doc_i][stem]*collection[doc_j][stem]
 
-            # norms
-            norm_i = sum([math.pow(vectors[doc_i][t], 2) for t in vectors[doc_i]])
-            norm_i = math.sqrt(norm_i)
-            norm_j = sum([math.pow(vectors[doc_j][t], 2) for t in vectors[doc_j]])
-            norm_j = math.sqrt(norm_j)
+                # norms
+                norm_i = sum([math.pow(documents[doc_i][t], 2) for t in documents[doc_i]])
+                norm_i = math.sqrt(norm_i)
+                norm_j = sum([math.pow(collection[doc_j][t], 2) for t in collection[doc_j]])
+                norm_j = math.sqrt(norm_j)
 
-            # compute cosine
-            cosine = inner / (norm_i * norm_j)
+                # compute cosine
+                cosine = inner / (norm_i * norm_j)
 
-            # encode line and write to output file
-            line = doc_i + '\t' + doc_j + '\t' + str(cosine) + '\n'
-            f.write(line.encode('utf-8'))
+                # encode line and write to output file
+                line = doc_i + '\t' + doc_j + '\t' + str(cosine) + '\n'
+                f.write(line.encode('utf-8'))
 
