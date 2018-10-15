@@ -24,7 +24,7 @@ import string
 import networkx as nx
 
 
-class PkeTextRank(LoadFile):
+class TextRank(LoadFile):
     """TextRank keyphrase extraction model.
     This model is essentially the same as TextRank as its core is the PageRank algorithm.
     In this model the weight of the edges between the nbode is used.
@@ -71,7 +71,7 @@ class PkeTextRank(LoadFile):
 
         """
 
-        super(PkeTextRank, self).__init__(input_file=input_file,
+        super(TextRank, self).__init__(input_file=input_file,
                                          language=language)
 
         self.graph = nx.Graph()
