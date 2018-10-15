@@ -52,8 +52,8 @@ class TextRank(LoadFile):
         # 4. weight the candidates using the sum of their word's scores that are
         #    computed using random walk. In the graph, nodes are words (nouns
         #    and adjectives only) that are connected if they occur in a window
-        #    of 10 words.
-        extractor.candidate_weighting(window=10, pos=pos)
+        #    of 2 words.
+        extractor.candidate_weighting(window=2, pos=pos)
 
         # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
@@ -107,12 +107,12 @@ class TextRank(LoadFile):
                                   stoplist)
 
 
-    def build_word_graph(self, window=10, pos=None):
+    def build_word_graph(self, window=2, pos=None):
         """Build the word graph from the document.
 
         Args:
             window (int): the window within the sentence for connecting two
-                words in the graph, defaults to 10.
+                words in the graph, defaults to 2.
             pos (set): the set of valid pos for words to be considered as nodes
                 in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).
 
@@ -138,9 +138,7 @@ class TextRank(LoadFile):
                 if node_1[1] in pos and node_2[1] in pos \
                    and node_1[0] != node_2[0]:
                     if not self.graph.has_edge(node_1[0], node_2[0]):
-                        self.graph.add_edge(node_1[0], node_2[0], weight=0)
-                    self.graph[node_1[0]][node_2[0]]['weight'] += 1.0
-
+                        self.graph.add_edge(node_1[0], node_2[0])
 
     def candidate_weighting(self, window=10, pos=None, normalized=False):
         """Candidate ranking using random walk.
@@ -163,7 +161,7 @@ class TextRank(LoadFile):
         self.build_word_graph(window=window, pos=pos)
 
         # compute the word scores using random walk
-        w = nx.pagerank_scipy(self.graph, alpha=0.85, weight=None)
+        w = nx.pagerank_scipy(self.graph, alpha=0.85, tol=0.0001, weight=None)
 
         # loop through the candidates
         for k in self.candidates.keys():
