@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
-# Author: Florian Boudin
-# Date: 09-11-2018
+# Authors: Ygor Gallina, Florian Boudin
+# Date: 10-18-2018
 
 """TextRank keyphrase extraction model.
 
 Graph-based ranking approach to keyphrase extraction described in:
 
-* Mihalcea Rada and Tarau Paul.
+* Rada Mihalcea and Paul Tarau.
   TextRank: Bringing Order into Texts
-  *In Proceedings of the 2004 conference on empirical methods in natural
-  language processing, 2004.
+  *In Proceedings of EMNLP*, 2004.
 
 """
 

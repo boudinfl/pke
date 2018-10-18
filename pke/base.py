@@ -329,7 +329,7 @@ class LoadFile(object):
         if len(n_best) < n:
                 logging.warning(
                         'Not enough candidates to choose from '
-                        '({} requested, {} given'.format(n, len(n_best)))
+                        '({} requested, {} given)'.format(n, len(n_best)))
 
         # return the list of best candidates
         return n_best
