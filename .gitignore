@@ -2,4 +2,5 @@
 *.pyc
 docs/build/doctrees/*
 docs/build/html/_sources/*
-pke/dev.py
+dev/
+.pytest_cache/
