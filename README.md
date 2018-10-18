@@ -7,9 +7,7 @@ easy benchmarking of state-of-the-art keyphrase extraction models, and
 ships with supervised models trained on the
 [SemEval-2010 dataset](http://aclweb.org/anthology/S10-1004).
 
-`pke` is compatible with Python 2.7 and Python 3.6
-
-[![Build Status](https://travis-ci.org/boudinfl/pke.svg?branch=python3)](https://travis-ci.org/boudinfl/pke)
+[![Build Status](https://travis-ci.org/boudinfl/pke.svg?branch=master)](https://travis-ci.org/boudinfl/pke)
 
 ## Table of Contents
 
