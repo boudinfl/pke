@@ -9,6 +9,8 @@ ships with supervised models trained on the
 
 `pke` is compatible with Python 2.7 and Python 3.6
 
+[![Build Status](https://travis-ci.org/boudinfl/pke.svg?branch=python3)](https://travis-ci.org/boudinfl/pke)
+
 ## Table of Contents
 
 * [Installation](#installation)
