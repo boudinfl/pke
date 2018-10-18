@@ -1,17 +1,13 @@
 # `pke` - python keyphrase extraction
 
-`pke` is an open source python-based keyphrase extraction toolkit. It provides
-an end-to-end keyphrase extraction pipeline in which each component can be
-easily modified or extented to develop new approaches. `pke` also allows for 
-easy benchmarking of state-of-the-art keyphrase extraction approaches, and 
+`pke` is an **open source** python-based **keyphrase extraction** toolkit. It
+provides an end-to-end keyphrase extraction pipeline in which each component can
+be easily modified or extented to develop new models. `pke` also allows for 
+easy benchmarking of state-of-the-art keyphrase extraction models, and 
 ships with supervised models trained on the
 [SemEval-2010 dataset](http://aclweb.org/anthology/S10-1004).
 
-`pke` is compatible with Python 2.7 and Python 3.6
-
-If you use `pke`, please cite the following paper:
-
-  * [Florian Boudin. **pke: an open source python-based keyphrase extraction toolkit**, *Proceedings of COLING 2016, the 26th International Conference on Computational Linguistics: System Demonstrations*](http://aclweb.org/anthology/C16-2015). [[bibtex](http://aclweb.org/anthology/C16-2015.bib)]
+[![Build Status](https://travis-ci.org/boudinfl/pke.svg?branch=master)](https://travis-ci.org/boudinfl/pke)
 
 ## Table of Contents
 
@@ -27,6 +23,7 @@ If you use `pke`, please cite the following paper:
 * [Non English languages](#non-english-languages)
 * [Benchmarking](#benchmarking)
 * [Code documentation](#code-documentation)
+* [Citing `pke`](#citing-pke)
 
 ## Installation
 
@@ -394,3 +391,13 @@ keyphrases.
 ## Code documentation
 
 For code documentation, please visit [https://boudinfl.github.io/pke/](https://boudinfl.github.io/pke/).
+
+## Citing `pke`
+
+If you use `pke`, please cite the following paper:
+
+  * Florian Boudin. **pke: an open source python-based keyphrase extraction
+    toolkit**, *Proceedings of COLING 2016, the 26th International Conference on
+    Computational Linguistics: System Demonstrations*.
+    [[pdf](http://aclweb.org/anthology/C16-2015),
+    [bibtex](http://aclweb.org/anthology/C16-2015.bib)]
