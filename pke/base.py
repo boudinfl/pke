@@ -392,12 +392,20 @@ class LoadFile(object):
                                        offset=shift+j,
                                        sentence_id=i)
 
-
     def longest_pos_sequence_selection(self, valid_pos=None):
+        self.longest_sequence_selection(
+            key=lambda s: s.pos, valid_values=valid_pos)
+
+    def longest_keyword_sequence_selection(self, keywords):
+        self.longest_sequence_selection(
+            key=lambda s: s.stem, valid_values=keywords)
+
+    def longest_sequence_selection(self, key, valid_values):
         """ Select the longest sequences of given POS tags as candidates.
 
             Args:
-                valid_pos (set): the set of valid POS tags, defaults to None.
+                key (func) : function that given a sentence return an iterable
+                valid_values (set): the set of valid values, defaults to None.
         """
 
         # loop through the sentences
@@ -410,10 +418,10 @@ class LoadFile(object):
             seq = []
 
             # loop through the tokens
-            for j, pos in enumerate(self.sentences[i].pos):
+            for j, value in enumerate(key(self.sentences[i])):
 
                 # add candidate offset in sequence and continue if not last word
-                if pos in valid_pos:
+                if value in valid_values:
                     seq.append(j)
                     if j < (sentence.length - 1):
                         continue

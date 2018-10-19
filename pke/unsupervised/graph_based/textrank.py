@@ -80,50 +80,6 @@ class TextRank(LoadFile):
         """ The word graph. """
         self.pagerank_output = None
 
-    def adjacent_keyword_selection(self, keywords):
-        """ Select the longest sequences of keywords as candidates.
-
-            Args:
-                keywords (set): the set of keywords.
-        """
-
-        # loop through the sentences
-        for i, sentence in enumerate(self.sentences):
-
-            # compute the offset shift for the sentence
-            shift = sum([s.length for s in self.sentences[0:i]])
-
-            # container for the sequence (defined as list of offsets)
-            seq = []
-
-            # loop through the tokens
-            for j, stem in enumerate(self.sentences[i].stems):
-
-                # add candidate offset in sequence and continue if not last word
-                if stem in keywords:
-                    seq.append(j)
-                    if j < (sentence.length - 1):
-                        continue
-
-                # add sequence as candidate if non empty
-                if seq:
-
-                    # bias for candidate in last position within sentence
-                    bias = 0
-                    if j == (sentence.length - 1):
-                        bias = 1
-
-                    # add the ngram to the candidate container
-                    self.add_candidate(
-                        words=sentence.words[seq[0]:seq[-1] + 1],
-                        stems=sentence.stems[seq[0]:seq[-1] + 1],
-                        pos=sentence.pos[seq[0]:seq[-1] + 1],
-                        offset=shift + j - len(seq) + bias,
-                        sentence_id=i)
-
-                # flush sequence container
-                seq = []
-
     def candidate_selection(self, pos=None, stoplist=None):
         """ The candidate selection as described in the TextRank paper.
 
@@ -230,7 +186,7 @@ class TextRank(LoadFile):
             w = {k: v for k, v in w}
 
             # post-processing : creating key terms
-            self.adjacent_keyword_selection(w.keys())
+            self.longest_keyword_sequence_selection(w.keys())
 
         # Weigh the candidates
         for k in self.candidates.keys():
