@@ -7,7 +7,7 @@ valid_pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
 
 
 def test_candidate_selection():
-    extractor = pke.unsupervised.StupidKE(input_file='examples/C-1.xml',
+    extractor = pke.unsupervised.TextRank(input_file='examples/C-1.xml',
                                           language='english')
     extractor.read_document(format='corenlp',
                             use_lemmas=False)
@@ -18,7 +18,7 @@ def test_candidate_selection():
 
 
 def test_candidate_weighting():
-    extractor = pke.unsupervised.StupidKE(input_file='examples/C-1.xml',
+    extractor = pke.unsupervised.TextRank(input_file='examples/C-1.xml',
                                           language='english')
     extractor.read_document(format='corenlp',
                             use_lemmas=False)
@@ -29,7 +29,9 @@ def test_candidate_weighting():
 
     keyphrases = [k for k, s in extractor.get_n_best(n=3)]
 
-    assert keyphrases == ['scalable grid service discovery', 'uddi', 'abstract']
+    assert keyphrases == ['dht based uddi registry hierarchies',
+                          'multiple proxy uddi registries',
+                          'new local uddi registry figure']
 
 
 if __name__ == '__main__':
