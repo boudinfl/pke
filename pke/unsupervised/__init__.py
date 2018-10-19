@@ -14,3 +14,4 @@ from pke.unsupervised.graph_based.textrank import *
 from pke.unsupervised.statistical.tfidf import *
 from pke.unsupervised.statistical.kpminer import *
 from pke.unsupervised.statistical.yake import *
+from pke.unsupervised.statistical.stupidke import *
