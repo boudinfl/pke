@@ -220,6 +220,61 @@ in sklearn CountVectorizer, defaults to ‘english’.</li>
 </dd></dl>
 
 <dl class="function">
+<dt id="pke.utils.compute_pairwise_similarity_matrix">
+<code class="descclassname">pke.utils.</code><code class="descname">compute_pairwise_similarity_matrix</code><span class="sig-paren">(</span><em>input_dir</em>, <em>output_file</em>, <em>collection_dir=None</em>, <em>df=None</em>, <em>format='corenlp'</em>, <em>extension='xml'</em>, <em>use_lemmas=False</em>, <em>stemmer='porter'</em>, <em>stoplist=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.compute_pairwise_similarity_matrix" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the pairwise similarity between documents in <cite>input_dir</cite> and
+documents in <cite>collection_dir</cite>. Similarity scores are computed using a cosine
+similarity over TF x IDF term weights. If there is no collection to compute
+those scores, the similarities between documents in input_dir are returned
+instead.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_dir</strong> (<em>str</em>) – path to the input directory.</li>
+<li><strong>output_file</strong> (<em>str</em>) – path to the output file.</li>
+<li><strong>collection_dir</strong> (<em>str</em>) – path to the collection of documents, defaults to
+None.</li>
+<li><strong>df</strong> (<em>dict</em>) – df weights dictionary.</li>
+<li><strong>format</strong> (<em>str</em>) – the input files format, defaults to corenlp.</li>
+<li><strong>extension</strong> (<em>str</em>) – file extension for input documents, defaults to xml.</li>
+<li><strong>use_lemmas</strong> (<em>bool</em>) – whether lemmas from stanford corenlp are used
+instead of stems (computed by nltk), defaults to False.</li>
+<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to used (if used), defaults
+to porter.</li>
+<li><strong>stoplist</strong> (<em>list</em>) – the stop words for filtering tokens, default to [].</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="pke.utils.load_document_as_bos">
+<code class="descclassname">pke.utils.</code><code class="descname">load_document_as_bos</code><span class="sig-paren">(</span><em>input_file</em>, <em>format='corenlp'</em>, <em>use_lemmas=False</em>, <em>stemmer='porter'</em>, <em>stoplist=[]</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.load_document_as_bos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a document as a bag of stems.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_file</strong> (<em>str</em>) – path to input file.</li>
+<li><strong>format</strong> (<em>str</em>) – the input files format, defaults to corenlp.</li>
+<li><strong>use_lemmas</strong> (<em>bool</em>) – whether lemmas from stanford corenlp are used
+instead of stems (computed by nltk), defaults to False.</li>
+<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to used (if used), defaults
+to porter.</li>
+<li><strong>stoplist</strong> (<em>list</em>) – the stop words for filtering tokens, default to [].</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="pke.utils.load_document_frequency_file">
 <code class="descclassname">pke.utils.</code><code class="descname">load_document_frequency_file</code><span class="sig-paren">(</span><em>input_file</em>, <em>delimiter='\t'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.load_document_frequency_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Load a csv file containing document frequencies. Automatically detects

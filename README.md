@@ -47,8 +47,8 @@ pip install git+https://github.com/boudinfl/pke.git
 
 ## Minimal example
 
-`pke` provides a standardized API for keyphrases from a document. Start by
-typing the 5 lines below. For using another model, simply replace
+`pke` provides a standardized API for extracting keyphrases from a document.
+Start by typing the 5 lines below. For using another model, simply replace
 `pke.unsupervised.TopicRank` with another model ([list of implemented models](#implemented-models)).
 
 ```python
@@ -62,7 +62,7 @@ extractor = pke.unsupervised.TopicRank(input_file='/path/to/input')
 extractor.read_document(format='raw')
 
 # keyphrase candidate selection, in the case of TopicRank: sequences of nouns
-# and adjectives
+# and adjectives (i.e. `(Noun|Adj)*`)
 extractor.candidate_selection()
 
 # candidate weighting, in the case of TopicRank: using a random walk algorithm
@@ -70,29 +70,29 @@ extractor.candidate_weighting()
 
 # N-best selection, keyphrases contains the 10 highest scored candidates as
 # (keyphrase, score) tuples
-keyphrases = extractor.get_n_best(n=10, stemming=False)
+keyphrases = extractor.get_n_best(n=10)
 ```
 
-A detailed example is provided in the `examples/` directory.
+A detailed example is provided in the [`examples/`](examples/) directory.
 
 ## Usage
 
 ### Input formats
 
 `pke` currently supports the following input file formats (examples of formatted
-input files are provided in the `examples/` directory):
+input files are provided in the [`examples/`](examples/) directory):
 
 1. *raw text*: text preprocessing (i.e. tokenization, sentence splitting and 
    POS-tagging) is carried out using nltk. 
 
-   Example of raw text:
+   Example of content from a raw text file:
 
    ```
    Efficient discovery of grid services is essential for the success of
    grid computing. [...]
    ```
 
-   To read raw text document:
+   To read a document in raw text format:
 
    ```python
    extractor.read_document(format='raw')
@@ -101,14 +101,14 @@ input files are provided in the `examples/` directory):
 2. *preprocessed text*: whitespace-separated POS-tagged tokens, one sentence per
    line.
 
-   Example of preprocessed text:
+   Example of conten from a preprocessed text file:
 
    ```
    Efficient/NNP discovery/NN of/IN grid/NN services/NNS is/VBZ essential/JJ for/IN the/DT success/NN of/IN grid/JJ computing/NN ./.
    [...]
    ```
 
-   To read preprocessed text document:
+   To read a document in preprocessed text format:
 
    ```python
    extractor.read_document(format='preprocessed')
@@ -172,6 +172,7 @@ input files are provided in the `examples/` directory):
     * [KPMiner](https://boudinfl.github.io/pke/build/html/unsupervised.html#kpminer) [(El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf)
     * [YAKE](https://boudinfl.github.io/pke/build/html/unsupervised.html#yake) [(Campos et al., 2018)](https://repositorio.inesctec.pt/bitstream/123456789/7623/1/P-00N-NF5.pdf)
   * Graph-based models
+    * [TextRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#textrank) [(Mihalcea and Tarau, 2004)](http://www.aclweb.org/anthology/W04-3252.pdf)
     * [SingleRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#singlerank) [(Wan and Xiao, 2008)](http://www.aclweb.org/anthology/C08-1122.pdf)
     * [TopicRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#topicrank) [(Bougouin et al., 2013)](http://aclweb.org/anthology/I13-1062.pdf)
     * [TopicalPageRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#topicalpagerank) [(Sterckx et al., 2015)](http://users.intec.ugent.be/cdvelder/papers/2015/sterckx2015wwwb.pdf)

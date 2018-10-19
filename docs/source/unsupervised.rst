@@ -23,6 +23,11 @@ YAKE
 Graph-based models
 ------------------
 
+TextRank
+~~~~~~~~
+.. autoclass:: pke.unsupervised.TextRank
+	:members:
+
 SingleRank
 ~~~~~~~~~~
 .. autoclass:: pke.unsupervised.SingleRank
