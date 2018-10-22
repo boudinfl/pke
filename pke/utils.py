@@ -5,6 +5,7 @@
 from __future__ import division
 from __future__ import absolute_import
 
+import os
 import re
 import csv
 import math
@@ -122,6 +123,7 @@ def compute_document_frequency(input_dir,
         nb_documents += 1
 
     # Dump the df container
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with gzip.open(output_file, 'wb') as f:
 
         # add the number of documents as special token
@@ -324,6 +326,7 @@ def compute_lda_model(input_dir,
 
     # Dump the df container
     logging.info('writing LDA model to '+output_file)
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with gzip.open(output_file, 'wb') as fp:
         pickle.dump(saved_model, fp)
 
@@ -453,6 +456,7 @@ def compute_pairwise_similarity_matrix(input_dir,
         collection = documents
 
     # open the output file in gzip mode
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with gzip.open(output_file, 'wb') as f:
 
         # compute pairwise similarity scores
