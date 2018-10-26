@@ -17,11 +17,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.base import LoadFile
-from nltk.corpus import stopwords
-
 import string
+
 import networkx as nx
+
+from pke.base import LoadFile
 
 
 class SingleRank(LoadFile):
@@ -80,7 +80,7 @@ class SingleRank(LoadFile):
 
         # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
 
         # select sequence of adjectives and nouns
         self.longest_pos_sequence_selection(valid_pos=pos)
@@ -91,10 +91,8 @@ class SingleRank(LoadFile):
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=list(string.punctuation) +
-                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'] +
-                                  stoplist)
-
+                                          ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-'] +
+                                          stoplist)
 
     def build_word_graph(self, window=10, pos=None):
         """Build the word graph from the document.
@@ -109,7 +107,7 @@ class SingleRank(LoadFile):
 
         # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
 
         # flatten document and initialize nodes 
         sequence = []
@@ -122,14 +120,13 @@ class SingleRank(LoadFile):
 
         # loop through sequence to build the edges in the graph
         for j, node_1 in enumerate(sequence):
-            for k in range(j+1, min(j+window, len(sequence))):
+            for k in range(j + 1, min(j + window, len(sequence))):
                 node_2 = sequence[k]
                 if node_1[1] in pos and node_2[1] in pos \
-                   and node_1[0] != node_2[0]:
+                        and node_1[0] != node_2[0]:
                     if not self.graph.has_edge(node_1[0], node_2[0]):
                         self.graph.add_edge(node_1[0], node_2[0], weight=0)
                     self.graph[node_1[0]][node_2[0]]['weight'] += 1.0
-
 
     def candidate_weighting(self, window=10, pos=None, normalized=False):
         """Candidate ranking using random walk.
@@ -146,7 +143,7 @@ class SingleRank(LoadFile):
 
         # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
 
         # build the word graph
         self.build_word_graph(window=window, pos=pos)
@@ -160,4 +157,3 @@ class SingleRank(LoadFile):
             self.weights[k] = sum([w[t] for t in tokens])
             if normalized:
                 self.weights[k] /= len(tokens)
-

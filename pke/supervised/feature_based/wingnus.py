@@ -16,18 +16,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import math
+import re
+import string
+
+import numpy as np
+from sklearn.externals import joblib
+from sklearn.naive_bayes import MultinomialNB
+
 from pke.supervised.api import SupervisedLoadFile
 from pke.utils import load_document_frequency_file
-
-import re
-import math
-import string
-import numpy as np
-
-from nltk.corpus import stopwords
-
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.externals import joblib
 
 
 class WINGNUS(SupervisedLoadFile):
@@ -80,9 +78,9 @@ class WINGNUS(SupervisedLoadFile):
         self.ngram_selection(n=4)
 
         # filter candidates containing punctuation marks
-        self.candidate_filtering(stoplist=list(string.punctuation) +
-                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'])
+        self.candidate_filtering(
+            stoplist=list(string.punctuation) +
+                     ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-'])
 
         # filter non-simplex noun phrases
         # Python 2/3 compatible
@@ -112,7 +110,6 @@ class WINGNUS(SupervisedLoadFile):
                                               in valid_surface_forms]
                 self.candidates[k].pos_patterns = [v.pos_patterns[i] for i
                                                    in valid_surface_forms]
-
 
     def feature_extraction(self, df=None, training=False, features_set=None):
         """Extract features for each candidate.
@@ -169,8 +166,8 @@ class WINGNUS(SupervisedLoadFile):
             tf_of_substrings = 0
             stoplist = self.stoplist
             for i in range(len(v.lexical_form)):
-                for j in range(i, min(len(v.lexical_form), i+3)):
-                    sub_words = v.lexical_form[i:j+1]
+                for j in range(i, min(len(v.lexical_form), i + 3)):
+                    sub_words = v.lexical_form[i:j + 1]
                     sub_string = ' '.join(sub_words)
 
                     # skip if substring is fullstring
@@ -189,7 +186,7 @@ class WINGNUS(SupervisedLoadFile):
                             is_included = False
                             for offset_2 in v.offsets:
                                 if offset_1 >= offset_2 and \
-                                   offset_1 <= offset_2 + len(v.lexical_form):
+                                        offset_1 <= offset_2 + len(v.lexical_form):
                                     is_included = True
                             if not is_included:
                                 tf_of_substrings += 1
@@ -197,10 +194,10 @@ class WINGNUS(SupervisedLoadFile):
             feature_array.append(tf_of_substrings)
 
             # [F4] -> relative first occurrence
-            feature_array.append(v.offsets[0]/maximum_offset)
+            feature_array.append(v.offsets[0] / maximum_offset)
 
             # [F5] -> relative last occurrence
-            feature_array.append(v.offsets[-1]/maximum_offset)
+            feature_array.append(v.offsets[-1] / maximum_offset)
 
             # [F6] -> length of phrases in words
             feature_array.append(len(v.lexical_form))
@@ -239,8 +236,8 @@ class WINGNUS(SupervisedLoadFile):
             feature_array.append('conclusions' in sections)
 
             # [F15] -> HeaderF
-            feature_array.append(types.count('sectionHeader')+
-                                 types.count('subsectionHeader')+
+            feature_array.append(types.count('sectionHeader') +
+                                 types.count('subsectionHeader') +
                                  types.count('subsubsectionHeader'))
 
             # [F11] -> abstractF
@@ -256,12 +253,11 @@ class WINGNUS(SupervisedLoadFile):
             feature_array.append(sections.count('conclusions'))
 
             # add the features to the instance container
-            self.instances[k] = np.array([feature_array[i-1] for i \
+            self.instances[k] = np.array([feature_array[i - 1] for i
                                           in features_set])
 
         # scale features
         self.feature_scaling()
-
 
     def candidate_weighting(self, model_file=None, df=None):
         """Extract features and classify candidates.
@@ -271,10 +267,9 @@ class WINGNUS(SupervisedLoadFile):
             df (dict): document frequencies, the number of documents should
                     be specified using the "--NB_DOC--" key.
         """
-        
+
         self.feature_extraction(df=df)
         self.classify_candidates(model=model_file)
-
 
     @staticmethod
     def train(training_instances, training_classes, model_file):
@@ -291,4 +286,3 @@ class WINGNUS(SupervisedLoadFile):
         joblib.dump(clf, model_file)
         # with open(model_file, 'wb') as f:
         #     pickle.dump(clf, f)
-

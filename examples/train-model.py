@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-import codecs
 import logging
+import sys
+
 import pke
 
 # setting info in terminal
@@ -17,7 +16,7 @@ reference_file = sys.argv[2]
 
 # path to the df file
 df_file = sys.argv[3]
-logging.info('loading df counts from '+df_file)
+logging.info('loading df counts from ' + df_file)
 df_counts = pke.load_document_frequency_file(df_file, delimiter='\t')
 
 # path to the model, saved as a pickle

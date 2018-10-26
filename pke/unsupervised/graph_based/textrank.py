@@ -16,12 +16,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.base import LoadFile
-from nltk.corpus import stopwords
-
 import math
 import string
+
 import networkx as nx
+
+from pke.base import LoadFile
 
 
 class TextRank(LoadFile):
@@ -86,7 +86,7 @@ class TextRank(LoadFile):
 
         # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
 
         # select sequence of adjectives and nouns
         self.longest_pos_sequence_selection(valid_pos=pos)
@@ -114,7 +114,7 @@ class TextRank(LoadFile):
 
         # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
 
         # flatten document and initialize nodes
         sequence = []
@@ -158,7 +158,7 @@ class TextRank(LoadFile):
 
         # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
 
         # build the word graph
         self.build_word_graph(window=window, pos=pos)

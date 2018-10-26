@@ -8,13 +8,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.base import LoadFile
-from pke.utils import load_document_frequency_file
-
-from nltk.corpus import stopwords
-
 import math
 import string
+
+from pke.base import LoadFile
+from pke.utils import load_document_frequency_file
 
 
 class TfIdf(LoadFile):
@@ -66,10 +64,8 @@ class TfIdf(LoadFile):
 
         # filter candidates containing punctuation marks
         self.candidate_filtering(stoplist=list(string.punctuation) +
-                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'] +
-                                  stoplist)
-
+                                          ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-'] +
+                                          stoplist)
 
     def candidate_weighting(self, df=None):
         """Candidate weighting function using document frequencies.
@@ -88,7 +84,6 @@ class TfIdf(LoadFile):
 
         # loop throught the candidates
         for k, v in self.candidates.items():
-
             # get candidate document frequency
             candidate_df = 1 + df.get(k, 0)
 
@@ -97,4 +92,3 @@ class TfIdf(LoadFile):
 
             # add the idf score to the weights container
             self.weights[k] = len(v.surface_forms) * idf
-

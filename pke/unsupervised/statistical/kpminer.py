@@ -16,13 +16,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.base import LoadFile
-from pke.utils import load_document_frequency_file
-
-from nltk.corpus import stopwords
-
 import math
 import string
+
+from pke.base import LoadFile
+from pke.utils import load_document_frequency_file
 
 
 class KPMiner(LoadFile):
@@ -79,9 +77,9 @@ class KPMiner(LoadFile):
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=list(string.punctuation) +
-                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'] +
-                                  stoplist)
+                                          ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
+                                           '-rsb-'] +
+                                          stoplist)
 
         # further filter candidates using lasf and cutoff
         # Python 2/3 compatible
@@ -97,7 +95,6 @@ class KPMiner(LoadFile):
             # delete if frequency is lower than lasf
             elif len(v.surface_forms) < lasf:
                 del self.candidates[k]
-
 
     def candidate_weighting(self, df=None, sigma=3.0, alpha=2.3):
         """Candidate weight calculation as described in the KP-Miner paper.
@@ -136,7 +133,7 @@ class KPMiner(LoadFile):
         N_d = sum([len(v.surface_forms) for v in self.candidates.values()])
 
         # compute the boosting factor
-        B = min(N_d / (P_d*alpha), sigma)
+        B = min(N_d / (P_d * alpha), sigma)
 
         # loop throught the candidates
         for k, v in self.candidates.items():
@@ -152,4 +149,3 @@ class KPMiner(LoadFile):
             idf = math.log(N / candidate_df, 2)
 
             self.weights[k] = len(v.surface_forms) * B * idf
-

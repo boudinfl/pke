@@ -17,17 +17,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.supervised.api import SupervisedLoadFile
-from pke.utils import load_document_frequency_file
-
 import math
 import string
+
 import numpy as np
-
-from nltk.corpus import stopwords
-
-from sklearn.naive_bayes import MultinomialNB
 from sklearn.externals import joblib
+from sklearn.naive_bayes import MultinomialNB
+
+from pke.supervised.api import SupervisedLoadFile
+from pke.utils import load_document_frequency_file
 
 
 class Kea(SupervisedLoadFile):
@@ -99,7 +97,6 @@ class Kea(SupervisedLoadFile):
             if words[0] in stoplist or words[-1] in stoplist:
                 del self.candidates[k]
 
-
     def feature_extraction(self, df=None, training=False):
         """Extract features (tf*idf, first occurrence and length) for each
         candidate.
@@ -137,11 +134,10 @@ class Kea(SupervisedLoadFile):
 
             # add the features to the instance container
             self.instances[k] = np.array([len(v.surface_forms) * idf,
-                                          v.offsets[0]/maximum_offset])
+                                          v.offsets[0] / maximum_offset])
 
         # scale features
         self.feature_scaling()
-
 
     def candidate_weighting(self, model_file=None, df=None):
         """Extract features and classify candidates.
@@ -151,10 +147,9 @@ class Kea(SupervisedLoadFile):
             df (dict): document frequencies, the number of documents should
                     be specified using the "--NB_DOC--" key.
         """
-        
+
         self.feature_extraction(df=df)
         self.classify_candidates(model=model_file)
-
 
     @staticmethod
     def train(training_instances, training_classes, model_file):
@@ -169,4 +164,3 @@ class Kea(SupervisedLoadFile):
         clf = MultinomialNB()
         clf.fit(training_instances, training_classes)
         joblib.dump(clf, model_file)
-

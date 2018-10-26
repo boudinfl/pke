@@ -88,7 +88,6 @@ class PositionRank(SingleRank):
             if len(v.lexical_form) > maximum_word_number:
                 del self.candidates[k]
 
-
     def build_word_graph(self, window=10, pos=None):
         """Build the word graph from the document.
 
@@ -101,7 +100,7 @@ class PositionRank(SingleRank):
 
         # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
 
         # flatten document and initialize nodes 
         sequence = []
@@ -125,7 +124,6 @@ class PositionRank(SingleRank):
                         self.graph.add_edge(node_1[0], node_2[0], weight=0)
                     self.graph[node_1[0]][node_2[0]]['weight'] += 1
 
-
     def candidate_weighting(self, window=10, pos=None, normalized=False):
         """Candidate weight calculation using random walk.
 
@@ -140,7 +138,7 @@ class PositionRank(SingleRank):
 
         # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
 
         # build the word graph
         self.build_word_graph(window=window, pos=pos)

@@ -18,11 +18,11 @@ extractor.candidate_selection()
 
 # load the df counts
 df_counts = pke.load_document_frequency_file(input_file="df.tsv.gz",
-											  delimiter='\t')
+                                             delimiter='\t')
 
 # weight the candidates using Kea model.
 extractor.candidate_weighting(model_file="model.pickle", df=df_counts)
 
 # print the n-highest (10) scored candidates
 for (keyphrase, score) in extractor.get_n_best(n=10):
-	print(keyphrase, score)
+    print(keyphrase, score)

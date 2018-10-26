@@ -15,8 +15,8 @@ extractor.load_document('C-1.xml')
 
 # select the keyphrase candidates, for TopicRank the longest sequences of 
 # nouns and adjectives
-extractor.candidate_selection(pos=['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR',
-                                   'JJS'])
+extractor.candidate_selection(pos={'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR',
+                                   'JJS'})
 
 # weight the candidates using a random walk. The threshold parameter sets the
 # minimum similarity for clustering, and the method parameter defines the 
@@ -26,4 +26,4 @@ extractor.candidate_weighting(threshold=0.74,
 
 # print the n-highest (10) scored candidates
 for (keyphrase, score) in extractor.get_n_best(n=10):
-	print(keyphrase, score)
+    print(keyphrase, score)

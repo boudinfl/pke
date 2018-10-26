@@ -47,8 +47,7 @@ def load_document_frequency_file(input_file,
 
     # open the input file
     with gzip.open(input_file, 'rt') if input_file.endswith('.gz') else \
-         codecs.open(input_file, 'rt') as f:
-
+            codecs.open(input_file, 'rt') as f:
         # read the csv file
         df_reader = csv.reader(f, delimiter=delimiter)
 
@@ -62,10 +61,7 @@ def load_document_frequency_file(input_file,
 
 def compute_document_frequency(input_dir,
                                output_file,
-                               format="corenlp",
                                extension="xml",
-                               use_lemmas=False,
-                               stemmer="porter",
                                stoplist=None,
                                delimiter='\t',
                                n=3):
@@ -76,13 +72,8 @@ def compute_document_frequency(input_dir,
         Args:
             input_dir (str): the input directory.
             output_file (str): the output file.
-            format (str): the input files format, defaults to corenlp.
             extension (str): file extension for input documents, defaults to
                 xml.
-            use_lemmas (bool): whether lemmas from stanford corenlp are used
-                instead of stems (computed by nltk), defaults to False.
-            stemmer (str): the stemmer in nltk to used (if used), defaults
-                to porter.
             stoplist (list): the stop words for filtering n-grams, default to
                 None.
             delimiter (str): the delimiter between n-grams and document
@@ -97,9 +88,9 @@ def compute_document_frequency(input_dir,
     nb_documents = 0
 
     # loop throught the documents
-    for input_file in glob.glob(input_dir+'/*.'+extension):
+    for input_file in glob.glob(input_dir + '/*.' + extension):
 
-        logging.info('reading file '+input_file)
+        logging.info('reading file ' + input_file)
 
         # initialize load file object
         doc = LoadFile()
@@ -167,7 +158,7 @@ def train_supervised_model(input_dir,
                 reference file, defaults to ','.
     """
 
-    logging.info('building model '+str(model)+' from '+input_dir)
+    logging.info('building model ' + str(model) + ' from ' + input_dir)
 
     references = load_references(reference_file,
                                  sep_doc_id=sep_doc_id,
@@ -176,12 +167,12 @@ def train_supervised_model(input_dir,
                                  stemmer=stemmer)
     training_instances = []
     training_classes = []
-    files = glob.glob(input_dir+'/*.'+extension)
+    files = glob.glob(input_dir + '/*.' + extension)
 
     # get the input files from the input directory
     for input_file in files:
 
-        logging.info('reading file '+input_file)
+        logging.info('reading file ' + input_file)
 
         # initialize the input file
         model.__init__()
@@ -207,7 +198,7 @@ def train_supervised_model(input_dir,
                 training_classes.append(0)
             training_instances.append(model.instances[candidate])
 
-    logging.info('writing model to '+model_file)
+    logging.info('writing model to ' + model_file)
     model.train(training_instances=training_instances,
                 training_classes=training_classes,
                 model_file=model_file)
@@ -220,7 +211,7 @@ def load_references(input_file,
                     stemmer='porter'):
     """ Load a reference file and returns a dictionary. """
 
-    logging.info('loading reference keyphrases from '+input_file)
+    logging.info('loading reference keyphrases from ' + input_file)
 
     references = defaultdict(list)
 
@@ -273,9 +264,9 @@ def compute_lda_model(input_dir,
     texts = []
 
     # loop throught the documents
-    for input_file in glob.glob(input_dir+'/*.'+extension):
+    for input_file in glob.glob(input_dir + '/*.' + extension):
 
-        logging.info('reading file '+input_file)
+        logging.info('reading file ' + input_file)
 
         # initialize load file object
         doc = LoadFile()
@@ -288,12 +279,11 @@ def compute_lda_model(input_dir,
 
         # loop through sentences
         for sentence in doc.sentences:
-
             # get the tokens (stems) from the sentence if they are not
             # punctuation marks 
-            text.extend([ sentence.stems[i] for i in range(sentence.length) \
-                          if not re.search('[^A-Z$]', sentence.pos[i]) ])
-        
+            text.extend([sentence.stems[i] for i in range(sentence.length)
+                         if not re.search('[^A-Z$]', sentence.pos[i])])
+
         # add the document to the texts container
         texts.append(' '.join(text))
 
@@ -319,7 +309,7 @@ def compute_lda_model(input_dir,
                    lda_model.doc_topic_prior_)
 
     # Dump the df container
-    logging.info('writing LDA model to '+output_file)
+    logging.info('writing LDA model to ' + output_file)
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with gzip.open(output_file, 'wb') as fp:
         pickle.dump(saved_model, fp)
@@ -362,7 +352,7 @@ def load_document_as_bos(input_file,
                 continue
 
             # count the occurrence of the stem
-            vector[stem] += 1    
+            vector[stem] += 1
 
     return vector
 
@@ -408,7 +398,7 @@ def compute_pairwise_similarity_matrix(input_dir,
     if collection_dir is not None:
 
         # loop throught the documents in the collection
-        for input_file in glob.glob(collection_dir+'/*.'+extension):
+        for input_file in glob.glob(collection_dir + '/*.' + extension):
 
             logging.info('Reading file from {}'.format(input_file))
 
@@ -427,7 +417,7 @@ def compute_pairwise_similarity_matrix(input_dir,
         N += 1
 
     # loop throught the documents in the input directory
-    for input_file in glob.glob(input_dir+'/*.'+extension):
+    for input_file in glob.glob(input_dir + '/*.' + extension):
 
         logging.info('Reading file from {}'.format(input_file))
 
@@ -440,7 +430,7 @@ def compute_pairwise_similarity_matrix(input_dir,
 
         # compute TF*IDF weights
         for stem in documents[input_file]:
-            documents[input_file][stem] *= math.log(N /(1 + df.get(stem, 1)), 2)
+            documents[input_file][stem] *= math.log(N / (1 + df.get(stem, 1)), 2)
 
     # consider input documents as collection if None provided
     if not collection:
@@ -459,7 +449,7 @@ def compute_pairwise_similarity_matrix(input_dir,
                 # inner product
                 inner = 0.0
                 for stem in set(documents[doc_i]) & set(collection[doc_j]):
-                    inner += documents[doc_i][stem]*collection[doc_j][stem]
+                    inner += documents[doc_i][stem] * collection[doc_j][stem]
 
                 # norms
                 norm_i = sum([math.pow(documents[doc_i][t], 2) for t in documents[doc_i]])
@@ -473,4 +463,3 @@ def compute_pairwise_similarity_matrix(input_dir,
                 # encode line and write to output file
                 line = doc_i + '\t' + doc_j + '\t' + str(cosine) + '\n'
                 f.write(line.encode('utf-8'))
-

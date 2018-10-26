@@ -16,18 +16,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.unsupervised import TopicRank
-from nltk.corpus import stopwords
-
 import math
-import string
+from itertools import combinations
+
 import networkx as nx
 import numpy as np
-
-from scipy.spatial.distance import pdist
 from scipy.cluster.hierarchy import linkage, fcluster
+from scipy.spatial.distance import pdist
 
-from itertools import combinations
+from pke.unsupervised import TopicRank
 
 
 class MultipartiteRank(TopicRank):
@@ -77,7 +74,6 @@ class MultipartiteRank(TopicRank):
         self.graph = nx.DiGraph()
         """ Redefine the graph as a directed graph. """
 
-
     def topic_clustering(self,
                          threshold=0.74,
                          method='average'):
@@ -102,7 +98,7 @@ class MultipartiteRank(TopicRank):
 
         # compute the distance matrix
         Y = pdist(X, 'jaccard')
-        Y =  np.nan_to_num(Y)
+        Y = np.nan_to_num(Y)
 
         # compute the clusters
         Z = linkage(Y, method=method)
@@ -111,14 +107,13 @@ class MultipartiteRank(TopicRank):
         clusters = fcluster(Z, t=threshold, criterion='distance')
 
         # for each cluster id
-        for cluster_id in range(1, max(clusters)+1):
+        for cluster_id in range(1, max(clusters) + 1):
             self.topics.append([candidates[j] for j in range(len(clusters))
                                 if clusters[j] == cluster_id])
 
         # assign cluster identifiers to candidates
         for i, cluster_id in enumerate(clusters):
-            self.topic_identifiers[candidates[i]] = cluster_id-1
-
+            self.topic_identifiers[candidates[i]] = cluster_id - 1
 
     def build_topic_graph(self):
         """ Build the Multipartite graph. """
@@ -145,7 +140,7 @@ class MultipartiteRank(TopicRank):
                         gap -= len(self.candidates[node_i].lexical_form) - 1
                     if p_j < p_i:
                         gap -= len(self.candidates[node_j].lexical_form) - 1
-                    
+
                     weights.append(1.0 / gap)
 
             # add weighted edges 
@@ -154,7 +149,6 @@ class MultipartiteRank(TopicRank):
                 self.graph.add_edge(node_i, node_j, weight=sum(weights))
                 # node_j -> node_i
                 self.graph.add_edge(node_j, node_i, weight=sum(weights))
-
 
     def weight_adjustment(self, alpha=1.1):
         """ Adjust edge weights for boosting some candidates.
@@ -201,8 +195,7 @@ class MultipartiteRank(TopicRank):
             node_i, node_j = nodes
             position_i = 1.0 / (1 + self.candidates[node_i].offsets[0])
             position_i = math.exp(position_i)
-            self.graph[node_j][node_i]['weight'] += (boosters*alpha*position_i)
-
+            self.graph[node_j][node_i]['weight'] += (boosters * alpha * position_i)
 
     def candidate_weighting(self,
                             threshold=0.74,
@@ -229,4 +222,3 @@ class MultipartiteRank(TopicRank):
 
         # compute the word scores using random walk
         self.weights = nx.pagerank_scipy(self.graph)
-

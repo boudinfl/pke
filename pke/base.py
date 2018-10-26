@@ -106,9 +106,9 @@ class LoadFile(object):
         prev = [self.candidates[u].lexical_form for u in prev]
 
         # loop through the already selected candidates
-        for prev_candidate in  prev:
-            for i in range(len(prev_candidate)-len(candidate)+1):
-                if candidate == prev_candidate[i:i+len(candidate)]:
+        for prev_candidate in prev:
+            for i in range(len(prev_candidate) - len(candidate) + 1):
+                if candidate == prev_candidate[i:i + len(candidate)]:
                     return True
         return False
 
@@ -159,9 +159,9 @@ class LoadFile(object):
                        self.weights[u]) for u in best[:min(n, len(best))]]
 
         if len(n_best) < n:
-                logging.warning(
-                        'Not enough candidates to choose from '
-                        '({} requested, {} given)'.format(n, len(n_best)))
+            logging.warning(
+                'Not enough candidates to choose from '
+                '({} requested, {} given)'.format(n, len(n_best)))
 
         # return the list of best candidates
         return n_best
@@ -213,13 +213,12 @@ class LoadFile(object):
 
             # generate the ngrams
             for j in range(sentence.length):
-                for k in range(j+1, min(j+1+skip, sentence.length+1)):
-
+                for k in range(j + 1, min(j + 1 + skip, sentence.length + 1)):
                     # add the ngram to the candidate container
                     self.add_candidate(words=sentence.words[j:k],
                                        stems=sentence.stems[j:k],
                                        pos=sentence.pos[j:k],
-                                       offset=shift+j,
+                                       offset=shift + j,
                                        sentence_id=i)
 
     def longest_pos_sequence_selection(self, valid_pos=None):
@@ -265,10 +264,10 @@ class LoadFile(object):
                         bias = 1
 
                     # add the ngram to the candidate container
-                    self.add_candidate(words=sentence.words[seq[0]:seq[-1]+1],
-                                       stems=sentence.stems[seq[0]:seq[-1]+1],
-                                       pos=sentence.pos[seq[0]:seq[-1]+1],
-                                       offset=shift+j-len(seq)+bias,
+                    self.add_candidate(words=sentence.words[seq[0]:seq[-1] + 1],
+                                       stems=sentence.stems[seq[0]:seq[-1] + 1],
+                                       pos=sentence.pos[seq[0]:seq[-1] + 1],
+                                       offset=shift + j - len(seq) + bias,
                                        sentence_id=i)
 
                 # flush sequence container
@@ -318,13 +317,14 @@ class LoadFile(object):
                     last = int(leaves[-1][0])
 
                     # add the NP to the candidate container
-                    self.add_candidate(words=sentence.words[first:last+1],
-                                       stems=sentence.stems[first:last+1],
-                                       pos=sentence.pos[first:last+1],
-                                       offset=shift+first,
+                    self.add_candidate(words=sentence.words[first:last + 1],
+                                       stems=sentence.stems[first:last + 1],
+                                       pos=sentence.pos[first:last + 1],
+                                       offset=shift + first,
                                        sentence_id=i)
 
-    def _is_alphanum(self, word, valid_punctuation_marks='-'):
+    @staticmethod
+    def _is_alphanum(word, valid_punctuation_marks='-'):
         """Check if a word is valid, i.e. it contains only alpha-numeric
         characters and valid punctuation marks.
 
@@ -403,4 +403,3 @@ class LoadFile(object):
             if only_alphanum and k in self.candidates:
                 if not all([self._is_alphanum(w) for w in words]):
                     del self.candidates[k]
-

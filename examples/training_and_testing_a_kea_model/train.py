@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-import codecs
 import logging
+
 import pke
 
 # setting info in terminal
@@ -19,7 +17,7 @@ reference_file = "gold-annotation.txt"
 df_file = "df.tsv.gz"
 logging.info('Loading df counts from {}'.format(df_file))
 df_counts = pke.load_document_frequency_file(input_file=df_file,
-											 delimiter='\t')
+                                             delimiter='\t')
 
 # path to the model, saved as a pickle
 output_mdl = "model.pickle"

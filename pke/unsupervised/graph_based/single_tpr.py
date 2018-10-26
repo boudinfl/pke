@@ -16,22 +16,18 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.unsupervised import SingleRank
-
-import os
-import six
 import gzip
+import os
 import pickle
 
-import numpy as np
 import networkx as nx
-
-from nltk.corpus import stopwords
-
+import numpy as np
+import six
 from scipy.spatial.distance import cosine
-
-from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
+from sklearn.feature_extraction.text import CountVectorizer
+
+from pke.unsupervised import SingleRank
 
 
 class TopicalPageRank(SingleRank):
@@ -96,7 +92,6 @@ class TopicalPageRank(SingleRank):
         # select sequence of adjectives and nouns
         self.grammar_selection(grammar=grammar)
 
-
     def candidate_weighting(self,
                             window=10,
                             pos=None,
@@ -122,11 +117,11 @@ class TopicalPageRank(SingleRank):
 
         # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
 
         # initialize stoplist list if not provided
         if stoplist is None:
-            stoplist = stopwords.words(self.language)
+            stoplist = self.stoplist
 
         # build the word graph
         # ``Since keyphrases are usually noun phrases, we only add adjectives
@@ -140,10 +135,10 @@ class TopicalPageRank(SingleRank):
         if lda_model is None:
             if six.PY2:
                 lda_model = os.path.join(self._models,
-                                     "lda-1000-semeval2010.py2.pickle.gz")
+                                         "lda-1000-semeval2010.py2.pickle.gz")
             else:
                 lda_model = os.path.join(self._models,
-                                     "lda-1000-semeval2010.py3.pickle.gz")
+                                         "lda-1000-semeval2010.py3.pickle.gz")
 
         # load parameters from file
         with gzip.open(lda_model, 'rb') as f:
@@ -175,7 +170,7 @@ class TopicalPageRank(SingleRank):
             if word in dictionary:
                 index = dictionary.index(word)
                 distribution_word_topic = [distributions[k][index] for k \
-                                     in range(len(distribution_topic_document))]
+                                           in range(len(distribution_topic_document))]
 
                 twi[word] = 1 - cosine(distribution_word_topic,
                                        distribution_topic_document)
@@ -191,7 +186,7 @@ class TopicalPageRank(SingleRank):
         for word in twi:
             twi[word] /= norm
 
-        # compute the word scores using biaised random walk
+        # compute the word scores using biased random walk
         w = nx.pagerank(G=self.graph,
                         alpha=0.85,
                         personalization=twi,
@@ -204,4 +199,3 @@ class TopicalPageRank(SingleRank):
             self.weights[k] = sum([w[t] for t in tokens])
             if normalized:
                 self.weights[k] /= len(tokens)
-

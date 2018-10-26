@@ -11,14 +11,13 @@ setup(name='pke',
                 'pke.unsupervised.statistical'],
       url="https://github.com/boudinfl/pke",
       install_requires=[
-      	'nltk',
-      	'networkx',
-      	'numpy',
-      	'scipy',
-            'sklearn',
-            'unidecode',
-            'future'
+          'nltk',
+          'networkx',
+          'numpy',
+          'scipy',
+          'sklearn',
+          'unidecode',
+          'future'
       ],
       package_data={'pke': ['models/*.pickle', 'models/*.gz']}
-     )
-
+      )
