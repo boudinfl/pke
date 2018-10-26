@@ -4,24 +4,21 @@
 import pke
 
 valid_pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
+test_file = 'examples/C-1.xml'
 
 
-def test_candidate_selection():
-    extractor = pke.unsupervised.StupidKE(input_file='examples/C-1.xml',
-                                          language='english')
-    extractor.read_document(format='corenlp',
-                            use_lemmas=False)
+def test_stupidke_candidate_selection():
+    extractor = pke.unsupervised.StupidKE()
+    extractor.load_document(test_file)
 
     extractor.candidate_selection(pos=valid_pos)
 
     assert len(extractor.candidates) == 567
 
 
-def test_candidate_weighting():
-    extractor = pke.unsupervised.StupidKE(input_file='examples/C-1.xml',
-                                          language='english')
-    extractor.read_document(format='corenlp',
-                            use_lemmas=False)
+def test_stupidke_candidate_weighting():
+    extractor = pke.unsupervised.StupidKE()
+    extractor.load_document(test_file)
 
     extractor.candidate_selection(pos=valid_pos)
 
@@ -33,5 +30,5 @@ def test_candidate_weighting():
 
 
 if __name__ == '__main__':
-    test_candidate_selection()
-    test_candidate_weighting()
+    test_stupidke_candidate_selection()
+    test_stupidke_candidate_weighting()

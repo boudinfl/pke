@@ -4,29 +4,26 @@
 import pke
 
 valid_pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
+test_file = 'examples/C-1.xml'
 
 
-def test_candidate_selection():
-    extractor = pke.unsupervised.TopicRank(input_file='examples/C-1.xml',
-                                           language='english')
-    extractor.read_document(format='corenlp',
-                            use_lemmas=False)
+def test_topicrank_candidate_selection():
+    extractor = pke.unsupervised.TopicRank()
+    extractor.load_document(test_file)
 
     extractor.candidate_selection(pos=valid_pos)
 
     assert len(extractor.candidates) == 567
 
 
-def test_candidate_weighting():
-    extractor = pke.unsupervised.TopicRank(input_file='examples/C-1.xml',
-                                           language='english')
-    extractor.read_document(format='corenlp',
-                            use_lemmas=False)
+def test_topicrank_candidate_weighting():
+    extractor = pke.unsupervised.TopicRank()
+    extractor.load_document(test_file)
 
     extractor.candidate_selection(pos=valid_pos)
 
-    extractor.candidate_weighting(threshold=0.74,
-                                  method='average')
+    extractor.candidate_weighting(
+        threshold=0.74, method='average')
 
     keyphrases = [k for k, s in extractor.get_n_best(n=3)]
 
@@ -34,5 +31,5 @@ def test_candidate_weighting():
 
 
 if __name__ == '__main__':
-    test_candidate_selection()
-    test_candidate_weighting()
+    test_topicrank_candidate_selection()
+    test_topicrank_candidate_weighting()
