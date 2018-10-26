@@ -65,18 +65,11 @@ class MultipartiteRank(TopicRank):
 
     """
 
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """Redefining initializer for MultipartiteRank.
-
-        Args:
-            input_file (str): path to the input file, defaults to None.
-            language (str): language of the document, used for stopwords list,
-                default to 'english'.
-
         """
 
-        super(MultipartiteRank, self).__init__(input_file=input_file,
-                                               language=language)
+        super(MultipartiteRank, self).__init__()
 
         self.topic_identifiers = {}
         """ A container for linking candidates to topic identifiers. """

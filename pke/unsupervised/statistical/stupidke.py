@@ -8,16 +8,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.base import LoadFile
-from pke.utils import load_document_frequency_file
-
-from nltk.corpus import stopwords
-
-import math
-import string
+from pke.unsupervised import TfIdf
 
 
-class StupidKE(LoadFile):
+class StupidKE(TfIdf):
     """StupidKE keyphrase extraction model.
 
     Parameterized example::
@@ -47,36 +41,9 @@ class StupidKE(LoadFile):
 
     """
 
-    def candidate_selection(self, pos=None, stoplist=None):
-        """ The candidate selection as described in the TextRank paper.
-
-            Args:
-                pos (set): the set of valid POS tags, defaults to (NN, NNS,
-                    NNP, NNPS, JJ, JJR, JJS).
-                stoplist (list): the stoplist for filtering candidates, defaults
-                    to the nltk stoplist. Words that are punctuation marks from
-                    string.punctuation are not allowed.
-        """
-
-        # define default pos tags set
-        if pos is None:
-            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
-
-        # select sequence of adjectives and nouns
-        self.longest_pos_sequence_selection(valid_pos=pos)
-
-        # initialize stoplist list if not provided
-        if stoplist is None:
-            stoplist = stopwords.words(self.language)
-
-        # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(
-            stoplist=list(string.punctuation) +
-            ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-'] +
-            stoplist)
-
-    def candidate_weighting(self):
+    def candidate_weighting(self, **kwargs):
         """Candidate weighting function using position.
+        :param **kwargs:
         """
 
         # Weigh the candidates

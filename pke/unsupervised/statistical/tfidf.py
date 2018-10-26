@@ -46,8 +46,7 @@ class TfIdf(LoadFile):
 
     """
 
-
-    def candidate_selection(self, n=3, stoplist=None):
+    def candidate_selection(self, n=3, stoplist=None, **kwargs):
         """Select 1-3 grams as keyphrase candidates.
 
         Args:

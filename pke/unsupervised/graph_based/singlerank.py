@@ -58,23 +58,14 @@ class SingleRank(LoadFile):
 
     """
 
-
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """Redefining initializer for SingleRank.
-
-        Args:
-            input_file (str): path to the input file, defaults to None.
-            language (str): language of the document, used for stopwords list,
-                default to 'english'.
-
         """
 
-        super(SingleRank, self).__init__(input_file=input_file,
-                                         language=language)
+        super(SingleRank, self).__init__()
 
         self.graph = nx.Graph()
         """ The word graph. """
-
 
     def candidate_selection(self, pos=None, stoplist=None):
         """ The candidate selection as described in the SingleRank paper.
@@ -96,7 +87,7 @@ class SingleRank(LoadFile):
 
         # initialize stoplist list if not provided
         if stoplist is None:
-            stoplist = stopwords.words(self.language)
+            stoplist = self.stoplist
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=list(string.punctuation) +

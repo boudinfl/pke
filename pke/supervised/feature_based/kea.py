@@ -59,20 +59,13 @@ class Kea(SupervisedLoadFile):
 
     """
 
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """Redefining initializer for Kea.
-
-        Args:
-            input_file (str): path to the input file, defaults to None.
-            language (str): language of the document, used for stopwords list,
-                default to 'english'.
-
         """
 
-        super(Kea, self).__init__(input_file=input_file, language=language)
+        super(Kea, self).__init__()
 
-
-    def candidate_selection(self, stoplist=None):
+    def candidate_selection(self, stoplist=None, **kwargs):
         """Select 1-3 grams as keyphrase candidates. Candidates that start or
         end with a stopword are discarded.
 
@@ -92,7 +85,7 @@ class Kea(SupervisedLoadFile):
 
         # initialize stoplist list if not provided
         if stoplist is None:
-            stoplist = stopwords.words(self.language)
+            stoplist = self.stoplist
 
         # filter candidates that start or end with a stopword
         # Python 2/3 compatible

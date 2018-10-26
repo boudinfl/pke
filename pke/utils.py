@@ -102,13 +102,10 @@ def compute_document_frequency(input_dir,
         logging.info('reading file '+input_file)
 
         # initialize load file object
-        doc = LoadFile(input_file)
+        doc = LoadFile()
 
         # read the input file
-        doc.read_document(format=format,
-                          use_lemmas=use_lemmas,
-                          stemmer=stemmer,
-                          sep='/')
+        doc.load_document(input_file)
 
         # candidate selection
         doc.ngram_selection(n=n)
@@ -187,11 +184,11 @@ def train_supervised_model(input_dir,
         logging.info('reading file '+input_file)
 
         # initialize the input file
-        model.__init__(input_file=input_file, language=language)
+        model.__init__()
 
         doc_id = input_file.split('/')[-1].split('.')[0]
 
-        model.read_document(format=format,
+        model.load_document(format=format,
                             use_lemmas=use_lemmas,
                             stemmer=stemmer,
                             sep='/')
@@ -281,13 +278,10 @@ def compute_lda_model(input_dir,
         logging.info('reading file '+input_file)
 
         # initialize load file object
-        doc = LoadFile(input_file)
+        doc = LoadFile()
 
         # read the input file
-        doc.read_document(format=format,
-                          use_lemmas=use_lemmas,
-                          stemmer=stemmer,
-                          sep='/')
+        doc.load_document(input_file)
 
         # container for current document
         text = []
@@ -349,13 +343,10 @@ def load_document_as_bos(input_file,
     """
 
     # initialize load file object
-    doc = LoadFile(input_file)
+    doc = LoadFile()
 
     # read the input file
-    doc.read_document(format=format,
-                      use_lemmas=use_lemmas,
-                      stemmer=stemmer,
-                      sep='/')
+    doc.load_document(input_file)
 
     # initialize document vector
     vector = defaultdict(int)

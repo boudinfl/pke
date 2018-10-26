@@ -17,11 +17,10 @@ class SupervisedLoadFile(LoadFile):
     """ The SupervisedLoadFile class that provides extra base functions for
         supervised models. """
 
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """ Redefining initializer. """
 
-        super(SupervisedLoadFile, self).__init__(input_file=input_file,
-                                                 language=language)
+        super(SupervisedLoadFile, self).__init__()
 
         self.instances = {}
         """ The instances container. """

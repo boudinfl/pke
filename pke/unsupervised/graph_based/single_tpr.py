@@ -70,21 +70,13 @@ class TopicalPageRank(SingleRank):
 
     """
 
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """Redefining initializer for TopicalPageRank.
-
-        Args:
-            input_file (str): path to the input file, defaults to None.
-            language (str): language of the document, used for stopwords list,
-                default to 'english'.
-
         """
 
-        super(TopicalPageRank, self).__init__(input_file=input_file,
-                                              language=language)
+        super(TopicalPageRank, self).__init__()
 
-
-    def candidate_selection(self, grammar=None):
+    def candidate_selection(self, grammar=None, **kwargs):
         """Candidate selection heuristic.
 
         Keyphrase candidates are noun phrases that match the regular expression

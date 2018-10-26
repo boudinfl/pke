@@ -6,14 +6,12 @@ from pke.unsupervised import TopicRank
 
 # create a TopicRank extractor and set the input language to English (used for
 # the stoplist in the candidate selection method)
-extractor = TopicRank(input_file='C-1.xml',
-                      language='english')
+extractor = TopicRank()
 
 # load the content of the document, here in CoreNLP XML format
 # the use_lemmas parameter allows to choose using CoreNLP lemmas or stems 
 # computed using nltk
-extractor.read_document(format='corenlp',
-                        use_lemmas=False)
+extractor.load_document('C-1.xml')
 
 # select the keyphrase candidates, for TopicRank the longest sequences of 
 # nouns and adjectives

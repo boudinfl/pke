@@ -53,23 +53,15 @@ class PositionRank(SingleRank):
 
     """
 
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """Redefining initializer for PositionRank.
-
-        Args:
-            input_file (str): path to the input file, defaults to None.
-            language (str): language of the document, used for stopwords list,
-                default to 'english'.
-
         """
 
-        super(PositionRank, self).__init__(input_file=input_file,
-                                           language=language)
+        super(PositionRank, self).__init__()
 
         self.positions = defaultdict(float)
 
-
-    def candidate_selection(self, grammar=None, maximum_word_number=3):
+    def candidate_selection(self, grammar=None, maximum_word_number=3, **kwargs):
         """Candidate selection heuristic.
 
         Keyphrase candidates are noun phrases that match the regular expression

@@ -62,26 +62,17 @@ class TopicRank(LoadFile):
 
     """
 
-
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """Redefining initializer for TopicRank.
-
-        Args:
-            input_file (str): path to the input file, defaults to None.
-            language (str): language of the document, used for stopwords list,
-                default to 'english'.
-
         """
 
-        super(TopicRank, self).__init__(input_file=input_file,
-                                        language=language)
+        super(TopicRank, self).__init__()
 
         self.graph = nx.Graph()
         """ The topic graph. """
 
         self.topics = []
         """ The topic container. """
-
 
     def candidate_selection(self, pos=None, stoplist=None):
         """Selects longest sequences of nouns and adjectives as keyphrase

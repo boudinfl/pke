@@ -56,23 +56,16 @@ class WINGNUS(SupervisedLoadFile):
 
     """
 
-
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """Redefining initializer for WINGNUS.
-
-        Args:
-            input_file (str): path to the input file, defaults to None.
-            language (str): language of the document, used for stopwords list,
-                default to 'english'.
-
         """
 
-        super(WINGNUS, self).__init__(input_file=input_file, language=language)
-
+        super(WINGNUS, self).__init__()
 
     def candidate_selection(self,
                             NP='^((JJ|NN) ){,2}NN$',
-                            NP_IN_NP='^((JJ|NN) )?NN IN ((JJ|NN) )?NN$'):
+                            NP_IN_NP='^((JJ|NN) )?NN IN ((JJ|NN) )?NN$',
+                            **kwargs):
         """ Select noun phrases (NP) and NP containing a preprositional phrase
             (NP IN NP) as keyphrase candidates.
 
@@ -174,7 +167,7 @@ class WINGNUS(SupervisedLoadFile):
 
             # [F3] -> term frequency of substrings
             tf_of_substrings = 0
-            stoplist = stopwords.words(self.language)
+            stoplist = self.stoplist
             for i in range(len(v.lexical_form)):
                 for j in range(i, min(len(v.lexical_form), i+3)):
                     sub_words = v.lexical_form[i:j+1]

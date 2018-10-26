@@ -58,7 +58,7 @@ class KPMiner(LoadFile):
 
     """
 
-    def candidate_selection(self, lasf=3, cutoff=400, stoplist=None):
+    def candidate_selection(self, lasf=3, cutoff=400, stoplist=None, **kwargs):
         """The candidate selection as described in the KP-Miner paper.
 
         Args:
@@ -75,7 +75,7 @@ class KPMiner(LoadFile):
 
         # initialize stoplist list if not provided
         if stoplist is None:
-            stoplist = stopwords.words(self.language)
+            stoplist = self.stoplist
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=list(string.punctuation) +

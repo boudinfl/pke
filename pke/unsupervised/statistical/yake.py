@@ -65,17 +65,11 @@ class YAKE(LoadFile):
 
     """
 
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """Redefining initializer for YAKE.
-
-        Args:
-            input_file (str): path to the input file, defaults to None.
-            language (str): language of the document, used for stopwords list,
-                default to 'english'.
-
         """
 
-        super(YAKE, self).__init__(input_file=input_file, language=language)
+        super(YAKE, self).__init__()
 
         self.words = defaultdict(set)
         """ Container for the vocabulary. """
@@ -89,8 +83,7 @@ class YAKE(LoadFile):
         self.surface_to_lexical = {}
         """ Mapping from surface form to lexical form. """
 
-
-    def candidate_selection(self, n=3, stoplist=None):
+    def candidate_selection(self, n=3, stoplist=None, **kwargs):
         """Select 1-3 grams as keyphrase candidates. Candidates beginning or
         ending with a stopword are filtered out. Words that do not contain
         at least one alpha-numeric character are not allowed.
@@ -111,7 +104,7 @@ class YAKE(LoadFile):
 
         # initialize empty list if stoplist is not provided
         if stoplist is None:
-            stoplist = stopwords.words(self.language)
+            stoplist = self.stoplist
 
         # further filter candidates
         for k in list(self.candidates):

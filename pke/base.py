@@ -20,11 +20,6 @@ class LoadFile(object):
 
     def __init__(self):
         """ Initializer for LoadFile class.
-
-            Args:
-                input_file (str): the path of the input file.
-                language (str): the language of the input file (used for
-                    stoplist), defaults to english.
         """
 
         self.input_file = None
@@ -56,7 +51,7 @@ class LoadFile(object):
         """Loads the content of a document/string/stream in a given language.
 
         Args:
-            input_file (str): path to the input file.
+            input (str): path to the input file.
             lang (str): language of the input, defaults to 'en'.
             encoding (str) : encoding of the raw file.
         """

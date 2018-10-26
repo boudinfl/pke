@@ -64,12 +64,10 @@ class ExpandRank(SingleRank):
 
     """
 
-    def __init__(self, input_file, language='english'):
+    def __init__(self):
         """ Redefining initializer for ExpandRank. """
 
-        super(ExpandRank, self).__init__(input_file=input_file,
-                                         language=language)
-
+        super(ExpandRank, self).__init__()
 
     def expand_word_graph(self,
                           input_file,
@@ -94,10 +92,10 @@ class ExpandRank(SingleRank):
             pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
 
         # initialize document loader
-        doc = LoadFile(input_file=input_file, language=self.language)
+        doc = LoadFile()
 
         # read document
-        doc.read_document(format=format)
+        doc.load_document(input_file)
 
         # flatten document and initialize nodes 
         sequence = []
