@@ -203,7 +203,15 @@ class LoadFile(object):
         self._populate_sentences(parse, stemmer=stemmer)
 
     def _populate_sentences(self, parsed_content, stemmer='porter', use_lemmas=False):
-
+        """
+            Populate the sentence list.
+            Args:
+                use_lemmas (bool): whether lemmas are used (if available)
+                    instead of stems (computed by nltk), defaults to False.
+                stemmer (str): the stemmer in nltk to use (if used), defaults
+                    to porter (can be set to None for using word surface forms
+                    instead of stems).
+        """
         # loop through the parsed sentences
         for i, sentence in enumerate(parsed_content.sentences):
 
@@ -215,7 +223,10 @@ class LoadFile(object):
 
             if use_lemmas:
                 # add the lemmas
-                self.sentences[i].stems = sentence['lemmas']
+                try:
+                    self.sentences[i].stems = sentence['lemmas']
+                except KeyError:
+                    logging.error('Lemmas are not available in the chosen input format')
             else:
                 if stemmer is not None:
                     # add the stems
