@@ -88,6 +88,34 @@ class LoadFile(object):
         """ Document frequency counts provided in pke. """
 
 
+    def load_document(self,
+                      input_file,
+                      language='en',
+                      format='raw'):
+        """Loads the content of a document in a given format/language.
+
+        Args:
+            input_file (str): path to the input file.
+            language (str): language of the input, defaults to 'en'.
+            format (str): input format, defaults to 'raw'.
+        """
+
+        pass
+
+
+    def load_text(self,
+                  input_text,
+                  language='en'):
+        """Loads a text given as input.
+
+        Args:
+            input_text (str): input text.
+            language (str): language of the input, defaults to 'en'.
+        """
+
+        pass
+
+
     def read_document(self,
                       format='raw',
                       use_lemmas=False,

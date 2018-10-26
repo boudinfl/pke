@@ -4,6 +4,7 @@
 """ Readers for the pke module. """
 
 import codecs
+import spacy
 import xml.etree.ElementTree as etree
 from nltk.tag import str2tuple, pos_tag_sents
 from nltk.tokenize import sent_tokenize, word_tokenize
@@ -53,4 +54,16 @@ class RawTextReader(object):
             self.sentences.append({
                 "words" : [u[0] for u in sentence],
                 "POS" : [u[1] for u in sentence]
+            })
+
+class SpacyDocReader(object):
+    """ Reader from a spacy doc object. """
+    def __init__(self, doc):
+        self.sentences = []
+        for sentence_id, sentence in enumerate(doc.sents):
+            self.sentences.append({
+                "words" : [token.text for token in sentence],
+                "lemmas" : [token.lemma_ for token in sentence],
+                "POS" : [token.pos_ for token in sentence],
+                "char_offsets" : [(token.idx, token.idx+len(token.text)) for token in sentence]
             })
