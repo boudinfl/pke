@@ -169,40 +169,7 @@ class LoadFile(object):
         # parse the document using the Minimal CoreNLP parser
         parse = MinimalCoreNLPParser(self.input_file)
 
-        # loop through the parsed sentences
-        for i, sentence in enumerate(parse.sentences):
-
-            # add the sentence to the container
-            self.sentences.append(Sentence(words=sentence['words']))
-
-            # add the POS
-            self.sentences[i].pos = sentence['POS']
-
-            # add the lemmas
-            self.sentences[i].stems = sentence['lemmas']
-
-            # flatten with the stems if required
-            if not use_lemmas:
-
-                # if stemming is performed
-                if stemmer is not None:
-                    for j, word in enumerate(self.sentences[i].words):
-                        self.sentences[i].stems[j] = Stemmer(stemmer).stem(word)
-
-                # else, all computations are performed on surface forms
-                else:
-                    self.sentences[i].stems = self.sentences[i].words
-
-            # lowercase the stems/lemmas
-            for j, stem in enumerate(self.sentences[i].stems):
-                self.sentences[i].stems[j] = stem.lower()
-
-            # add the meta-information
-            # for k, infos in sentence.iteritems(): -- Python 2/3 compatible
-            for (k, infos) in sentence.items():
-                if k not in set(['POS', 'lemmas', 'words']):
-                    self.sentences[i].meta[k] = infos
-
+        self._populate_sentences(parse, stemmer=stemmer, use_lemmas=use_lemmas)
 
     def read_preprocessed_document(self, stemmer='porter', sep='/'):
         """ Read the preprocessed input file and populate the sentence list.
@@ -217,28 +184,7 @@ class LoadFile(object):
         # parse the document using the preprocessed text parser
         parse = PreProcessedTextReader(self.input_file, sep=sep)
 
-        # loop through the parsed sentences
-        for i, sentence in enumerate(parse.sentences):
-
-            # add the sentence to the container
-            self.sentences.append(Sentence(words=sentence['words']))
-
-            # add the POS
-            self.sentences[i].pos = sentence['POS']
-
-            # add the stems
-            if stemmer is not None:
-                for j, word in enumerate(self.sentences[i].words):
-                    self.sentences[i].stems.append(Stemmer(stemmer).stem(word))
-
-            # otherwise computations are performed on surface forms
-            else:
-                self.sentences[i].stems = self.sentences[i].words
-
-            # lowercase the stems/lemmas
-            for j, stem in enumerate(self.sentences[i].stems):
-                self.sentences[i].stems[j] = stem.lower()
-
+        self._populate_sentences(parse, stemmer=stemmer)
 
     def read_raw_document(self, stemmer='porter', input_text=None):
         """ Read the raw input file and populate the sentence list.
@@ -254,8 +200,12 @@ class LoadFile(object):
         # parse the document using the preprocessed text parser
         parse = RawTextReader(path=self.input_file, input_text=input_text)
 
+        self._populate_sentences(parse, stemmer=stemmer)
+
+    def _populate_sentences(self, parsed_content, stemmer='porter', use_lemmas=False):
+
         # loop through the parsed sentences
-        for i, sentence in enumerate(parse.sentences):
+        for i, sentence in enumerate(parsed_content.sentences):
 
             # add the sentence to the container
             self.sentences.append(Sentence(words=sentence['words']))
@@ -263,18 +213,27 @@ class LoadFile(object):
             # add the POS
             self.sentences[i].pos = sentence['POS']
 
-            # add the stems
-            if stemmer is not None:
-                for j, word in enumerate(self.sentences[i].words):
-                    self.sentences[i].stems.append(Stemmer(stemmer).stem(word))
-
-            # otherwise computations are performed on surface forms
+            if use_lemmas:
+                # add the lemmas
+                self.sentences[i].stems = sentence['lemmas']
             else:
-                self.sentences[i].stems = self.sentences[i].words
+                if stemmer is not None:
+                    # add the stems
+                    stem = Stemmer(stemmer).stem
+                    self.sentences[i] = [stem(word) for word in self.sentences[i].words]
+                else:
+                    # otherwise computations are performed on surface forms
+                    self.sentences[i].stems = self.sentences[i].words
 
             # lowercase the stems/lemmas
             for j, stem in enumerate(self.sentences[i].stems):
                 self.sentences[i].stems[j] = stem.lower()
+
+            # add the meta-information
+            # for k, infos in sentence.iteritems(): -- Python 2/3 compatible
+            for (k, infos) in sentence.items():
+                if k not in {'POS', 'lemmas', 'words'}:
+                    self.sentences[i].meta[k] = infos
 
 
     def is_redundant(self, candidate, prev, mininum_length=1):
