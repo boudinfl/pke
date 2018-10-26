@@ -2,62 +2,23 @@
 
 """ Base classes for the pke module. """
 
-from .readers import MinimalCoreNLPParser, PreProcessedTextReader, RawTextReader
 from collections import defaultdict
-from nltk.stem.snowball import SnowballStemmer as Stemmer
+from pke.readers import (Candidate, Document,
+                         MinimalCoreNLPReader,
+                         RawTextReader)
 from nltk import RegexpParser
+from nltk.corpus import stopwords
 from string import punctuation
 import os
 import logging
 
 from builtins import str
 
-class Sentence(object):
-    """ The sentence data structure. """
-
-    def __init__(self, words):
-
-        self.words = words
-        """ tokens as a list. """
-
-        self.pos = []
-        """ Part-Of-Speeches as a list. """
-
-        self.stems = []
-        """ stems as a list. """
-
-        self.length = len(words)
-        """ length of the sentence. """
-
-        self.meta = {}
-        """ meta-information of the sentence. """
-
-
-class Candidate(object):
-    """ The keyphrase candidate data structure. """
-
-    def __init__(self):
-
-        self.surface_forms = []
-        """ the surface forms of the candidate. """
-
-        self.offsets = []
-        """ the offsets of the surface forms. """
-
-        self.sentence_ids = []
-        """ the sentence id of each surface form. """
-
-        self.pos_patterns = []
-        """ the Part-Of-Speech patterns of the candidate. """
-
-        self.lexical_form = []
-        """ the lexical form of the candidate. """
-
 
 class LoadFile(object):
     """ The LoadFile class that provides base functions. """
 
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """ Initializer for LoadFile class.
 
             Args:
@@ -66,10 +27,10 @@ class LoadFile(object):
                     stoplist), defaults to english.
         """
 
-        self.input_file = input_file
+        self.input_file = None
         """ The path of the input file. """
 
-        self.language = language
+        self.language = None
         """ The language of the input file. """
 
         self.sentences = []
@@ -82,170 +43,49 @@ class LoadFile(object):
         """ The weight container (can be either word or candidate weights). """
 
         self._models = os.path.join(os.path.dirname(__file__), 'models')
-        """ Root path of the pke module. """ 
+        """ Root path of the pke module. """
 
         self._df_counts = os.path.join(self._models, "df-semeval2010.tsv.gz")
         """ Document frequency counts provided in pke. """
 
+        logging.warning('LoadFile._df_counts is hard coded to {}'.format(self._df_counts))
 
-    def load_document(self,
-                      input_file,
-                      language='en',
-                      format='raw'):
-        """Loads the content of a document in a given format/language.
+        self.stoplist = None
+
+    def load_document(self, input, **kwargs):
+        """Loads the content of a document/string/stream in a given language.
 
         Args:
             input_file (str): path to the input file.
-            language (str): language of the input, defaults to 'en'.
-            format (str): input format, defaults to 'raw'.
+            lang (str): language of the input, defaults to 'en'.
+            encoding (str) : encoding of the raw file.
         """
 
-        pass
+        lang = kwargs.get('lang')
 
-
-    def load_text(self,
-                  input_text,
-                  language='en'):
-        """Loads a text given as input.
-
-        Args:
-            input_text (str): input text.
-            language (str): language of the input, defaults to 'en'.
-        """
-
-        pass
-
-
-    def read_document(self,
-                      format='raw',
-                      use_lemmas=False,
-                      stemmer='porter',
-                      sep='/'):
-        """ Read the input file in a given format.
-
-            Args:
-                format (str): the input format, defaults to raw.
-                use_lemmas (bool): whether lemmas from stanford corenlp are used
-                    instead of stems (computed by nltk), defaults to False.
-                stemmer (str): the stemmer in nltk to use (if used), defaults
-                    to porter (can be set to None for using word surface forms
-                    instead of stems).
-                sep (str): the separator of the tagged word, defaults to `/`.
-        """
-
-        if format == 'raw':
-            self.read_raw_document(stemmer=stemmer)
-        elif format == 'preprocessed':
-            self.read_preprocessed_document(stemmer=stemmer, sep=sep)
-        elif format == 'corenlp':
-            self.read_corenlp_document(use_lemmas=use_lemmas, stemmer=stemmer)
-
-
-    def read_text(self, input_text=None, stemmer='porter'):
-        """ Read text as input.
-
-            Args:
-                input_text (str): the input text.
-                stemmer (str): the stemmer in nltk to use, defaults to porter
-                    (can be set to None for using word surface forms instead of
-                    stems).
-        """
-
-        self.read_raw_document(stemmer=stemmer, input_text=input_text)
-
-
-    def read_corenlp_document(self, use_lemmas=False, stemmer='porter'):
-        """ Read the input file in CoreNLP XML format and populate the sentence
-            list.
-
-            Args:
-                use_lemmas (bool): whether lemmas from stanford corenlp are used
-                    instead of stems (computed by nltk), defaults to False.
-                stemmer (str): the stemmer in nltk to use (if used), defaults
-                    to porter (can be set to None for using word surface forms
-                    instead of stems).
-        """
-
-        # parse the document using the Minimal CoreNLP parser
-        parse = MinimalCoreNLPParser(self.input_file)
-
-        self._populate_sentences(parse, stemmer=stemmer, use_lemmas=use_lemmas)
-
-    def read_preprocessed_document(self, stemmer='porter', sep='/'):
-        """ Read the preprocessed input file and populate the sentence list.
-
-            Args:
-                stemmer (str): the stemmer in nltk to use, defaults to porter
-                    (can be set to None for using word surface forms instead of
-                    stems).
-                sep (str): the separator of the tagged word, defaults to /.
-        """
-
-        # parse the document using the preprocessed text parser
-        parse = PreProcessedTextReader(self.input_file, sep=sep)
-
-        self._populate_sentences(parse, stemmer=stemmer)
-
-    def read_raw_document(self, stemmer='porter', input_text=None):
-        """ Read the raw input file and populate the sentence list.
-
-            Args:
-                stemmer (str): the stemmer in nltk to use, defaults to porter
-                    (can be set to None for using word surface forms instead of
-                    stems).
-                input_text (str): the text if directly given as input, defaults
-                    to None (i.e. using an input file).
-        """
-
-        # parse the document using the preprocessed text parser
-        parse = RawTextReader(path=self.input_file, input_text=input_text)
-
-        self._populate_sentences(parse, stemmer=stemmer)
-
-    def _populate_sentences(self, parsed_content, stemmer='porter', use_lemmas=False):
-        """
-            Populate the sentence list.
-            Args:
-                use_lemmas (bool): whether lemmas are used (if available)
-                    instead of stems (computed by nltk), defaults to False.
-                stemmer (str): the stemmer in nltk to use (if used), defaults
-                    to porter (can be set to None for using word surface forms
-                    instead of stems).
-        """
-        # loop through the parsed sentences
-        for i, sentence in enumerate(parsed_content.sentences):
-
-            # add the sentence to the container
-            self.sentences.append(Sentence(words=sentence['words']))
-
-            # add the POS
-            self.sentences[i].pos = sentence['POS']
-
-            if use_lemmas:
-                # add the lemmas
-                try:
-                    self.sentences[i].stems = sentence['lemmas']
-                except KeyError:
-                    logging.error('Lemmas are not available in the chosen input format')
-            else:
-                if stemmer is not None:
-                    # add the stems
-                    stem = Stemmer(stemmer).stem
-                    self.sentences[i] = [stem(word) for word in self.sentences[i].words]
+        if isinstance(input, str):
+            if os.path.isfile(input):
+                if input.endswith('xml'):
+                    parser = MinimalCoreNLPReader()
                 else:
-                    # otherwise computations are performed on surface forms
-                    self.sentences[i].stems = self.sentences[i].words
+                    parser = RawTextReader(lang=lang)
 
-            # lowercase the stems/lemmas
-            for j, stem in enumerate(self.sentences[i].stems):
-                self.sentences[i].stems[j] = stem.lower()
+                doc = parser.read(path=input, **kwargs)
+            else:
+                doc = Document.from_raw_text(raw_text=input, **kwargs)
+        elif input.__getattribute__('read'):
+            doc = Document.from_readable(stream=input, **kwargs)
+        else:
+            logging.error('Cannot process {}'.format(type(input)))
 
-            # add the meta-information
-            # for k, infos in sentence.iteritems(): -- Python 2/3 compatible
-            for (k, infos) in sentence.items():
-                if k not in {'POS', 'lemmas', 'words'}:
-                    self.sentences[i].meta[k] = infos
+        self.input_file = doc.input_file
+        self.language = doc.language
+        self.sentences = doc.sentences
+        self.weights = doc.weights
+        self.candidates = doc.candidates
 
+        iso2tofull = {'en': 'english', 'pt': 'portuguese', 'fr': 'french'}
+        self.stoplist = stopwords.words(iso2tofull[self.language])
 
     def is_redundant(self, candidate, prev, mininum_length=1):
         """ Test if one candidate is redundant with respect to a list of already
@@ -276,7 +116,6 @@ class LoadFile(object):
                 if candidate == prev_candidate[i:i+len(candidate)]:
                     return True
         return False
-
 
     def get_n_best(self, n=10, redundancy_removal=False, stemming=False):
         """ Returns the n-best candidates given the weights.
@@ -332,7 +171,6 @@ class LoadFile(object):
         # return the list of best candidates
         return n_best
 
-
     def add_candidate(self, words, stems, pos, offset, sentence_id):
         """ Add a keyphrase candidate to the candidates container.
 
@@ -361,7 +199,6 @@ class LoadFile(object):
 
         # add/update the sentence ids
         self.candidates[lexical_form].sentence_ids.append(sentence_id)
-
 
     def ngram_selection(self, n=3):
         """ Select all the n-grams and populate the candidate container.
@@ -442,7 +279,6 @@ class LoadFile(object):
                 # flush sequence container
                 seq = []
 
-
     def grammar_selection(self, grammar=None):
         """ Select candidates using nltk RegexpParser with a grammar defining
             noun phrases (NP).
@@ -493,7 +329,6 @@ class LoadFile(object):
                                        offset=shift+first,
                                        sentence_id=i)
 
-
     def _is_alphanum(self, word, valid_punctuation_marks='-'):
         """Check if a word is valid, i.e. it contains only alpha-numeric
         characters and valid punctuation marks.
@@ -506,7 +341,6 @@ class LoadFile(object):
         for punct in valid_punctuation_marks.split():
             word = word.replace(punct, '')
         return word.isalnum()
-
 
     def candidate_filtering(self,
                             stoplist=[],
