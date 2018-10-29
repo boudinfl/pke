@@ -68,7 +68,7 @@ class LoadFile(object):
                 doc = parser.read(path=input, **kwargs)
             else:
                 doc = Document.from_raw_text(raw_text=input, **kwargs)
-        elif input.__getattribute__('read'):
+        elif getattr(input, 'read', None):
             doc = Document.from_readable(stream=input, **kwargs)
         else:
             logging.error('Cannot process {}'.format(type(input)))
