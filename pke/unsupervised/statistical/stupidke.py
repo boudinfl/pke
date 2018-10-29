@@ -8,10 +8,10 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.unsupervised import TfIdf
+from pke.unsupervised import SingleRank
 
 
-class StupidKE(TfIdf):
+class StupidKE(SingleRank):
     """StupidKE keyphrase extraction model.
 
     Parameterized example::

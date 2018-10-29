@@ -36,7 +36,8 @@ def test_reading_pt():
         text = f.read()
     extract3.load_document(text, lang='pt')
 
-    assert extract1.sentences == extract2.sentences == extract3.sentences
+    assert len(extract1.sentences) == len(extract2.sentences) and \
+            extract2.sentences == extract3.sentences
 
 
 if __name__ == '__main__':
