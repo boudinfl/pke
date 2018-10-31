@@ -14,6 +14,7 @@ from nltk.corpus import stopwords
 from string import punctuation
 import os
 import logging
+import codecs
 
 from six import string_types
 
@@ -95,8 +96,8 @@ class LoadFile(object):
                 # other extensions are considered as raw text
                 else:
                     parser = RawTextReader(language=language)
-                    encoding =  kwargs.get('encoding', 'utf-8')
-                    with open(input, 'r', encoding=encoding) as file:
+                    encoding = kwargs.get('encoding', 'utf-8')
+                    with codecs.open(input, 'r', encoding=encoding) as file:
                         text = file.read()
                     doc = parser.read(text=text, path=input, **kwargs)
 

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pke
+import codecs
 
 model = pke.unsupervised.TopicRank
 
@@ -21,13 +22,13 @@ def test_reading():
 
     # loading from string
     extr3 = model()
-    with open(raw_test_file, 'r') as f:
+    with codecs.open(raw_test_file, 'r', 'utf-8') as f:
         text = f.read()
     extr3.load_document(text)
 
     # loading from stream
     extr4 = model()
-    with open(raw_test_file, 'r') as f:
+    with codecs.open(raw_test_file, 'r', 'utf-8') as f:
         extr4.load_document(f)
 
     assert len(extr1.sentences) == 252 and \
