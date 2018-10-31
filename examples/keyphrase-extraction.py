@@ -10,12 +10,13 @@ extractor = TopicRank()
 # load the content of the document, here in CoreNLP XML format
 # the input language is set to English (used for the stoplist)
 # normalization is set to stemming (computed with Porter's stemming algorithm)
-extractor.load_document('C-1.xml', language="en", normalization='stemming')
+extractor.load_document(input='C-1.xml',
+                        language="en",
+                        normalization='stemming')
 
 # select the keyphrase candidates, for TopicRank the longest sequences of 
 # nouns and adjectives
-extractor.candidate_selection(pos={'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR',
-                                   'JJS'})
+extractor.candidate_selection(pos={'NOUN', 'PROPN', 'ADJ'})
 
 # weight the candidates using a random walk. The threshold parameter sets the
 # minimum similarity for clustering, and the method parameter defines the 

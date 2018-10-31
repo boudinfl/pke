@@ -37,14 +37,14 @@ class TopicRank(LoadFile):
         from nltk.corpus import stopwords
 
         # 1. create a TopicRank extractor.
-        extractor = pke.unsupervised.TopicRank(input_file='path/to/input.xml')
+        extractor = pke.unsupervised.TopicRank()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+       extractor.load_document(input='path/to/input.xml')
 
         # 3. select the longest sequences of nouns and adjectives, that do
         #    not contain punctuation marks or stopwords as candidates.
-        pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+        pos = {'NOUN', 'PROPN', 'ADJ'}
         stoplist = list(string.punctuation)
         stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
         stoplist += stopwords.words('english')
@@ -77,8 +77,8 @@ class TopicRank(LoadFile):
         candidates.
 
         Args:
-            pos (set): the set of valid POS tags, defaults to (NN, NNS, NNP,
-                NNPS, JJ, JJR, JJS).
+            pos (set): the set of valid POS tags, defaults to ('NOUN',
+                'PROPN', 'ADJ').
             stoplist (list): the stoplist for filtering candidates, defaults to
                 the nltk stoplist. Words that are punctuation marks from
                 string.punctuation are not allowed.
@@ -87,7 +87,7 @@ class TopicRank(LoadFile):
 
         # define default pos tags set
         if pos is None:
-            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
+            pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # select sequence of adjectives and nouns
         self.longest_pos_sequence_selection(valid_pos=pos)

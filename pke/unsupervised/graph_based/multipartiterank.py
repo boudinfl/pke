@@ -37,14 +37,14 @@ class MultipartiteRank(TopicRank):
         from nltk.corpus import stopwords
 
         # 1. create a MultipartiteRank extractor.
-        extractor = pke.unsupervised.MultipartiteRank(input_file='input.xml')
+        extractor = pke.unsupervised.MultipartiteRank()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input.xml')
 
         # 3. select the longest sequences of nouns and adjectives, that do
         #    not contain punctuation marks or stopwords as candidates.
-        pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+        pos = {'NOUN', 'PROPN', 'ADJ'}
         stoplist = list(string.punctuation)
         stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
         stoplist += stopwords.words('english')

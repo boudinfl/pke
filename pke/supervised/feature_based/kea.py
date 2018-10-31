@@ -37,10 +37,10 @@ class Kea(SupervisedLoadFile):
         from nltk.corpus import stopwords
 
         # 1. create a Kea extractor.
-        extractor = pke.supervised.Kea(input_file='path/to/input.xml')
+        extractor = pke.supervised.Kea()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input.xml')
 
         # 3. select 1-3 grams that do not start or end with a stopword as
         #    candidates.

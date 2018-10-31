@@ -36,10 +36,10 @@ class WINGNUS(SupervisedLoadFile):
         import pke
 
         # 1. create a WINGNUS extractor.
-        extractor = pke.supervised.WINGNUS(input_file='path/to/input.xml')
+        extractor = pke.supervised.WINGNUS()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input.xml')
 
         # 3. select simplex noun phrases as candidates.
         extractor.candidate_selection()
@@ -55,61 +55,31 @@ class WINGNUS(SupervisedLoadFile):
     """
 
     def __init__(self):
-        """Redefining initializer for WINGNUS.
-        """
+        """Redefining initializer for WINGNUS."""
 
         super(WINGNUS, self).__init__()
 
-    def candidate_selection(self,
-                            NP='^((JJ|NN) ){,2}NN$',
-                            NP_IN_NP='^((JJ|NN) )?NN IN ((JJ|NN) )?NN$',
-                            **kwargs):
-        """ Select noun phrases (NP) and NP containing a preprositional phrase
-            (NP IN NP) as keyphrase candidates.
+    def candidate_selection(self, grammar=None):
+        """Select noun phrases (NP) and NP containing a pre-propositional phrase
+        (NP IN NP) as keyphrase candidates.
 
-            Args:
-                NP (str): the pattern for noun phrases, defaults to
-                    '^((JJ|NN) ){,2}NN$'.
-                simplex_NP (str): the pattern for filtering simplex noun
-                    phrases, defaults to '^((JJ|NN) )?NN IN ((JJ|NN) )?NN$'.
+        Args:
+            grammar (str): grammar defining POS patterns of NPs.
         """
 
-        # select ngrams from 1 to 4 grams
-        self.ngram_selection(n=4)
+        # initialize default grammar if none provided
+        if grammar is None:
+            grammar = r"""
+                NBAR:
+                    {<NOUN|PROPN|ADJ>{,2}<NOUN|PROPN>} 
+                    
+                NP:
+                    {<NBAR>}
+                    {<NBAR><ADP><NBAR>}
+            """
 
-        # filter candidates containing punctuation marks
-        self.candidate_filtering(
-            stoplist=list(string.punctuation) +
-                     ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-'])
+        self.grammar_selection(grammar)
 
-        # filter non-simplex noun phrases
-        # Python 2/3 compatible
-        for k in list(self.candidates):
-
-            # get the candidate
-            v = self.candidates[k]
-
-            # valid surface forms container
-            valid_surface_forms = []
-
-            # loop through the surface forms
-            for i in range(len(v.pos_patterns)):
-                pattern = ' '.join([u[:2] for u in v.pos_patterns[i]])
-                if re.search(NP, pattern) or re.search(NP_IN_NP, pattern):
-                    valid_surface_forms.append(i)
-
-            # delete candidate if not valid
-            if not valid_surface_forms:
-                del self.candidates[k]
-
-            # otherwise update the candidate data
-            else:
-                self.candidates[k].surface_forms = [v.surface_forms[i] for i
-                                                    in valid_surface_forms]
-                self.candidates[k].offsets = [v.offsets[i] for i
-                                              in valid_surface_forms]
-                self.candidates[k].pos_patterns = [v.pos_patterns[i] for i
-                                                   in valid_surface_forms]
 
     def feature_extraction(self, df=None, training=False, features_set=None):
         """Extract features for each candidate.

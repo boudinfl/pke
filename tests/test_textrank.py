@@ -3,7 +3,7 @@
 
 import pke
 
-valid_pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
+valid_pos = {'NOUN', 'PROPN', 'ADJ'}
 test_file = 'examples/C-1.xml'
 
 

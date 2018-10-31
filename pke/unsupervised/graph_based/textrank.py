@@ -36,14 +36,14 @@ class TextRank(LoadFile):
         from nltk.corpus import stopwords
 
         # 1. create a TextRank extractor.
-        extractor = pke.unsupervised.TextRank(input_file='path/to/input.xml')
+        extractor = pke.unsupervised.TextRank()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input.xml')
 
         # 3. select the the longest sequences of nouns and adjectives, that do
         #    not contain punctuation marks or stopwords as candidates.
-        pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+        pos = {'NOUN', 'PROPN', 'ADJ'}
         stoplist = list(string.punctuation)
         stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
         stoplist += stopwords.words('english')
@@ -77,8 +77,8 @@ class TextRank(LoadFile):
         """ The candidate selection as described in the TextRank paper.
 
             Args:
-                pos (set): the set of valid POS tags, defaults to (NN, NNS,
-                    NNP, NNPS, JJ, JJR, JJS).
+                pos (set): the set of valid POS tags, defaults to ('NOUN',
+                    'PROPN', 'ADJ').
                 stoplist (list): the stoplist for filtering candidates, defaults
                     to the nltk stoplist. Words that are punctuation marks from
                     string.punctuation are not allowed.
@@ -86,7 +86,7 @@ class TextRank(LoadFile):
 
         # define default pos tags set
         if pos is None:
-            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
+            pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # select sequence of adjectives and nouns
         self.longest_pos_sequence_selection(valid_pos=pos)
@@ -108,13 +108,13 @@ class TextRank(LoadFile):
             window (int): the window within the sentence for connecting two
                 words in the graph, defaults to 2.
             pos (set): the set of valid pos for words to be considered as nodes
-                in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).
+                in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
 
         """
 
         # define default pos tags set
         if pos is None:
-            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
+            pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # flatten document and initialize nodes
         sequence = []
@@ -148,7 +148,7 @@ class TextRank(LoadFile):
             window (int): the window within the sentence for connecting two
                 words in the graph, defaults to 2.
             pos (set): the set of valid pos for words to be considered as nodes
-                in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).
+                in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
             normalized (False): normalize keyphrase score by their length,
                 defaults to False.
             top (float): percent of top vertices to keep for keyterm
@@ -158,7 +158,7 @@ class TextRank(LoadFile):
 
         # define default pos tags set
         if pos is None:
-            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
+            pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # build the word graph
         self.build_word_graph(window=window, pos=pos)

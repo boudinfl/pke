@@ -31,13 +31,13 @@ class PositionRank(SingleRank):
         import pke
 
         # 1. create a PositionRank extractor.
-        extractor = pke.unsupervised.PositionRank(input_file='path/to/input')
+        extractor = pke.unsupervised.PositionRank()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input.xml')
 
         # 3. select the noun phrases up to 3 words as keyphrase candidates.
-        grammar = "NP: {<JJ.*>*<NN.*>+}"
+        grammar = "NP: {<ADJ>*<NOUN|PROPN>+}"
         extractor.candidate_selection(grammar=grammar, maximum_word_number=3)
 
         # 4. weight the candidates using the sum of their word's scores that are
@@ -45,7 +45,7 @@ class PositionRank(SingleRank):
         #    in the document. In the graph, nodes are words (nouns and
         #    adjectives only) that are connected if they occur in a window of
         #    10 words.
-        pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+        pos = {'NOUN', 'PROPN', 'ADJ'}
         extractor.candidate_weighting(window=10, pos=pos)
 
         # 5. get the 10-highest scored candidates as keyphrases
@@ -69,7 +69,7 @@ class PositionRank(SingleRank):
 
         Args:
             grammar (str): grammar defining POS patterns of NPs, defaults to 
-                "NP: {<JJ.*>*<NN.*>+}".
+                "NP: {<ADJ>*<NOUN|PROPN>+}".
             maximum_word_number (int): the maximum number of words allowed for
                 keyphrase candidates, defaults to 3.
 
@@ -77,7 +77,7 @@ class PositionRank(SingleRank):
 
         # define default NP grammar if none provided
         if grammar is None:
-            grammar = "NP:{<JJ.*>*<NN.*>+}"
+            grammar = "NP:{<ADJ>*<NOUN|PROPN>+}"
 
         # select sequence of adjectives and nouns
         self.grammar_selection(grammar=grammar)
@@ -95,12 +95,12 @@ class PositionRank(SingleRank):
             window (int): the window within the sentence for connecting two
                 words in the graph, defaults to 10.
             pos (set): the set of valid pos for words to be considered as nodes
-                in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).
+                in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
         """
 
         # define default pos tags set
         if pos is None:
-            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
+            pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # flatten document and initialize nodes 
         sequence = []
@@ -131,14 +131,14 @@ class PositionRank(SingleRank):
             window (int): the window within the sentence for connecting two
                 words in the graph, defaults to 10.
             pos (set): the set of valid pos for words to be considered as nodes
-                in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).
+                in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
             normalized (False): normalize keyphrase score by their length,
                 defaults to False.
         """
 
         # define default pos tags set
         if pos is None:
-            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
+            pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # build the word graph
         self.build_word_graph(window=window, pos=pos)

@@ -8,7 +8,6 @@ import spacy
 
 from pke.data_structures import Document
 
-
 class Reader(object):
     def read(self, path):
         raise NotImplementedError

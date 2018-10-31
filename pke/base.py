@@ -8,9 +8,10 @@ from pke.data_structures import Candidate, Document
 from pke.readers import MinimalCoreNLPReader, RawTextReader
 
 from nltk.stem.snowball import SnowballStemmer
-
 from nltk import RegexpParser
 from nltk.corpus import stopwords
+from nltk.tag.mapping import map_tag
+
 from string import punctuation
 import os
 import logging
@@ -92,6 +93,7 @@ class LoadFile(object):
                 if input.endswith('xml'):
                     parser = MinimalCoreNLPReader()
                     doc = parser.read(path=input, **kwargs)
+                    doc.is_corenlp_file = True
 
                 # other extensions are considered as raw text
                 else:
@@ -137,6 +139,10 @@ class LoadFile(object):
         for i, sentence in enumerate(self.sentences):
             self.sentences[i].stems = [w.lower() for w in sentence.stems]
 
+        # POS normalization
+        if getattr(doc, 'is_corenlp_file', False):
+            self.normalize_POS_tags()
+
     def apply_stemming(self):
         """Populates the stem containers of sentences."""
 
@@ -151,6 +157,15 @@ class LoadFile(object):
         # iterate throughout the sentences
         for i, sentence in enumerate(self.sentences):
             self.sentences[i].stems = [stemmer.stem(w) for w in sentence.words]
+
+    def normalize_POS_tags(self):
+        """Normalizes the PoS tags from udp-penn to UD."""
+
+        if self.language == 'en':
+            # iterate throughout the sentences
+            for i, sentence in enumerate(self.sentences):
+                self.sentences[i].pos = [map_tag('en-ptb', 'universal', tag)
+                                         for tag in sentence.pos]
 
     def is_redundant(self, candidate, prev, mininum_length=1):
         """Test if one candidate is redundant with respect to a list of already
@@ -355,11 +370,11 @@ class LoadFile(object):
         if grammar is None:
             grammar = r"""
                 NBAR:
-                    {<NN.*|JJ.*>*<NN.*>} 
+                    {<NOUN|PROPN|ADJ>*<NOUN|PROPN>} 
                     
                 NP:
                     {<NBAR>}
-                    {<NBAR><IN><NBAR>}
+                    {<NBAR><ADP><NBAR>}
             """
 
         # initialize chunker

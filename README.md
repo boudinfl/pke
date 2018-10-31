@@ -19,25 +19,11 @@ ships with supervised models trained on the
   - [Already trained supervised models](#already-trained-supervised-models)
   - [Document Frequency counts](#document-frequency-counts)
   - [Training supervised models](#training-supervised-models)
-  - [Extracting keyphrases from an input text](#extracting-keyphrases-from-an-input-text)
-* [Non English languages](#non-english-languages)
-* [Benchmarking](#benchmarking)
+  - [Non English languages](#non-english-languages)
 * [Code documentation](#code-documentation)
 * [Citing `pke`](#citing-pke)
 
 ## Installation
-
-The following modules are required:
-
-```bash
-numpy
-scipy
-nltk
-networkx
-sklearn
-unidecode
-future
-```
 
 To pip install `pke` from github:
 
@@ -58,8 +44,8 @@ import pke
 extractor = pke.unsupervised.TopicRank()
 
 # load the content of the document, here document is expected to be in raw
-# format (i.e. a simple text file) and preprocessing is carried out using nltk
-extractor.read_document(input_file='/path/to/input', format='raw')
+# format (i.e. a simple text file) and preprocessing is carried out using spacy
+extractor.read_document(input='/path/to/input.txt', language='en')
 
 # keyphrase candidate selection, in the case of TopicRank: sequences of nouns
 # and adjectives (i.e. `(Noun|Adj)*`)
@@ -79,11 +65,11 @@ A detailed example is provided in the [`examples/`](examples/) directory.
 
 ### Input formats
 
-`pke` currently supports the following input file formats (examples of formatted
+`pke` currently supports the following input formats (examples of formatted
 input files are provided in the [`examples/`](examples/) directory):
 
-1. *raw text*: text preprocessing (i.e. tokenization, sentence splitting and 
-   POS-tagging) is carried out using nltk. 
+1. *raw text*: text pre-processing (i.e. tokenization, sentence splitting and 
+   POS-tagging) is carried out using [spacy](https://spacy.io/). 
 
    Example of content from a raw text file:
 
@@ -95,23 +81,17 @@ input files are provided in the [`examples/`](examples/) directory):
    To read a document in raw text format:
 
    ```python
-   extractor.read_document(format='raw')
+   extractor.load_document(input='/path/to/input.txt', language='en')
    ```
 
-2. *preprocessed text*: whitespace-separated POS-tagged tokens, one sentence per
-   line.
+2. *input text*: same as *raw text*, text pre-processing is carried out
+    using spacy.
 
-   Example of conten from a preprocessed text file:
-
-   ```
-   Efficient/NNP discovery/NN of/IN grid/NN services/NNS is/VBZ essential/JJ for/IN the/DT success/NN of/IN grid/JJ computing/NN ./.
-   [...]
-   ```
-
-   To read a document in preprocessed text format:
+   To read an input text:
 
    ```python
-   extractor.read_document(format='preprocessed')
+   text = u'Efficient discovery of grid services is essential for the [...]'
+   extractor.load_document(input=text, language='en')
    ```
 
 3. *Stanford XML CoreNLP*: output file produced using the annotators `tokenize`,
@@ -159,7 +139,7 @@ input files are provided in the [`examples/`](examples/) directory):
    To read a CoreNLP XML document:
 
    ```python
-   extractor.read_document(format='corenlp')
+   extractor.load_document(input='/path/to/input.xml')
    ```
 
 ### Implemented models
@@ -245,13 +225,13 @@ supervised models:
 import pke
 
 # initialize TfIdf model
-extractor = pke.unsupervised.TfIdf(input_file='/path/to/input')
+extractor = pke.unsupervised.TfIdf()
 
 # load the DF counts from file
 df_counts = pke.load_document_frequency_file(input_file='/path/to/file')
 
 # load the content of the document
-extractor.read_document(format='raw')
+extractor.load_document(input='/path/to/input.txt')
 
 # keyphrase candidate selection
 extractor.candidate_selection()
@@ -291,45 +271,10 @@ containing annotated keyphrases in the SemEval-2010 [format](http://docs.google.
 A detailed example for training and testing a supervised model is given in
 `examples/training_and_testing_a_kea_model/`.
 
-### Extracting keyphrases from an input text
+### Non English languages
 
-While `pke` is first intended to process input files, it can be used to directly
-extract keyphrases from a given input text:
-
-```python
-import pke
-
-extractor = pke.unsupervised.TopicRank()
-
-input_text = u"""Keyphrase extraction is the task of identifying single or
-                 multi-word expressions that represent the main topics of a
-                 document. In this paper we present TopicRank, a graph-based
-                 keyphrase extraction method that relies on a topical
-                 representation of the document."""
-
-extractor.read_text(input_text)
-extractor.candidate_selection()
-extractor.candidate_weighting()
-keyphrases = extractor.get_n_best(n=10, stemming=False)
-```
-
-## Non English languages
-
-While the default language in `pke` is English, extracting keyphrases from
-documents in other languages is easily achieved by inputting already
-preprocessed documents, and setting the `language` parameter to the desired
-language. The only language dependent resources used in `pke` are the stoplist
-and the stemming algorithm from `nltk` that is available in
-[11 languages](http://www.nltk.org/_modules/nltk/corpus.html).
-
-Given an already preprocessed document (here in French):
-
-```
-France/NPP :/PONCT disparition/NC de/P Thierry/NPP Roland/NPP [...]
-Le/DET journaliste/NC et/CC commentateur/NC sportif/ADJ Thierry/NPP [...]
-Commentateur/NC mythique/ADJ des/P+D matchs/NC internationaux/ADJ [...]
-[...]
-```
+`pke` uses `spacy` to pre-process document. As such, all the languages that are
+supported in `spacy` can be processed.
 
 Keyphrase extraction can then be performed by:
 
@@ -338,16 +283,15 @@ import pke
 
 # initialize TopicRank and set the language to French (used during candidate
 # selection for filtering stopwords)
-extractor = pke.unsupervised.TopicRank(input_file='/path/to/input',
-                                       language='french')
+extractor = pke.unsupervised.TopicRank()
 
 # load the content of the document and perform French stemming (instead of
 # Porter stemmer)
-extractor.read_document(format='preprocessed', stemmer='french')
+extractor.load_document(input='/path/to/input', language='french')
 
 # keyphrase candidate selection, here sequences of nouns and adjectives
-# defined by the French POS tags NPP, NC and ADJ
-extractor.candidate_selection(pos=["NPP", "NC", "ADJ"])
+# defined by the Universal PoS tagset
+extractor.candidate_selection(pos={"NOUN", "PROPN" "ADJ"})
 
 # candidate weighting, here using a random walk algorithm
 extractor.candidate_weighting()
@@ -357,38 +301,6 @@ extractor.candidate_weighting()
 keyphrases = extractor.get_n_best(n=10)
 ```
 
-## Benchmarking
-
-We evaluate the performance of our re-implementations using the SemEval-2010
-benchmark dataset. This dataset is composed of 244 scientific articles (144 in
-training and 100 for test) collected from the ACM Digital Library (conference
-and workshop papers). Document logical structure information, required to
-compute features in the WINGNUS approach, is annotated with
-[ParsCit](https://github.com/knmnyn/ParsCit). The [Stanford CoreNLP pipeline](http://stanfordnlp.github.io/CoreNLP/)
-(tokenization, sentence splitting and POS-tagging) is then applied to the
-documents from which irrelevant pieces of text (e.g. tables, equations,
-footnotes) were filtered out. The dataset we use (lvl-2) can be found at
-[https://github.com/boudinfl/semeval-2010-pre](https://github.com/boudinfl/semeval-2010-pre).
-
-We follow the evaluation procedure used in the SemEval-2010 competition and
-evaluate the performance of each implemented approach in terms of precision (P),
-recall (R) and f-measure (F) at the top 10 keyphrases. We use the set of
-combined (stemmed) author- and reader-assigned keyphrases as reference
-keyphrases.
-
-| Approach         | F@10 | MAP  |
-| ---------------- | ---- | ---- |
-| TfIdf            | 16.0 | 10.0 |
-| KP-Miner         | 21.2 | 13.7 |
-| YAKE             | 13.8 |  9.2 |
-| TopicRank        | 11.9 |  7.3 |
-| TopicalPageRank  |  3.1 |  2.1 |
-| PositionRank     |  6.7 |  3.8 |
-| MultipartiteRank | 14.2 | 10.4 |
-| Kea              | 18.2 | 13.2 |
-| WINGNUS          | 19.7 | 13.4 |
-
-
 ## Code documentation
 
 For code documentation, please visit [https://boudinfl.github.io/pke/](https://boudinfl.github.io/pke/).
@@ -397,8 +309,15 @@ For code documentation, please visit [https://boudinfl.github.io/pke/](https://b
 
 If you use `pke`, please cite the following paper:
 
-  * Florian Boudin. **pke: an open source python-based keyphrase extraction
-    toolkit**, *Proceedings of COLING 2016, the 26th International Conference on
-    Computational Linguistics: System Demonstrations*.
-    [[pdf](http://aclweb.org/anthology/C16-2015),
-    [bibtex](http://aclweb.org/anthology/C16-2015.bib)]
+```
+@InProceedings{boudin:2016:COLINGDEMO,
+  author    = {Boudin, Florian},
+  title     = {pke: an open source python-based keyphrase extraction toolkit},
+  booktitle = {Proceedings of COLING 2016, the 26th International Conference on Computational Linguistics: System Demonstrations},
+  month     = {December},
+  year      = {2016},
+  address   = {Osaka, Japan},
+  pages     = {69--73},
+  url       = {http://aclweb.org/anthology/C16-2015}
+}
+```

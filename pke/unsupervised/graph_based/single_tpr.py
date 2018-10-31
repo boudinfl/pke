@@ -39,20 +39,20 @@ class TopicalPageRank(SingleRank):
         from nltk.corpus import stopwords
 
         # 1. create a TopicalPageRank extractor.
-        extractor = pke.unsupervised.TopicalPageRank(input_file='path/to/input')
+        extractor = pke.unsupervised.TopicalPageRank()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input.xml')
 
         # 3. select the noun phrases as keyphrase candidates.
-        grammar = "NP:{<JJ.*>*<NN.*>+}"
+        grammar = "NP:{<ADJ>*<NOUN|PROPN>+}"
         extractor.candidate_selection(grammar=grammar)
 
         # 4. weight the keyphrase candidates using Topical PageRank. Builds a
         #    word-graph in which nodes are words with POS and edges are weighted
         #    using the window of words.
         window = 10
-        pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+        pos = {'NOUN', 'PROPN', 'ADJ'}
         lda_model = 'path/to/lda_model' 
         stoplist = stopwords.words('english')
         extractor.candidate_weighting(self,
@@ -81,13 +81,13 @@ class TopicalPageRank(SingleRank):
 
         Args:
             grammar (str): grammar defining POS patterns of NPs, defaults to 
-                "NP: {<JJ.*>*<NN.*>+}".
+                "NP: {<ADJ>*<NOUN|PROPN>+}".
 
         """
 
         # define default NP grammar if none provided
         if grammar is None:
-            grammar = "NP:{<JJ.*>*<NN.*>+}"
+            grammar = "NP:{<ADJ>*<NOUN|PROPN>+}"
 
         # select sequence of adjectives and nouns
         self.grammar_selection(grammar=grammar)
@@ -104,8 +104,7 @@ class TopicalPageRank(SingleRank):
             window (int): the window within the sentence for connecting two
                 words in the graph, defaults to 10.
             pos (set): the set of valid pos for words to be considered as
-                nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
-                JJR, JJS).
+                nodes in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
             lda_model (pickle.gz): an LDA model produced by sklearn in
                 pickle compressed (.gz) format
             stoplist (list): the stoplist for filtering words in LDA, defaults
@@ -117,7 +116,7 @@ class TopicalPageRank(SingleRank):
 
         # define default pos tags set
         if pos is None:
-            pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
+            pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # initialize stoplist list if not provided
         if stoplist is None:

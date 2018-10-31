@@ -10,7 +10,7 @@ from pke.unsupervised import (
 )
 from pke.supervised import Kea, WINGNUS
 
-valid_pos = {'NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'}
+valid_pos = {'NOUN', 'PROPN', 'ADJ'}
 test_file = 'examples/C-1.xml'
 
 
@@ -36,7 +36,7 @@ def test_supervised_run():
     def test(model, file):
         extractor = model()
         extractor.load_document(file)
-        extractor.candidate_selection(pos=valid_pos)
+        extractor.candidate_selection()
         extractor.candidate_weighting()
 
     models = [

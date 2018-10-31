@@ -27,7 +27,7 @@ class StupidKE(SingleRank):
 
         # 3. select the the longest sequences of nouns and adjectives, that do
         #    not contain punctuation marks or stopwords as candidates.
-        pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+        pos = {'NOUN', 'PROPN', 'ADJ'}
         stoplist = list(string.punctuation)
         stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
         stoplist += stopwords.words('english')
