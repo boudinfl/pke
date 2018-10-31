@@ -4,7 +4,7 @@
 
 from collections import defaultdict
 
-from pke.data_structures import Candidate
+from pke.data_structures import Candidate, Document
 from pke.readers import MinimalCoreNLPReader, RawTextReader
 
 from nltk.stem.snowball import SnowballStemmer
@@ -14,6 +14,8 @@ from nltk.corpus import stopwords
 from string import punctuation
 import os
 import logging
+
+from six import string_types
 
 from builtins import str
 
@@ -77,7 +79,10 @@ class LoadFile(object):
                     language))
             kwargs['language'] = 'en'
 
-        if isinstance(input, str):
+        # initialize document
+        doc = Document()
+
+        if isinstance(input, string_types):
 
             # if input is an input file
             if os.path.isfile(input):
@@ -129,7 +134,7 @@ class LoadFile(object):
 
         # lowercase the normalized words
         for i, sentence in enumerate(self.sentences):
-            self.sentences[i].stems = list(map(str.lower, sentence.stems))
+            self.sentences[i].stems = [w.lower() for w in sentence.stems]
 
     def apply_stemming(self):
         """Populates the stem containers of sentences."""
