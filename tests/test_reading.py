@@ -3,43 +3,36 @@
 
 import pke
 
-model = pke.unsupervised.StupidKE
+model = pke.unsupervised.TopicRank
 
-test_en_raw_file = 'examples/C-1.txt'
-test_pt_file = 'examples/2000_10_09-13_00_00-JornaldaTarde-8-topic-seg.txt-Nr1.xml'
-test_pt_raw_file = 'examples/2000_10_09-13_00_00-JornaldaTarde-8-topic-seg.txt-Nr1.txt'
+xml_test_file = 'examples/C-1.xml'
+raw_test_file = 'examples/C-1.txt'
 
 
-def test_reading_en():
-    extract2 = model()
-    with open(test_en_raw_file, 'r') as f:
-        extract2.load_document(f, lang='en')
+def test_reading():
 
-        extract3 = model()
-    with open(test_en_raw_file, 'r') as f:
+    # loading XML input
+    extr1 = model()
+    extr1.load_document(xml_test_file)
+
+    # loading txt input
+    extr2 = model()
+    extr2.load_document(raw_test_file)
+
+    # loading from string
+    extr3 = model()
+    with open(raw_test_file, 'r') as f:
         text = f.read()
-        extract3.load_document(text, lang='en')
+    extr3.load_document(text)
 
-    assert extract2.sentences == extract3.sentences
+    # loading from stream
+    extr4 = model()
+    with open(raw_test_file, 'r') as f:
+        extr4.load_document(f)
 
-
-def test_reading_pt():
-    extract1 = model()
-    extract1.load_document(test_pt_file, lang='pt')
-
-    extract2 = model()
-    with open(test_pt_raw_file, 'r', encoding='iso-8859-1') as f:
-        extract2.load_document(f, lang='pt')
-
-    extract3 = model()
-    with open(test_pt_raw_file, 'r', encoding='iso-8859-1') as f:
-        text = f.read()
-    extract3.load_document(text, lang='pt')
-
-    assert len(extract1.sentences) == len(extract2.sentences) and \
-            extract2.sentences == extract3.sentences
+    assert len(extr1.sentences) == 252 and \
+           extr2.sentences == extr3.sentences == extr4.sentences
 
 
 if __name__ == '__main__':
-    test_reading_en()
-    test_reading_pt()
+    test_reading()

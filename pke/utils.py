@@ -87,7 +87,7 @@ def compute_document_frequency(input_dir,
     # initialize number of documents
     nb_documents = 0
 
-    # loop throught the documents
+    # loop through the documents
     for input_file in glob.glob(input_dir + '/*.' + extension):
 
         logging.info('reading file ' + input_file)
@@ -150,6 +150,7 @@ def train_supervised_model(input_dir,
             stemmer (str): the stemmer in nltk to used (if used), defaults
                 to porter.
             model (object): the supervised model to train, defaults to None.
+            language (str): language of the documents, defaults to english.
             extension (str): file extension for input documents, defaults to
                 xml.
             sep_doc_id (str): the separator used for doc_id in reference file,

@@ -185,8 +185,7 @@ class WINGNUS(SupervisedLoadFile):
                         for offset_1 in self.candidates[sub_string].offsets:
                             is_included = False
                             for offset_2 in v.offsets:
-                                if offset_1 >= offset_2 and \
-                                        offset_1 <= offset_2 + len(v.lexical_form):
+                                if offset_2 <= offset_1 <= offset_2 + len(v.lexical_form):
                                     is_included = True
                             if not is_included:
                                 tf_of_substrings += 1

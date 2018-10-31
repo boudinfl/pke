@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
-""" Base classes for the pke module. """
+"""Base classes for the pke module."""
 
 from collections import defaultdict
-from pke.readers import (Candidate, Document,
-                         MinimalCoreNLPReader,
-                         RawTextReader)
+
+from pke.data_structures import Candidate
+from pke.readers import MinimalCoreNLPReader, RawTextReader
+
+from nltk.stem.snowball import SnowballStemmer
+
 from nltk import RegexpParser
 from nltk.corpus import stopwords
 from string import punctuation
@@ -14,85 +17,146 @@ import logging
 
 from builtins import str
 
+ISO_to_language = {'en': 'english',
+                   'pt': 'portuguese',
+                   'fr': 'french'}
+
 
 class LoadFile(object):
-    """ The LoadFile class that provides base functions. """
+    """The LoadFile class that provides base functions."""
 
     def __init__(self):
-        """ Initializer for LoadFile class.
-        """
+        """Initializer for LoadFile class."""
 
         self.input_file = None
-        """ The path of the input file. """
+        """Path to the input file."""
 
         self.language = None
-        """ The language of the input file. """
+        """Language of the input file """
 
         self.sentences = []
-        """ The sentence container (list of Sentence). """
+        """Sentence container (list of Sentence objects)."""
 
         self.candidates = defaultdict(Candidate)
-        """ The candidate container (dict of Candidate). """
+        """Keyphrase candidates container (dict of Candidate objects)."""
 
         self.weights = {}
-        """ The weight container (can be either word or candidate weights). """
+        """Weight container (can be either word or candidate weights)."""
 
         self._models = os.path.join(os.path.dirname(__file__), 'models')
-        """ Root path of the pke module. """
+        """Root path of the models."""
 
         self._df_counts = os.path.join(self._models, "df-semeval2010.tsv.gz")
-        """ Document frequency counts provided in pke. """
+        """Path to the document frequency counts provided in pke."""
 
         logging.warning('LoadFile._df_counts is hard coded to {}'.format(self._df_counts))
 
         self.stoplist = None
+        """List of stopwords."""
 
     def load_document(self, input, **kwargs):
         """Loads the content of a document/string/stream in a given language.
 
         Args:
-            input (str): path to the input file.
-            lang (str): language of the input, defaults to 'en'.
-            encoding (str) : encoding of the raw file.
+            input (str): input
+            language (str): language of the input, defaults to 'en'.
+            encoding (str): encoding of the raw file.
+            normalization (str): word normalization method, defaults to
+                'stemming'. Other possible values are 'lemmatization' (should be
+                used with Stanford CoreNLP files) or 'None' for using word
+                surface forms instead of stems/lemmas.
         """
 
-        lang = kwargs.get('lang')
+        # get the language parameter
+        language = kwargs.get('language', 'en')
+
+        # test whether the language is known, otherwise fall back to english
+        if language not in ISO_to_language:
+            logging.warning(
+                "ISO 639 code {} is not supported, switching to 'en'.".format(
+                    language))
+            kwargs['language'] = 'en'
 
         if isinstance(input, str):
+
+            # if input is an input file
             if os.path.isfile(input):
+
+                # an xml file is considered as a CoreNLP document
                 if input.endswith('xml'):
                     parser = MinimalCoreNLPReader()
-                else:
-                    parser = RawTextReader(lang=lang)
+                    doc = parser.read(path=input, **kwargs)
 
-                doc = parser.read(path=input, **kwargs)
+                # other extensions are considered as raw text
+                else:
+                    parser = RawTextReader(language=language)
+                    encoding =  kwargs.get('encoding', 'utf-8')
+                    with open(input, 'r', encoding=encoding) as file:
+                        text = file.read()
+                    doc = parser.read(text=text, path=input, **kwargs)
+
+            # if input is a string
             else:
-                doc = Document.from_raw_text(raw_text=input, **kwargs)
+                parser = RawTextReader(language=language)
+                doc = parser.read(text=input, **kwargs)
+
         elif getattr(input, 'read', None):
-            doc = Document.from_readable(stream=input, **kwargs)
+            parser = RawTextReader(language=language)
+            doc = parser.read(text=input.read(), **kwargs)
+
         else:
             logging.error('Cannot process {}'.format(type(input)))
 
+        # set the input file
         self.input_file = doc.input_file
-        self.language = doc.language
-        self.sentences = doc.sentences
-        self.weights = doc.weights
-        self.candidates = doc.candidates
 
-        iso2tofull = {'en': 'english', 'pt': 'portuguese', 'fr': 'french'}
-        self.stoplist = stopwords.words(iso2tofull[self.language])
+        # set the language of the document
+        self.language = language
+
+        # set the sentences
+        self.sentences = doc.sentences
+
+        # initialize the stoplist
+        self.stoplist = stopwords.words(ISO_to_language[self.language])
+
+        # Word normalization
+        kwargs['normalization'] = kwargs.get('normalization', 'stemming')
+        if kwargs['normalization'] == 'stemming':
+            self.apply_stemming()
+        elif kwargs['normalization'] is None:
+            for i, sentence in enumerate(self.sentences):
+                self.sentences[i].stems = sentence.words
+
+        # lowercase the normalized words
+        for i, sentence in enumerate(self.sentences):
+            self.sentences[i].stems = list(map(str.lower, sentence.stems))
+
+    def apply_stemming(self):
+        """Populates the stem containers of sentences."""
+
+        if self.language == 'en':
+            # create a new instance of a porter stemmer
+            stemmer = SnowballStemmer("porter")
+        else:
+            # create a new instance of a porter stemmer
+            stemmer = SnowballStemmer(ISO_to_language[self.language],
+                                      ignore_stopwords=True)
+
+        # iterate throughout the sentences
+        for i, sentence in enumerate(self.sentences):
+            self.sentences[i].stems = [stemmer.stem(w) for w in sentence.words]
 
     def is_redundant(self, candidate, prev, mininum_length=1):
-        """ Test if one candidate is redundant with respect to a list of already
-            selected candidates. A candidate is considered redundant if it is
-            included in another candidate that is ranked higher in the list.
+        """Test if one candidate is redundant with respect to a list of already
+        selected candidates. A candidate is considered redundant if it is
+        included in another candidate that is ranked higher in the list.
 
-            Args:
-                candidate (str): the lexical form of the candidate.
-                prev (list): the list of already selected candidates (lexical
-                    forms).
-                mininum_length (int): minimum length (in words) of the candidate
-                    to be considered, defaults to 1.
+        Args:
+            candidate (str): the lexical form of the candidate.
+            prev (list): the list of already selected candidates (lexical
+                forms).
+            mininum_length (int): minimum length (in words) of the candidate
+                to be considered, defaults to 1.
         """
 
         # get the tokenized lexical form from the candidate
@@ -113,15 +177,15 @@ class LoadFile(object):
         return False
 
     def get_n_best(self, n=10, redundancy_removal=False, stemming=False):
-        """ Returns the n-best candidates given the weights.
+        """Returns the n-best candidates given the weights.
 
-            Args:
-                n (int): the number of candidates, defaults to 10.
-                redundancy_removal (bool): whether redundant keyphrases are
-                    filtered out from the n-best list, defaults to False.
-                stemming (bool): whether to extract stems or surface forms
-                    (lowercased, first occurring form of candidate), default to
-                    False.
+        Args:
+            n (int): the number of candidates, defaults to 10.
+            redundancy_removal (bool): whether redundant keyphrases are
+                filtered out from the n-best list, defaults to False.
+            stemming (bool): whether to extract stems or surface forms
+                (lowercased, first occurring form of candidate), default to
+                False.
         """
 
         # sort candidates by descending weight
@@ -167,14 +231,14 @@ class LoadFile(object):
         return n_best
 
     def add_candidate(self, words, stems, pos, offset, sentence_id):
-        """ Add a keyphrase candidate to the candidates container.
+        """Add a keyphrase candidate to the candidates container.
 
-            Args:
-                words (list): the words (surface form) of the candidate.
-                stems (list): the stemmed words of the candidate.
-                pos (list): the Part-Of-Speeches of the words in the candidate.
-                offset (int): the offset of the first word of the candidate.
-                sentence_id (int): the sentence id of the candidate.
+        Args:
+            words (list): the words (surface form) of the candidate.
+            stems (list): the stemmed words of the candidate.
+            pos (list): the Part-Of-Speeches of the words in the candidate.
+            offset (int): the offset of the first word of the candidate.
+            sentence_id (int): the sentence id of the candidate.
         """
 
         # build the lexical (canonical) form of the candidate using stems
@@ -196,10 +260,10 @@ class LoadFile(object):
         self.candidates[lexical_form].sentence_ids.append(sentence_id)
 
     def ngram_selection(self, n=3):
-        """ Select all the n-grams and populate the candidate container.
+        """Select all the n-grams and populate the candidate container.
 
-            Args:
-                n (int): the n-gram length, defaults to 3.
+        Args:
+            n (int): the n-gram length, defaults to 3.
         """
 
         # loop through the sentences
@@ -230,11 +294,11 @@ class LoadFile(object):
             key=lambda s: s.stem, valid_values=keywords)
 
     def longest_sequence_selection(self, key, valid_values):
-        """ Select the longest sequences of given POS tags as candidates.
+        """Select the longest sequences of given POS tags as candidates.
 
-            Args:
-                key (func) : function that given a sentence return an iterable
-                valid_values (set): the set of valid values, defaults to None.
+        Args:
+            key (func) : function that given a sentence return an iterable
+            valid_values (set): the set of valid values, defaults to None.
         """
 
         # loop through the sentences
@@ -274,11 +338,11 @@ class LoadFile(object):
                 seq = []
 
     def grammar_selection(self, grammar=None):
-        """ Select candidates using nltk RegexpParser with a grammar defining
-            noun phrases (NP).
+        """Select candidates using nltk RegexpParser with a grammar defining
+        noun phrases (NP).
 
-            Args:
-                grammar (str): grammar defining POS patterns of NPs.
+        Args:
+            grammar (str): grammar defining POS patterns of NPs.
         """
 
         # initialize default grammar if none provided
@@ -345,25 +409,25 @@ class LoadFile(object):
                             maximum_word_number=5,
                             only_alphanum=True,
                             pos_blacklist=[]):
-        """ Filter the candidates containing strings from the stoplist. Only
-            keep the candidates containing alpha-numeric characters (if the
-            non_latin_filter is set to True) and those length exceeds a given
-            number of characters.
+        """Filter the candidates containing strings from the stoplist. Only
+        keep the candidates containing alpha-numeric characters (if the
+        non_latin_filter is set to True) and those length exceeds a given
+        number of characters.
             
-            Args:
-                stoplist (list): list of strings, defaults to [].
-                mininum_length (int): minimum number of characters for a
-                    candidate, defaults to 3.
-                mininum_word_size (int): minimum number of characters for a
-                    token to be considered as a valid word, defaults to 2.
-                valid_punctuation_marks (str): punctuation marks that are valid
-                    for a candidate, defaults to '-'.
-                maximum_word_number (int): maximum length in words of the
-                    candidate, defaults to 5.
-                only_alphanum (bool): filter candidates containing non (latin)
-                    alpha-numeric characters, defaults to True.
-                pos_blacklist (list): list of unwanted Part-Of-Speeches in
-                    candidates, defaults to [].
+        Args:
+            stoplist (list): list of strings, defaults to [].
+            mininum_length (int): minimum number of characters for a
+                candidate, defaults to 3.
+            mininum_word_size (int): minimum number of characters for a
+                token to be considered as a valid word, defaults to 2.
+            valid_punctuation_marks (str): punctuation marks that are valid
+                for a candidate, defaults to '-'.
+            maximum_word_number (int): maximum length in words of the
+                candidate, defaults to 5.
+            only_alphanum (bool): filter candidates containing non (latin)
+                alpha-numeric characters, defaults to True.
+            pos_blacklist (list): list of unwanted Part-Of-Speeches in
+                candidates, defaults to [].
         """
 
         # loop throught the candidates
@@ -401,5 +465,7 @@ class LoadFile(object):
 
             # discard if not containing only alpha-numeric characters
             if only_alphanum and k in self.candidates:
-                if not all([self._is_alphanum(w) for w in words]):
+                if not all([self._is_alphanum(w, valid_punctuation_marks)
+                            for w in words]):
                     del self.candidates[k]
+

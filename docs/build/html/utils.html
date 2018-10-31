@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Useful functions &mdash; pke 1.72 documentation</title>
+  <title>Useful functions &mdash; pke 1.73 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="pke 1.72 documentation" href="index.html"/>
+    <link rel="top" title="pke 1.73 documentation" href="index.html"/>
         <link rel="prev" title="Reader classes" href="readers.html"/> 
 
   
@@ -160,7 +160,7 @@
 <p>Useful functions for the pke module.</p>
 <dl class="function">
 <dt id="pke.utils.compute_document_frequency">
-<code class="descclassname">pke.utils.</code><code class="descname">compute_document_frequency</code><span class="sig-paren">(</span><em>input_dir</em>, <em>output_file</em>, <em>format='corenlp'</em>, <em>extension='xml'</em>, <em>use_lemmas=False</em>, <em>stemmer='porter'</em>, <em>stoplist=None</em>, <em>delimiter='\t'</em>, <em>n=3</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.compute_document_frequency" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pke.utils.</code><code class="descname">compute_document_frequency</code><span class="sig-paren">(</span><em>input_dir</em>, <em>output_file</em>, <em>extension='xml'</em>, <em>stoplist=None</em>, <em>delimiter='\t'</em>, <em>n=3</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.utils.compute_document_frequency" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute n-gram document frequencies from a set of input documents. An
 extra row is added to the output file for specifying the number of
 documents from which the frequencies were computed (–NB_DOC– tab XX).</p>
@@ -171,13 +171,8 @@ documents from which the frequencies were computed (–NB_DOC– tab XX).</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>input_dir</strong> (<em>str</em>) – the input directory.</li>
 <li><strong>output_file</strong> (<em>str</em>) – the output file.</li>
-<li><strong>format</strong> (<em>str</em>) – the input files format, defaults to corenlp.</li>
 <li><strong>extension</strong> (<em>str</em>) – file extension for input documents, defaults to
 xml.</li>
-<li><strong>use_lemmas</strong> (<em>bool</em>) – whether lemmas from stanford corenlp are used
-instead of stems (computed by nltk), defaults to False.</li>
-<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to used (if used), defaults
-to porter.</li>
 <li><strong>stoplist</strong> (<em>list</em>) – the stop words for filtering n-grams, default to
 None.</li>
 <li><strong>delimiter</strong> (<em>str</em>) – the delimiter between n-grams and document
@@ -332,6 +327,7 @@ instead of stems (computed by nltk), defaults to False.</li>
 <li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to used (if used), defaults
 to porter.</li>
 <li><strong>model</strong> (<em>object</em>) – the supervised model to train, defaults to None.</li>
+<li><strong>language</strong> (<em>str</em>) – language of the documents, defaults to english.</li>
 <li><strong>extension</strong> (<em>str</em>) – file extension for input documents, defaults to
 xml.</li>
 <li><strong>sep_doc_id</strong> (<em>str</em>) – the separator used for doc_id in reference file,
@@ -367,7 +363,7 @@ reference file, defaults to ‘,’.</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Florian Boudin.
+        &copy; Copyright 2016-2018, Florian Boudin, Ygor Gallina.
 
     </p>
   </div>
@@ -389,7 +385,7 @@ reference file, defaults to ‘,’.</li>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.72',
+            VERSION:'1.73',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

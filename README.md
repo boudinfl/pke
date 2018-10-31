@@ -55,11 +55,11 @@ Start by typing the 5 lines below. For using another model, simply replace
 import pke
 
 # initialize keyphrase extraction model, here TopicRank
-extractor = pke.unsupervised.TopicRank(input_file='/path/to/input')
+extractor = pke.unsupervised.TopicRank()
 
 # load the content of the document, here document is expected to be in raw
 # format (i.e. a simple text file) and preprocessing is carried out using nltk
-extractor.read_document(format='raw')
+extractor.read_document(input_file='/path/to/input', format='raw')
 
 # keyphrase candidate selection, in the case of TopicRank: sequences of nouns
 # and adjectives (i.e. `(Noun|Adj)*`)

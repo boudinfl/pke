@@ -35,7 +35,7 @@ class SupervisedLoadFile(LoadFile):
             self.instances[candidate] = X[i]
 
     def feature_extraction(self):
-        """ Skeletton for feature extraction. """
+        """ Skeleton for feature extraction. """
         pass
 
     def classify_candidates(self, model=None):

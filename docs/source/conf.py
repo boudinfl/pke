@@ -20,13 +20,13 @@ import pke
 # -- Project information -----------------------------------------------------
 
 project = 'pke'
-copyright = '2018, Florian Boudin'
-author = 'Florian Boudin'
+copyright = '2016-2018, Florian Boudin, Ygor Gallina'
+author = 'Florian Boudin, Ygor Gallina'
 
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '1.72'
+release = '1.73'
 
 
 # -- General configuration ---------------------------------------------------
