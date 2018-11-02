@@ -93,7 +93,9 @@ class ExpandRank(SingleRank):
         doc = LoadFile()
 
         # read document
-        doc.load_document(input_file)
+        doc.load_document(input=input_file,
+                          language=self.language,
+                          normalization=self.normalization)
 
         # flatten document and initialize nodes 
         sequence = []
@@ -118,7 +120,6 @@ class ExpandRank(SingleRank):
                             window=10,
                             pos=None,
                             expanded_documents=[],
-                            format='raw',
                             normalized=False):
         """Candidate ranking using random walk.
 
@@ -130,8 +131,6 @@ class ExpandRank(SingleRank):
             expanded_documents (list): the set of documents to expand the graph,
                 should be a list of tuples (input_path, similarity). Defaults to
                 empty list, i.e. no expansion.
-            format (str): the input format of the expanded documents, defaults
-                to raw.
             normalized (False): normalize keyphrase score by their length,
                 defaults to False.
         """
@@ -147,7 +146,6 @@ class ExpandRank(SingleRank):
         for input_file, similarity in expanded_documents:
             self.expand_word_graph(input_file=input_file,
                                    similarity=similarity,
-                                   format=format,
                                    window=window,
                                    pos=pos)
 

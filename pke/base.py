@@ -36,7 +36,10 @@ class LoadFile(object):
         """Path to the input file."""
 
         self.language = None
-        """Language of the input file """
+        """Language of the input file."""
+
+        self.normalization = None
+        """Word normalization method."""
 
         self.sentences = []
         """Sentence container (list of Sentence objects)."""
@@ -131,11 +134,11 @@ class LoadFile(object):
         # initialize the stoplist
         self.stoplist = stopwords.words(ISO_to_language[self.language])
 
-        # Word normalization
-        kwargs['normalization'] = kwargs.get('normalization', 'stemming')
-        if kwargs['normalization'] == 'stemming':
+        # word normalization
+        self.normalization = kwargs.get('normalization', 'stemming')
+        if self.normalization == 'stemming':
             self.apply_stemming()
-        elif kwargs['normalization'] is None:
+        elif self.normalization is None:
             for i, sentence in enumerate(self.sentences):
                 self.sentences[i].stems = sentence.words
 
