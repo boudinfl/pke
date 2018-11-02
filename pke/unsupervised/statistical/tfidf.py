@@ -10,6 +10,7 @@ from __future__ import print_function
 
 import math
 import string
+import logging
 
 from pke.base import LoadFile
 from pke.utils import load_document_frequency_file
@@ -77,6 +78,8 @@ class TfIdf(LoadFile):
 
         # initialize default document frequency counts if none provided
         if df is None:
+            logging.warning('LoadFile._df_counts is hard coded to {}'.format(
+                self._df_counts))
             df = load_document_frequency_file(self._df_counts, delimiter='\t')
 
         # initialize the number of documents as --NB_DOC-- + 1 (current)

@@ -10,7 +10,6 @@ from pke.unsupervised import (
 )
 from pke.supervised import Kea, WINGNUS
 
-valid_pos = {'NOUN', 'PROPN', 'ADJ'}
 test_file = 'examples/C-1.xml'
 
 
@@ -18,7 +17,7 @@ def test_unsupervised_run():
     def test(model, file):
         extractor = model()
         extractor.load_document(file)
-        extractor.candidate_selection(pos=valid_pos)
+        extractor.candidate_selection()
         extractor.candidate_weighting()
 
     models = [
@@ -29,6 +28,7 @@ def test_unsupervised_run():
         YAKE, StupidKE
     ]
     for m in models:
+        print("testing {}".format(m))
         test(m, test_file)
 
 
@@ -43,6 +43,7 @@ def test_supervised_run():
         Kea, WINGNUS
     ]
     for m in models:
+        print("testing {}".format(m))
         test(m, test_file)
 
 

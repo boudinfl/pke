@@ -16,8 +16,7 @@ ships with supervised models trained on the
 * [Usage](#usage)
   - [Input formats](#input-formats)
   - [Implemented models](#implemented-models)
-  - [Already trained supervised models](#already-trained-supervised-models)
-  - [Document Frequency counts](#document-frequency-counts)
+  - [Computing and loading Document Frequency counts](#computing-and-loading-document-frequency-counts)
   - [Training supervised models](#training-supervised-models)
   - [Non English languages](#non-english-languages)
 * [Code documentation](#code-documentation)
@@ -45,7 +44,7 @@ extractor = pke.unsupervised.TopicRank()
 
 # load the content of the document, here document is expected to be in raw
 # format (i.e. a simple text file) and preprocessing is carried out using spacy
-extractor.read_document(input='/path/to/input.txt', language='en')
+extractor.load_document(input='/path/to/input.txt', language='en')
 
 # keyphrase candidate selection, in the case of TopicRank: sequences of nouns
 # and adjectives (i.e. `(Noun|Adj)*`)
@@ -81,6 +80,9 @@ input files are provided in the [`examples/`](examples/) directory):
    To read a document in raw text format:
 
    ```python
+   import pke
+
+   extractor = pke.unsupervised.TopicRank()
    extractor.load_document(input='/path/to/input.txt', language='en')
    ```
 
@@ -90,6 +92,9 @@ input files are provided in the [`examples/`](examples/) directory):
    To read an input text:
 
    ```python
+   import pke
+
+   extractor = pke.unsupervised.TopicRank()
    text = u'Efficient discovery of grid services is essential for the [...]'
    extractor.load_document(input=text, language='en')
    ```
@@ -139,6 +144,9 @@ input files are provided in the [`examples/`](examples/) directory):
    To read a CoreNLP XML document:
 
    ```python
+   import pke
+
+   extractor = pke.unsupervised.TopicRank()
    extractor.load_document(input='/path/to/input.xml')
    ```
 
@@ -163,48 +171,41 @@ input files are provided in the [`examples/`](examples/) directory):
     * Kea [(Witten et al., 2005)](https://www.cs.waikato.ac.nz/ml/publications/2005/chap_Witten-et-al_Windows.pdf)
     * WINGNUS [(Nguyen and Luong, 2010)](http://www.aclweb.org/anthology/S10-1035.pdf)
 
-### Already trained supervised models
 
-`pke` ships with a collection of already trained models (for supervised
-keyphrase extraction approaches) and document frequency counts that were
-computed on the training set of the SemEval-2010 benchmark dataset. These
-are located into the `pke/models/` directory.
-
-For details about the provided models, see [pke/models/README.md](pke/models/README.md).
-
-**These already trained models/DF counts are used by default if no parameters
-are given.**
-
-### Document Frequency counts
+### Computing and loading Document Frequency counts
 
 `pke` ships with document frequency counts computed on the SemEval-2010
-benchmark dataset. These counts are used in various models (TfIdf, KP-Miner,
-Kea and WINGNUS). The following code illustrates how to compute new counts
-from another (or a larger) document collection:
+benchmark dataset. These counts are used in various models (for example TfIdf
+and Kea). The following code illustrates how to compute new document frequency
+counts from another (or a larger) document collection:
 
 ```python
 from pke import compute_document_frequency
 from string import punctuation
 
-# path to the collection of documents
-input_dir = '/path/to/input/documents'
+"""Compute Document Frequency (DF) counts from a collection of documents.
 
-# path to the DF counts dictionary, saved as a gzip tab separated values
-output_file = '/path/to/output/'
+N-grams up to 3-grams are extracted and converted to their n-stems forms.
+Those containing a token that occurs in a stoplist are filtered out.
+Output file is in compressed (gzip) tab-separated-values format (tsv.gz).
+"""
 
-# compute df counts and store stem -> weight values
-compute_document_frequency(input_dir=input_dir,
-                           output_file=output_file,
-                           format="corenlp",            # input files format
-                           use_lemmas=False,    # do not use Stanford lemmas
-                           stemmer="porter",            # use porter stemmer
-                           stoplist=list(punctuation),            # stoplist
-                           delimiter='\t',            # tab separated output
-                           extension='xml',          # input files extension
-                           n=5)              # compute n-grams up to 5-grams
+# stoplist for filtering n-grams
+stoplist=list(punctuation)
+
+# compute df counts and store as n-stem -> weight values
+compute_document_frequency(input_dir='/path/to/collection/of/documents/',
+                           output_file='/path/to/output.tsv.gz',
+                           extension='xml',               # input file extension
+                           language='en',                 # language of files
+                           normalization="stemming",      # use porter stemmer
+                           stoplist=stoplist)   
 ```
 
-DF counts are stored as a ngram tab count file. The number of documents in the
+A fully parametrized example for DF counts computation is available in the file
+[`examples/compute-df-counts.py`](examples/compute-df-counts.py).
+
+DF counts are stored as a n-gram tab count file. The number of documents in the
 collection, used to compute Inverse Document Frequency (IDF) weigths, is stored
 as an extra line --NB_DOC-- tab number_of_documents. Below is an example of such
 a file:
@@ -228,7 +229,7 @@ import pke
 extractor = pke.unsupervised.TfIdf()
 
 # load the DF counts from file
-df_counts = pke.load_document_frequency_file(input_file='/path/to/file')
+df_counts = pke.load_document_frequency_file(input_file='/path/to/df_counts')
 
 # load the content of the document
 extractor.load_document(input='/path/to/input.txt')
@@ -244,32 +245,36 @@ extractor.candidate_weighting(df=df_counts)
 keyphrases = extractor.get_n_best(n=10)
 ```
 
-A detailed example for computing new DF counts is given in
-`examples/compute-df-counts.py`.
-
 ### Training supervised models
 
-Here is a minimal example for training a new supervised model:
+`pke` ships with a collection of already trained models (for supervised
+keyphrase extraction approaches) and document frequency counts that were
+computed on the training set of the SemEval-2010 benchmark dataset. These
+are located into the `pke/models/` directory.
+**These already trained models/DF counts are used by default if no parameters
+are given.**
+
+The following snippet of code illustrates how to train a new supervised model: 
 
 ```python
 import pke
 
 # load the DF counts from file
-df_counts = pke.load_document_frequency_file('/path/to/file')
+df_counts = pke.load_document_frequency_file(input_file='/path/to/df_counts')
 
 # train a new Kea model
-pke.train_supervised_model(input_dir='/path/to/input/documents/',
+pke.train_supervised_model(input_dir='/path/to/collection/of/documents/',
                            reference_file='/path/to/reference/file',
                            model_file='/path/to/model/file',
                            df=df_counts,
-                           model=pke.supervised.Kea()) # here we train a Kea model
+                           model=pke.supervised.Kea())
 ```
 
 The training data consists of a set of documents along with a reference file
 containing annotated keyphrases in the SemEval-2010 [format](http://docs.google.com/Doc?id=ddshp584_46gqkkjng4).
 
-A detailed example for training and testing a supervised model is given in
-`examples/training_and_testing_a_kea_model/`.
+A detailed and parametrized example for training and testing a supervised model
+is provided in the [`examples/training_and_testing_a_kea_model/`](examples/training_and_testing_a_kea_model/) directory.
 
 ### Non English languages
 

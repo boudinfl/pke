@@ -53,8 +53,6 @@ class LoadFile(object):
         self._df_counts = os.path.join(self._models, "df-semeval2010.tsv.gz")
         """Path to the document frequency counts provided in pke."""
 
-        logging.warning('LoadFile._df_counts is hard coded to {}'.format(self._df_counts))
-
         self.stoplist = None
         """List of stopwords."""
 
@@ -66,9 +64,8 @@ class LoadFile(object):
             language (str): language of the input, defaults to 'en'.
             encoding (str): encoding of the raw file.
             normalization (str): word normalization method, defaults to
-                'stemming'. Other possible values are 'lemmatization' (should be
-                used with Stanford CoreNLP files) or 'None' for using word
-                surface forms instead of stems/lemmas.
+                'stemming'. Other possible values are 'lemmatization' or 'None'
+                for using word surface forms instead of stems/lemmas.
         """
 
         # get the language parameter
@@ -109,8 +106,15 @@ class LoadFile(object):
                 doc = parser.read(text=input, **kwargs)
 
         elif getattr(input, 'read', None):
-            parser = RawTextReader(language=language)
-            doc = parser.read(text=input.read(), **kwargs)
+            # check whether it is a compressed CoreNLP document
+            name = getattr(input, 'name', None)
+            if name and name.endswith('xml'):
+                parser = MinimalCoreNLPReader()
+                doc = parser.read(path=input, **kwargs)
+                doc.is_corenlp_file = True
+            else:
+                parser = RawTextReader(language=language)
+                doc = parser.read(text=input.read(), **kwargs)
 
         else:
             logging.error('Cannot process {}'.format(type(input)))

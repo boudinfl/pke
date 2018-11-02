@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
-""" Useful functions for the pke module. """
+"""Useful functions for the pke module."""
 
 from __future__ import division
 from __future__ import absolute_import
+from __future__ import print_function
 
 import os
-import re
 import csv
 import math
 import glob
@@ -18,6 +18,7 @@ import logging
 from collections import defaultdict
 
 from pke.base import LoadFile
+from pke.base import ISO_to_language
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
@@ -28,18 +29,19 @@ from nltk.corpus import stopwords
 
 def load_document_frequency_file(input_file,
                                  delimiter='\t'):
-    """ Load a csv file containing document frequencies. Automatically detects
-        if input file is compressed (gzip) if extension is '.gz'.
+    """Load a tsv (tab-separated-values) file containing document frequencies.
+    Automatically detects if input file is compressed (gzip) by looking at its
+    extension (.gz).
 
-        Args:
-            input_file (str): the input file containing document frequencies in
-                csv format.
-            delimiter (str): the delimiter used for separating term-document
-                frequencies tuples, defauts to '\t'.
+    Args:
+        input_file (str): the input file containing document frequencies in
+            csv format.
+        delimiter (str): the delimiter used for separating term-document
+            frequencies tuples, defaults to '\t'.
 
-        Returns:
-            frequencies (dic): a dictionary of the form {term_1: freq,
-                term_2: freq}, freq being an integer.
+    Returns:
+        frequencies (dic): a dictionary of the form {term_1: freq, term_2:
+            freq}, freq being an integer.
     """
 
     # initialize the DF dictionary
@@ -61,24 +63,30 @@ def load_document_frequency_file(input_file,
 
 def compute_document_frequency(input_dir,
                                output_file,
-                               extension="xml",
+                               extension='xml',
+                               language='en',
+                               normalization="stemming",
                                stoplist=None,
                                delimiter='\t',
                                n=3):
-    """ Compute n-gram document frequencies from a set of input documents. An
-        extra row is added to the output file for specifying the number of
-        documents from which the frequencies were computed (--NB_DOC-- tab XX).
+    """Compute the n-gram document frequencies from a set of input documents. An
+    extra row is added to the output file for specifying the number of
+    documents from which the document frequencies were computed
+    (--NB_DOC-- tab XXX). The output file is compressed using gzip.
 
-        Args:
-            input_dir (str): the input directory.
-            output_file (str): the output file.
-            extension (str): file extension for input documents, defaults to
-                xml.
-            stoplist (list): the stop words for filtering n-grams, default to
-                None.
-            delimiter (str): the delimiter between n-grams and document
-                frequencies, default to tabulation.
-            n (int): the length for ngrams, defaults to 3.
+    Args:
+        input_dir (str): the input directory.
+        output_file (str): the output file.
+        extension (str): file extension for input documents, defaults to xml.
+        language (str): language of the input documents (used for computing the
+            n-stem or n-lemma forms), defaults to 'en' (english).
+        normalization (str): word normalization method, defaults to 'stemming'.
+            Other possible values are 'lemmatization' or 'None' for using word
+            surface forms instead of stems/lemmas.
+        stoplist (list): the stop words for filtering n-grams, default to None.
+        delimiter (str): the delimiter between n-grams and document frequencies,
+            defaults to tabulation (\t).
+        n (int): the size of the n-grams, defaults to 3.
     """
 
     # document frequency container
@@ -96,7 +104,9 @@ def compute_document_frequency(input_dir,
         doc = LoadFile()
 
         # read the input file
-        doc.load_document(input_file)
+        doc.load_document(input=input_file,
+                          language=language,
+                          normalization=normalization)
 
         # candidate selection
         doc.ngram_selection(n=n)
@@ -110,8 +120,11 @@ def compute_document_frequency(input_dir,
 
         nb_documents += 1
 
-    # Dump the df container
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    # create directories from path if not exists
+    if os.path.dirname(output_file):
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
+    # dump the df container
     with gzip.open(output_file, 'wb') as f:
 
         # add the number of documents as special token
@@ -126,40 +139,37 @@ def compute_document_frequency(input_dir,
 def train_supervised_model(input_dir,
                            reference_file,
                            model_file,
+                           extension='xml',
+                           language='en',
+                           normalization="stemming",
                            df=None,
-                           format="corenlp",
-                           use_lemmas=False,
                            stemmer="porter",
                            model=None,
-                           language='english',
-                           extension="xml",
                            sep_doc_id=':',
                            sep_ref_keyphrases=',',
                            reference_stemming=False):
-    """ Build a supervised keyphrase extraction model from a set of documents
-        and a reference file.
+    """Build a supervised keyphrase extraction model from a set of documents and
+    a reference file.
 
-        Args:
-            input_dir (str): the input directory.
-            reference_file (str): the reference file.
-            model_file (str): the model output file.
-            df (dict): df weights dictionary.
-            format (str): the input files format, defaults to corenlp.
-            use_lemmas (bool): weither lemmas from stanford corenlp are used
-                instead of stems (computed by nltk), defaults to False.
-            stemmer (str): the stemmer in nltk to used (if used), defaults
-                to porter.
-            model (object): the supervised model to train, defaults to None.
-            language (str): language of the documents, defaults to english.
-            extension (str): file extension for input documents, defaults to
-                xml.
-            sep_doc_id (str): the separator used for doc_id in reference file,
-                defaults to ':'.
-            sep_ref_keyphrases (str): the separator used for keyphrases in
-                reference file, defaults to ','.
+    Args:
+        input_dir (str): the input directory.
+        reference_file (str): the reference file.
+        model_file (str): the model output file.
+        extension (str): file extension for input documents, defaults to xml.
+        language (str): language of the input documents (used for computing the
+            n-stem or n-lemma forms), defaults to 'en' (english).
+        normalization (str): word normalization method, defaults to 'stemming'.
+            Other possible values are 'lemmatization' or 'None' for using word
+            surface forms instead of stems/lemmas.
+        df (dict): df weights dictionary.
+        model (object): the supervised model to train, defaults to Kea.
+        sep_doc_id (str): the separator used for doc_id in reference file,
+            defaults to ':'.
+        sep_ref_keyphrases (str): the separator used for keyphrases in
+            reference file, defaults to ','.
     """
 
-    logging.info('building model ' + str(model) + ' from ' + input_dir)
+    logging.info('building model {} from {}'.format(model, input_dir))
 
     references = load_references(reference_file,
                                  sep_doc_id=sep_doc_id,
@@ -168,24 +178,24 @@ def train_supervised_model(input_dir,
                                  stemmer=stemmer)
     training_instances = []
     training_classes = []
-    files = glob.glob(input_dir + '/*.' + extension)
 
     # get the input files from the input directory
-    for input_file in files:
+    for input_file in glob.glob(input_dir + '/*.' + extension):
 
-        logging.info('reading file ' + input_file)
+        logging.info('reading file {}'.format(input_file))
 
         # initialize the input file
         model.__init__()
 
+        # get the document id from file name
         doc_id = input_file.split('/')[-1].split('.')[0]
 
-        model.load_document(format=format,
-                            use_lemmas=use_lemmas,
-                            stemmer=stemmer,
-                            sep='/')
+        # load the document
+        model.load_document(input=input_file,
+                            language=language,
+                            normalization=normalization)
 
-        # select candidates using default method
+        # candidate selection
         model.candidate_selection()
 
         # extract features
@@ -199,7 +209,7 @@ def train_supervised_model(input_dir,
                 training_classes.append(0)
             training_instances.append(model.instances[candidate])
 
-    logging.info('writing model to ' + model_file)
+    logging.info('writing model to {}'.format(model_file))
     model.train(training_instances=training_instances,
                 training_classes=training_classes,
                 model_file=model_file)
@@ -238,27 +248,22 @@ def load_references(input_file,
 def compute_lda_model(input_dir,
                       output_file,
                       n_topics=500,
-                      format="corenlp",
                       extension="xml",
-                      use_lemmas=False,
-                      stemmer="porter",
-                      language="english"):
-    """ Compute a LDA model from a collection of documents. Latent Dirichlet
-        Allocation is computed using sklearn module.
+                      language="en",
+                      normalization="stemming"):
+    """Compute a LDA model from a collection of documents. Latent Dirichlet
+    Allocation is computed using sklearn module.
 
-        Args:
-            input_dir (str): the input directory.
-            output_file (str): the output file.
-            n_topics (int): number of topics for the LDA model, defaults to 500.
-            format (str): the input files format, defaults to corenlp.
-            extension (str): file extension for input documents, defaults to
-                xml.
-            use_lemmas (bool): whether lemmas from stanford corenlp are used
-                instead of stems (computed by nltk), defaults to False.
-            stemmer (str): the stemmer in nltk to used (if used), defaults
-                to porter.
-            language (str): the language of the documents, used for stop_words
-                in sklearn CountVectorizer, defaults to 'english'.
+    Args:
+        input_dir (str): the input directory.
+        output_file (str): the output file.
+        n_topics (int): number of topics for the LDA model, defaults to 500.
+        extension (str): file extension for input documents, defaults to xml.
+        language (str): language of the input documents, used for stop_words
+            in sklearn CountVectorizer, defaults to 'en'.
+        normalization (str): word normalization method, defaults to 'stemming'.
+            Other possible values are 'lemmatization' or 'None' for using word
+            surface forms instead of stems/lemmas.
     """
 
     # texts container
@@ -267,13 +272,15 @@ def compute_lda_model(input_dir,
     # loop throught the documents
     for input_file in glob.glob(input_dir + '/*.' + extension):
 
-        logging.info('reading file ' + input_file)
+        logging.info('reading file {}'.format(input_file))
 
         # initialize load file object
         doc = LoadFile()
 
         # read the input file
-        doc.load_document(input_file)
+        doc.load_document(input=input_file,
+                          language=language,
+                          normalization=normalization)
 
         # container for current document
         text = []
@@ -283,7 +290,8 @@ def compute_lda_model(input_dir,
             # get the tokens (stems) from the sentence if they are not
             # punctuation marks 
             text.extend([sentence.stems[i] for i in range(sentence.length)
-                         if not re.search('[^A-Z$]', sentence.pos[i])])
+                         if sentence.pos[i] != 'PUNCT' and
+                         sentence.pos[i].isalpha()])
 
         # add the document to the texts container
         texts.append(' '.join(text))
@@ -291,7 +299,8 @@ def compute_lda_model(input_dir,
     # vectorize dataset
     # get the stoplist from nltk because CountVectorizer only contains english
     # stopwords atm
-    tf_vectorizer = CountVectorizer(stop_words=stopwords.words(language))
+    tf_vectorizer = CountVectorizer(
+        stop_words=stopwords.words(ISO_to_language[language]))
     tf = tf_vectorizer.fit_transform(texts)
 
     # extract vocabulary
@@ -310,26 +319,30 @@ def compute_lda_model(input_dir,
                    lda_model.doc_topic_prior_)
 
     # Dump the df container
-    logging.info('writing LDA model to ' + output_file)
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    logging.info('writing LDA model to {}'.format(output_file))
+
+    # create directories from path if not exists
+    if os.path.dirname(output_file):
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
+    # dump the LDA model
     with gzip.open(output_file, 'wb') as fp:
         pickle.dump(saved_model, fp)
 
 
 def load_document_as_bos(input_file,
-                         format="corenlp",
-                         use_lemmas=False,
-                         stemmer="porter",
+                         language="en",
+                         normalization="stemming",
                          stoplist=[]):
-    """Load a document as a bag of stems.
+    """Load a document as a bag of words/stems/lemmas.
 
     Args:
         input_file (str): path to input file.
-        format (str): the input files format, defaults to corenlp.
-        use_lemmas (bool): whether lemmas from stanford corenlp are used
-            instead of stems (computed by nltk), defaults to False.
-        stemmer (str): the stemmer in nltk to used (if used), defaults
-            to porter.
+        language (str): language of the input documents, used for stop_words
+            in sklearn CountVectorizer, defaults to 'en'.
+        normalization (str): word normalization method, defaults to 'stemming'.
+            Other possible values are 'lemmatization' or 'None' for using word
+            surface forms instead of stems/lemmas.
         stoplist (list): the stop words for filtering tokens, default to [].
     """
 
@@ -337,22 +350,18 @@ def load_document_as_bos(input_file,
     doc = LoadFile()
 
     # read the input file
-    doc.load_document(input_file)
+    doc.load_document(input=input_file,
+                      language=language,
+                      normalization=normalization)
 
     # initialize document vector
     vector = defaultdict(int)
 
-    # loop through the sentences
+    # loop through the sentences and add the stems to the vector
     for i, sentence in enumerate(doc.sentences):
-
-        # loop through the tokens
         for j, stem in enumerate(sentence.stems):
-
-            # skip stem if it occurs in the stoplist
             if stem in stoplist:
                 continue
-
-            # count the occurrence of the stem
             vector[stem] += 1
 
     return vector
@@ -362,10 +371,9 @@ def compute_pairwise_similarity_matrix(input_dir,
                                        output_file,
                                        collection_dir=None,
                                        df=None,
-                                       format="corenlp",
                                        extension="xml",
-                                       use_lemmas=False,
-                                       stemmer="porter",
+                                       language="en",
+                                       normalization="stemming",
                                        stoplist=[]):
     """Compute the pairwise similarity between documents in `input_dir` and
     documents in `collection_dir`. Similarity scores are computed using a cosine
@@ -379,12 +387,12 @@ def compute_pairwise_similarity_matrix(input_dir,
         collection_dir (str): path to the collection of documents, defaults to
             None.
         df (dict): df weights dictionary.
-        format (str): the input files format, defaults to corenlp.
         extension (str): file extension for input documents, defaults to xml.
-        use_lemmas (bool): whether lemmas from stanford corenlp are used
-            instead of stems (computed by nltk), defaults to False.
-        stemmer (str): the stemmer in nltk to used (if used), defaults
-            to porter.
+        language (str): language of the input documents, used for stop_words
+            in sklearn CountVectorizer, defaults to 'en'.
+        normalization (str): word normalization method, defaults to 'stemming'.
+            Other possible values are 'lemmatization' or 'None' for using word
+            surface forms instead of stems/lemmas.
         stoplist (list): the stop words for filtering tokens, default to [].
     """
 
@@ -405,9 +413,8 @@ def compute_pairwise_similarity_matrix(input_dir,
 
             # initialize document vector
             collection[input_file] = load_document_as_bos(input_file=input_file,
-                                                          format=format,
-                                                          use_lemmas=use_lemmas,
-                                                          stemmer=stemmer,
+                                                          language=language,
+                                                          normalization=normalization,
                                                           stoplist=stoplist)
 
             # compute TF*IDF weights
@@ -424,21 +431,24 @@ def compute_pairwise_similarity_matrix(input_dir,
 
         # initialize document vector
         documents[input_file] = load_document_as_bos(input_file=input_file,
-                                                     format=format,
-                                                     use_lemmas=use_lemmas,
-                                                     stemmer=stemmer,
+                                                     language=language,
+                                                     normalization=normalization,
                                                      stoplist=stoplist)
 
         # compute TF*IDF weights
         for stem in documents[input_file]:
-            documents[input_file][stem] *= math.log(N / (1 + df.get(stem, 1)), 2)
+            documents[input_file][stem] *= math.log(N / (1+df.get(stem, 1)), 2)
 
     # consider input documents as collection if None provided
     if not collection:
         collection = documents
 
+
+    # create directories from path if not exists
+    if os.path.dirname(output_file):
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
     # open the output file in gzip mode
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
     with gzip.open(output_file, 'wb') as f:
 
         # compute pairwise similarity scores
@@ -453,9 +463,11 @@ def compute_pairwise_similarity_matrix(input_dir,
                     inner += documents[doc_i][stem] * collection[doc_j][stem]
 
                 # norms
-                norm_i = sum([math.pow(documents[doc_i][t], 2) for t in documents[doc_i]])
+                norm_i = sum([math.pow(documents[doc_i][t], 2) for t in
+                              documents[doc_i]])
                 norm_i = math.sqrt(norm_i)
-                norm_j = sum([math.pow(collection[doc_j][t], 2) for t in collection[doc_j]])
+                norm_j = sum([math.pow(collection[doc_j][t], 2) for t in
+                              collection[doc_j]])
                 norm_j = math.sqrt(norm_j)
 
                 # compute cosine

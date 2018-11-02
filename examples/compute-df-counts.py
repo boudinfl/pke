@@ -22,10 +22,9 @@ stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
 # compute idf weights
 compute_document_frequency(input_dir=input_dir,
                            output_file=output_file,
-                           format="corenlp",  # input files format
-                           use_lemmas=False,  # do not use Stanford lemmas
-                           stemmer="porter",  # use porter stemmer
+                           extension='xml', # input file extension
+                           language='en', # language of the input files
+                           normalization="stemming", # use porter stemmer
                            stoplist=stoplist,  # stoplist
                            delimiter='\t',  # tab separated output
-                           extension='xml',  # input files extension
                            n=5)  # compute n-grams up to 5-grams
