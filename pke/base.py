@@ -319,7 +319,7 @@ class LoadFile(object):
 
     def longest_keyword_sequence_selection(self, keywords):
         self.longest_sequence_selection(
-            key=lambda s: s.stem, valid_values=keywords)
+            key=lambda s: s.stems, valid_values=keywords)
 
     def longest_sequence_selection(self, key, valid_values):
         """Select the longest sequences of given POS tags as candidates.
