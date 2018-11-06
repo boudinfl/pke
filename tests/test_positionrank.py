@@ -14,31 +14,32 @@ iteria and the corresponding algorithms for constructing a minimal supporting s\
 et of solutions can be used in solving all the considered types systems and sys\
 tems of mixed types."
 
+grammar = "NP: {<ADJ>*<NOUN|PROPN>+}"
 pos = {'NOUN', 'PROPN', 'ADJ'}
 
 
-def test_singlerank_candidate_selection():
-    """Test SingleRank candidate selection method."""
+def test_positionrank_candidate_selection():
+    """Test PositionRank candidate selection method."""
 
-    extractor = pke.unsupervised.SingleRank()
+    extractor = pke.unsupervised.PositionRank()
     extractor.load_document(input=text)
-    extractor.candidate_selection(pos=pos)
-    assert len(extractor.candidates) == 21
+    extractor.candidate_selection(grammar=grammar)
+    assert len(extractor.candidates) == 19
 
 
-def test_singlerank_candidate_weighting():
+def test_positionrank_candidate_weighting():
     """Test SingleRank candidate weighting method."""
 
-    extractor = pke.unsupervised.SingleRank()
+    extractor = pke.unsupervised.PositionRank()
     extractor.load_document(input=text)
-    extractor.candidate_selection(pos=pos)
+    extractor.candidate_selection(grammar=grammar)
     extractor.candidate_weighting(window=10, pos=pos)
     keyphrases = [k for k, s in extractor.get_n_best(n=3)]
-    assert keyphrases == ['minimal generating sets',
-                          'types systems',
-                          'minimal set']
+    assert keyphrases == ['types systems',
+                          'minimal generating sets',
+                          'linear diophantine equations']
 
 
 if __name__ == '__main__':
-    test_singlerank_candidate_selection()
-    test_singlerank_candidate_weighting()
+    test_positionrank_candidate_selection()
+    test_positionrank_candidate_weighting()
