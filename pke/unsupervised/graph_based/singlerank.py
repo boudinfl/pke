@@ -30,28 +30,28 @@ class SingleRank(TextRank):
     Parameterized example::
 
         import pke
-        import string
-        from nltk.corpus import stopwords
+
+        # define the set of valid Part-of-Speeches
+        pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # 1. create a SingleRank extractor.
         extractor = pke.unsupervised.SingleRank()
 
         # 2. load the content of the document.
-        extractor.load_document(input='path/to/input.xml')
+        extractor.load_document(input='path/to/input',
+                                language='en',
+                                normalization=None)
 
         # 3. select the the longest sequences of nouns and adjectives, that do
         #    not contain punctuation marks or stopwords as candidates.
-        pos = {'NOUN', 'PROPN', 'ADJ'}
-        stoplist = list(string.punctuation)
-        stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
-        stoplist += stopwords.words('english')
-        extractor.candidate_selection(pos=pos, stoplist=stoplist)
+        extractor.candidate_selection(pos=pos)
 
         # 4. weight the candidates using the sum of their word's scores that are
-        #    computed using random walk. In the graph, nodes are words (nouns
-        #    and adjectives only) that are connected if they occur in a window
-        #    of 10 words.
-        extractor.candidate_weighting(window=10, pos=pos)
+        #    computed using random walk. In the graph, nodes are words of
+        #    certain part-of-speech (nouns and adjectives) that are connected if
+        #    they occur in a window of 10 words.
+        extractor.candidate_weighting(window=10,
+                                      pos=pos)
 
         # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
@@ -67,16 +67,16 @@ class SingleRank(TextRank):
         """Build a graph representation of the document in which nodes/vertices
         are words and edges represent co-occurrence relation. Syntactic filters
         can be applied to select only words of certain Part-of-Speech.
-        Co-occurrence relations can be controlled using the distance between
-        word occurrences in the document.
+        Co-occurrence relations can be controlled using the distance (window)
+        between word occurrences in the document.
 
-        The number of times two words co-occur in a window of n words is encoded
-        as *edge weights*. Sentence boundaries **are not** taken into account
-        in the window.
+        The number of times two words co-occur in a window is encoded as *edge
+        weights*. Sentence boundaries **are not** taken into account in the
+        window.
 
         Args:
             window (int): the window for connecting two words in the graph,
-                defaults to 2.
+                defaults to 10.
             pos (set): the set of valid pos for words to be considered as nodes
                 in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
         """

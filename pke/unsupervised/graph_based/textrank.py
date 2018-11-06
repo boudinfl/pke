@@ -41,19 +41,23 @@ class TextRank(LoadFile):
 
         import pke
 
+        # define the set of valid Part-of-Speeches
+        pos = {'NOUN', 'PROPN', 'ADJ'}
+
         # 1. create a TextRank extractor.
         extractor = pke.unsupervised.TextRank()
 
         # 2. load the content of the document.
-        extractor.load_document(input='path/to/input.xml',
+        extractor.load_document(input='path/to/input',
                                 language='en',
                                 normalization=None)
 
         # 3. build the graph representation of the document and rank the words.
         #    Keyphrase candidates are composed from the 33-percent
         #    highest-ranked words.
-        pos = {'NOUN', 'PROPN', 'ADJ'}
-        extractor.candidate_weighting(window=2, pos=pos, T=0.33)
+        extractor.candidate_weighting(window=2,
+                                      pos=pos,
+                                      top_percent=0.33)
 
         # 4. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
@@ -126,7 +130,7 @@ class TextRank(LoadFile):
     def candidate_weighting(self,
                             window=2,
                             pos=None,
-                            T=None,
+                            top_percent=None,
                             normalized=False):
         """Tailored candidate ranking method for TextRank. Keyphrase candidates
         are either composed from the T-percent highest-ranked words as in the
@@ -138,7 +142,7 @@ class TextRank(LoadFile):
                 defaults to 2.
             pos (set): the set of valid pos for words to be considered as nodes
                 in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
-            T (float): percentage of top vertices to keep for keyphrase
+            top_percent (float): percentage of top vertices to keep for phrase
                 generation.
             normalized (False): normalize keyphrase score by their length,
                 defaults to False.
@@ -154,14 +158,15 @@ class TextRank(LoadFile):
         w = nx.pagerank_scipy(self.graph, alpha=0.85, tol=0.0001, weight=None)
 
         # generate the phrases from the T-percent top ranked words
-        if T is not None:
+        if top_percent is not None:
 
             # warn user as this is not the pke way of doing it
-            logging.warning("Candidates are generated using {}-top".format(T))
+            logging.warning("Candidates are generated using {}-top".format(
+                            top_percent))
 
             # computing the number of top keywords
-            to_keep = min(math.floor(len(self.graph.node) * T),
-                          len(self.graph.node))
+            nb_nodes = self.graph.number_of_nodes()
+            to_keep = min(math.floor(nb_nodes * top_percent), nb_nodes)
 
             # sorting the nodes by decreasing scores
             top_words = sorted(w, key=w.get, reverse=True)

@@ -16,16 +16,18 @@ tems of mixed types."
 
 pos = {'NOUN', 'PROPN', 'ADJ'}
 
+
 def test_textrank():
     """Test TextRank for keyword extraction using original paper's example."""
 
     extractor = pke.unsupervised.TextRank()
     extractor.load_document(input=text)
-    extractor.candidate_weighting(T=.33, pos=pos)
+    extractor.candidate_weighting(top_percent=.33, pos=pos)
     keyphrases = [k for k, s in extractor.get_n_best(n=3)]
     assert keyphrases == ['linear diophantine',
                           'natural numbers',
                           'types']
+
 
 def test_textrank_with_candidate_selection():
     """Test TextRank with longest-POS-sequences candidate selection."""
