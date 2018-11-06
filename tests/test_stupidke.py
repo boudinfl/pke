@@ -13,7 +13,7 @@ def test_stupidke_candidate_selection():
 
     extractor.candidate_selection(pos=valid_pos)
 
-    assert len(extractor.candidates) == 567
+    assert len(extractor.candidates) == 612
 
 
 def test_stupidke_candidate_weighting():
