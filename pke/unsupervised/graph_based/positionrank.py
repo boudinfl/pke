@@ -31,6 +31,9 @@ class PositionRank(SingleRank):
 
         import pke
 
+        # define the valid Part-of-Speeches to occur in the graph
+        pos = {'NOUN', 'PROPN', 'ADJ'}
+
         # define the grammar for selecting the keyphrase candidates
         grammar = "NP: {<ADJ>*<NOUN|PROPN>+}"
 
@@ -51,8 +54,8 @@ class PositionRank(SingleRank):
         #    in the document. In the graph, nodes are words (nouns and
         #    adjectives only) that are connected if they occur in a window of
         #    10 words.
-        pos = {'NOUN', 'PROPN', 'ADJ'}
-        extractor.candidate_weighting(window=10, pos=pos)
+        extractor.candidate_weighting(window=10,
+                                      pos=pos)
 
         # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
@@ -175,7 +178,7 @@ class PositionRank(SingleRank):
         # loop through the candidates
         for k in self.candidates.keys():
             tokens = self.candidates[k].lexical_form
-            self.weights[k] = sum([w[t] for t in tokens])
+            self.weights[k] = sum([w.get(t, 0.0) for t in tokens])
             if normalized:
                 self.weights[k] /= len(tokens)
 

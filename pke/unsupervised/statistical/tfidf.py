@@ -65,8 +65,8 @@ class TfIdf(LoadFile):
 
         # filter candidates containing punctuation marks
         self.candidate_filtering(stoplist=list(string.punctuation) +
-                                          ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-'] +
-                                          stoplist)
+                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-',
+                                  '-lsb-', '-rsb-'] + stoplist)
 
     def candidate_weighting(self, df=None):
         """Candidate weighting function using document frequencies.
