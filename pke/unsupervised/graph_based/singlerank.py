@@ -42,8 +42,7 @@ class SingleRank(TextRank):
                                 language='en',
                                 normalization=None)
 
-        # 3. select the the longest sequences of nouns and adjectives, that do
-        #    not contain punctuation marks or stopwords as candidates.
+        # 3. select the longest sequences of nouns and adjectives as candidates.
         extractor.candidate_selection(pos=pos)
 
         # 4. weight the candidates using the sum of their word's scores that are

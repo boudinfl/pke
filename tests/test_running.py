@@ -6,7 +6,7 @@ from pke.unsupervised import (
     MultipartiteRank, PositionRank,
     TopicalPageRank, ExpandRank,
     TextRank, TfIdf, KPMiner,
-    YAKE, StupidKE
+    YAKE, FirstPhrases
 )
 from pke.supervised import Kea, WINGNUS
 
@@ -25,7 +25,7 @@ def test_unsupervised_run():
         MultipartiteRank, PositionRank,
         TopicalPageRank, ExpandRank,
         TextRank, TfIdf, KPMiner,
-        YAKE, StupidKE
+        YAKE, FirstPhrases
     ]
     for m in models:
         print("testing {}".format(m))

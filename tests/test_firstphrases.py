@@ -8,7 +8,7 @@ test_file = 'examples/C-1.xml'
 
 
 def test_stupidke_candidate_selection():
-    extractor = pke.unsupervised.StupidKE()
+    extractor = pke.unsupervised.FirstPhrases()
     extractor.load_document(test_file)
 
     extractor.candidate_selection(pos=valid_pos)
@@ -17,7 +17,7 @@ def test_stupidke_candidate_selection():
 
 
 def test_stupidke_candidate_weighting():
-    extractor = pke.unsupervised.StupidKE()
+    extractor = pke.unsupervised.FirstPhrases()
     extractor.load_document(test_file)
 
     extractor.candidate_selection(pos=valid_pos)
