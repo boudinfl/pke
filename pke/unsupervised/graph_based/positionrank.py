@@ -4,13 +4,14 @@
 
 """PositionRank keyphrase extraction model.
 
-Graph-based ranking approach to keyphrase extraction described in:
+PositionRank is an unsupervised model for keyphrase extraction from scholarly
+documents that incorporates information from all positions of a word's
+occurrences into a biased PageRank. The model is described in:
 
 * Corina Florescu and Cornelia Caragea.
   PositionRank: An Unsupervised Approach to Keyphrase Extraction from Scholarly
   Documents.
   *In proceedings of ACL*, pages 1105-1115, 2017.
-
 """
 
 from __future__ import absolute_import
@@ -30,15 +31,20 @@ class PositionRank(SingleRank):
 
         import pke
 
+        # define the grammar for selecting the keyphrase candidates
+        grammar = "NP: {<ADJ>*<NOUN|PROPN>+}"
+
         # 1. create a PositionRank extractor.
         extractor = pke.unsupervised.PositionRank()
 
         # 2. load the content of the document.
-        extractor.load_document(input='path/to/input.xml')
+        extractor.load_document(input='path/to/input',
+                                language='en',
+                                normalization=None)
 
         # 3. select the noun phrases up to 3 words as keyphrase candidates.
-        grammar = "NP: {<ADJ>*<NOUN|PROPN>+}"
-        extractor.candidate_selection(grammar=grammar, maximum_word_number=3)
+        extractor.candidate_selection(grammar=grammar,
+                                      maximum_word_number=3)
 
         # 4. weight the candidates using the sum of their word's scores that are
         #    computed using random walk biaised with the position of the words
@@ -54,15 +60,19 @@ class PositionRank(SingleRank):
     """
 
     def __init__(self):
-        """Redefining initializer for PositionRank.
-        """
+        """Redefining initializer for PositionRank."""
 
         super(PositionRank, self).__init__()
 
         self.positions = defaultdict(float)
+        """Container the sums of word's inverse positions."""
 
-    def candidate_selection(self, grammar=None, maximum_word_number=3, **kwargs):
-        """Candidate selection heuristic.
+    def candidate_selection(self,
+                            grammar=None,
+                            maximum_word_number=3,
+                            **kwargs):
+        """Candidate selection heuristic using a syntactic PoS pattern for
+        noun phrase extraction.
 
         Keyphrase candidates are noun phrases that match the regular expression
         (adjective)*(noun)+, of length up to three.
@@ -72,10 +82,8 @@ class PositionRank(SingleRank):
                 "NP: {<ADJ>*<NOUN|PROPN>+}".
             maximum_word_number (int): the maximum number of words allowed for
                 keyphrase candidates, defaults to 3.
-
         """
 
-        # define default NP grammar if none provided
         if grammar is None:
             grammar = "NP:{<ADJ>*<NOUN|PROPN>+}"
 
@@ -89,7 +97,13 @@ class PositionRank(SingleRank):
                 del self.candidates[k]
 
     def build_word_graph(self, window=10, pos=None):
-        """Build the word graph from the document.
+        """Build the graph representation of the document.
+
+        In the graph, nodes are words that passes a Part-of-Speech filter. Two
+        nodes are connected if the words corresponding to these nodes co-occur
+        within a `window` of contiguous tokens. The weight of an edge is
+        computed based on the co-occurrence count of the two words within a
+        `window` of successive tokens.
 
         Args:
             window (int): the window within the sentence for connecting two
@@ -98,34 +112,37 @@ class PositionRank(SingleRank):
                 in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
         """
 
-        # define default pos tags set
         if pos is None:
             pos = {'NOUN', 'PROPN', 'ADJ'}
 
-        # flatten document and initialize nodes 
-        sequence = []
-
-        for sentence in self.sentences:
-            for j, node in enumerate(sentence.stems):
+        # flatten document as a sequence of only valid (word, position) tuples
+        text = []
+        for i, sentence in enumerate(self.sentences):
+            shift = sum([s.length for s in self.sentences[0:i]])
+            for j, word in enumerate(sentence.stems):
                 if sentence.pos[j] in pos:
-                    self.graph.add_node(node)
-                sequence.append((node, sentence.pos[j]))
+                    text.append((word, shift+j))
 
-                # compute the inverse position priors
-                self.positions[node] += 1 / (len(sequence)+1)
+        # add nodes to the graph
+        self.graph.add_nodes_from([word for (word, position) in text])
 
-        # loop through sequence to build the edges in the graph
-        for j, node_1 in enumerate(sequence):
-            for k in range(j+1, min(j+window, len(sequence))):
-                node_2 = sequence[k]
-                if node_1[1] in pos and node_2[1] in pos \
-                   and node_1[0] != node_2[0]:
-                    if not self.graph.has_edge(node_1[0], node_2[0]):
-                        self.graph.add_edge(node_1[0], node_2[0], weight=0)
-                    self.graph[node_1[0]][node_2[0]]['weight'] += 1
+        # add edges to the graph
+        for i, (node1, position1) in enumerate(text):
+            j = i+1
+            while j < len(text) and (text[j][1] - position1) < window:
+                node2, position2 = text[j]
+                if node1 != node2:
+                    if not self.graph.has_edge(node1, node2):
+                        self.graph.add_edge(node1, node2, weight=0)
+                    self.graph[node1][node2]['weight'] += 1
+                j = j + 1
+
+        # compute the sums of the word's inverse positions
+        for word, position in text:
+            self.positions[word] += 1 / (position + 1)
 
     def candidate_weighting(self, window=10, pos=None, normalized=False):
-        """Candidate weight calculation using random walk.
+        """Candidate weight calculation using a biased PageRank.
 
         Args:
             window (int): the window within the sentence for connecting two
@@ -136,23 +153,23 @@ class PositionRank(SingleRank):
                 defaults to False.
         """
 
-        # define default pos tags set
         if pos is None:
             pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # build the word graph
-        self.build_word_graph(window=window, pos=pos)
+        self.build_word_graph(window=window,
+                              pos=pos)
 
-        # normalize cummulated inverse positions
+        # normalize cumulated inverse positions
         norm = sum(self.positions.values())
         for word in self.positions:
             self.positions[word] /= norm
 
-        # compute the word scores using biaised random walk
+        # compute the word scores using biased random walk
         w = nx.pagerank(G=self.graph,
                         alpha=0.85,
+                        tol=0.0001,
                         personalization=self.positions,
-                        max_iter=100,
                         weight='weight')
 
         # loop through the candidates
