@@ -29,4 +29,4 @@ pke.train_supervised_model(input_dir=input_dir,
                            language='en',
                            normalization="stemming",
                            df=df_counts,
-                           model=pke.supervised.WINGNUS())
+                           model=pke.supervised.Kea())
