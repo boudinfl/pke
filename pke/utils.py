@@ -24,7 +24,7 @@ from pke.base import ISO_to_language
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
 
-from nltk.stem.snowball import SnowballStemmer as Stemmer
+from nltk.stem.snowball import SnowballStemmer
 from nltk.corpus import stopwords
 
 
@@ -41,8 +41,7 @@ def load_document_frequency_file(input_file,
             frequencies tuples, defaults to '\t'.
 
     Returns:
-        frequencies (dic): a dictionary of the form {term_1: freq, term_2:
-            freq}, freq being an integer.
+        dict: a dictionary of the form {term_1: freq}, freq being an integer.
     """
 
     # initialize the DF dictionary
@@ -144,11 +143,10 @@ def train_supervised_model(input_dir,
                            language='en',
                            normalization="stemming",
                            df=None,
-                           stemmer="porter",
                            model=None,
                            sep_doc_id=':',
                            sep_ref_keyphrases=',',
-                           reference_stemming=False):
+                           normalize_reference=False):
     """Build a supervised keyphrase extraction model from a set of documents and
     a reference file.
 
@@ -168,6 +166,8 @@ def train_supervised_model(input_dir,
             defaults to ':'.
         sep_ref_keyphrases (str): the separator used for keyphrases in
             reference file, defaults to ','.
+        normalize_reference (bool): whether to normalize the reference
+            keyphrases, default to False.
     """
 
     logging.info('building model {} from {}'.format(model, input_dir))
@@ -175,8 +175,8 @@ def train_supervised_model(input_dir,
     references = load_references(reference_file,
                                  sep_doc_id=sep_doc_id,
                                  sep_ref_keyphrases=sep_ref_keyphrases,
-                                 reference_stemming=reference_stemming,
-                                 stemmer=stemmer)
+                                 normalize_reference=normalize_reference,
+                                 language=language)
     training_instances = []
     training_classes = []
 
@@ -219,22 +219,40 @@ def train_supervised_model(input_dir,
 def load_references(input_file,
                     sep_doc_id=':',
                     sep_ref_keyphrases=',',
-                    reference_stemming=False,
-                    stemmer='porter'):
-    """Load a reference file and returns a dictionary."""
+                    normalize_reference=False,
+                    language="en",
+                    encoding='utf-8'):
+    """Load a reference file. Reference file can be either in json format or in
+    the SemEval-2010 official format.
+
+    Args:
+        input_file (str): path to the reference file.
+        sep_doc_id (str): the separator used for doc_id in reference file,
+            defaults to ':'.
+        sep_ref_keyphrases (str): the separator used for keyphrases in
+            reference file, defaults to ','.
+        normalize_reference (bool): whether to normalize the reference
+            keyphrases using stemming, default to False.
+        language (str): language of the input documents (used for computing the
+            stems), defaults to 'en' (english).
+        encoding (str): file encoding, default to utf-8.
+    """
 
     logging.info('loading reference keyphrases from {}'.format(input_file))
 
     references = defaultdict(list)
 
-    with codecs.open(input_file, 'r', 'utf-8') as f:
+    # open input file
+    with codecs.open(input_file, 'r', encoding) as f:
 
+        # load json data
         if input_file.endswith('.json'):
             references = json.load(f)
             for doc_id in references:
                 references[doc_id] = [keyphrase for variants in
                                       references[doc_id] for keyphrase in
                                       variants]
+        # or load SemEval-2010 file
         else:
             for line in f:
                 cols = line.strip().split(sep_doc_id)
@@ -246,10 +264,20 @@ def load_references(input_file,
                             references[doc_id].append(s)
                     else:
                         references[doc_id].append(v)
-                if reference_stemming:
-                    for i, k in enumerate(references[doc_id]):
-                        stems = [Stemmer(stemmer).stem(u) for u in k.split()]
-                        references[doc_id][i] = ' '.join(stems)
+
+        # normalize reference if needed
+        if normalize_reference:
+
+            # initialize stemmer
+            stemmer = SnowballStemmer("porter")
+            if language != 'en':
+                stemmer = SnowballStemmer(ISO_to_language[language],
+                                          ignore_stopwords=True)
+
+            for doc_id in references:
+                for i, keyphrase in enumerate(references[doc_id]):
+                    stems = [stemmer.stem(w) for w in keyphrase.split()]
+                    references[doc_id][i] = ' '.join(stems)
 
     return references
 
