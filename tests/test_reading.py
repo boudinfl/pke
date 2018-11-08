@@ -6,8 +6,8 @@ import codecs
 
 model = pke.unsupervised.TopicRank
 
-xml_test_file = 'examples/C-1.xml'
-raw_test_file = 'examples/C-1.txt'
+xml_test_file = 'tests/data/1939.xml'
+raw_test_file = 'tests/data/1939.txt'
 
 
 def test_reading():
@@ -31,7 +31,7 @@ def test_reading():
     with codecs.open(raw_test_file, 'r', 'utf-8') as f:
         extr4.load_document(f)
 
-    assert len(extr1.sentences) == 252 and \
+    assert len(extr1.sentences) == 4 and \
            extr2.sentences == extr3.sentences == extr4.sentences
 
 

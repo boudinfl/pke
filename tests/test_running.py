@@ -10,7 +10,7 @@ from pke.unsupervised import (
 )
 from pke.supervised import Kea, WINGNUS
 
-test_file = 'examples/C-1.xml'
+test_file = 'tests/data/1939.xml'
 
 
 def test_unsupervised_run():

@@ -1,34 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 import pke
 
 valid_pos = {'NOUN', 'PROPN', 'ADJ'}
-test_file = 'examples/C-1.xml'
+test_file = 'tests/data/1939.xml'
 
 
-def test_stupidke_candidate_selection():
+def test_firstphrases_candidate_selection():
     extractor = pke.unsupervised.FirstPhrases()
     extractor.load_document(test_file)
-
     extractor.candidate_selection(pos=valid_pos)
+    assert len(extractor.candidates) == 20
 
-    assert len(extractor.candidates) == 612
 
-
-def test_stupidke_candidate_weighting():
+def test_firstphrases_candidate_weighting():
     extractor = pke.unsupervised.FirstPhrases()
     extractor.load_document(test_file)
-
     extractor.candidate_selection(pos=valid_pos)
-
     extractor.candidate_weighting()
-
     keyphrases = [k for k, s in extractor.get_n_best(n=3)]
-
-    assert keyphrases == ['scalable grid service discovery', 'uddi', 'abstract']
+    assert keyphrases == ['compatibility', 'systems', 'linear constraints']
 
 
 if __name__ == '__main__':
-    test_stupidke_candidate_selection()
-    test_stupidke_candidate_weighting()
+    test_firstphrases_candidate_selection()
+    test_firstphrases_candidate_weighting()

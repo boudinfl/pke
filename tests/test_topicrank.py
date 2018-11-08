@@ -4,30 +4,23 @@
 import pke
 
 valid_pos = {'NOUN', 'PROPN', 'ADJ'}
-test_file = 'examples/C-1.xml'
+test_file = 'tests/data/1939.xml'
 
 
 def test_topicrank_candidate_selection():
     extractor = pke.unsupervised.TopicRank()
     extractor.load_document(test_file)
-
     extractor.candidate_selection(pos=valid_pos)
-
-    assert len(extractor.candidates) == 567
+    assert len(extractor.candidates) == 20
 
 
 def test_topicrank_candidate_weighting():
     extractor = pke.unsupervised.TopicRank()
     extractor.load_document(test_file)
-
     extractor.candidate_selection(pos=valid_pos)
-
-    extractor.candidate_weighting(
-        threshold=0.74, method='average')
-
+    extractor.candidate_weighting(threshold=0.74, method='average')
     keyphrases = [k for k, s in extractor.get_n_best(n=3)]
-
-    assert keyphrases == ['registries', 'grid services', 'dht']
+    assert keyphrases == ['set', 'systems', 'solutions']
 
 
 if __name__ == '__main__':
