@@ -297,7 +297,7 @@ to be considered, defaults to 1.</li>
 <dl class="attribute">
 <dt id="pke.base.LoadFile.language">
 <code class="descname">language</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.LoadFile.language" title="Permalink to this definition">¶</a></dt>
-<dd><p>Language of the input file</p>
+<dd><p>Language of the input file.</p>
 </dd></dl>
 
 <dl class="method">
@@ -313,9 +313,8 @@ to be considered, defaults to 1.</li>
 <li><strong>language</strong> (<em>str</em>) – language of the input, defaults to ‘en’.</li>
 <li><strong>encoding</strong> (<em>str</em>) – encoding of the raw file.</li>
 <li><strong>normalization</strong> (<em>str</em>) – word normalization method, defaults to
-‘stemming’. Other possible values are ‘lemmatization’ (should be
-used with Stanford CoreNLP files) or ‘None’ for using word
-surface forms instead of stems/lemmas.</li>
+‘stemming’. Other possible values are ‘lemmatization’ or ‘None’
+for using word surface forms instead of stems/lemmas.</li>
 </ul>
 </td>
 </tr>
@@ -353,6 +352,18 @@ surface forms instead of stems/lemmas.</li>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.base.LoadFile.normalization">
+<code class="descname">normalization</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.LoadFile.normalization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Word normalization method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.base.LoadFile.normalize_POS_tags">
+<code class="descname">normalize_POS_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.normalize_POS_tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes the PoS tags from udp-penn to UD.</p>
 </dd></dl>
 
 <dl class="attribute">

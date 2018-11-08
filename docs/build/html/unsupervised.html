@@ -499,54 +499,62 @@ levenshtein distance, defaults to 0.8.</li>
 <dl class="class">
 <dt id="pke.unsupervised.TextRank">
 <em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">TextRank</code><a class="headerlink" href="#pke.unsupervised.TextRank" title="Permalink to this definition">¶</a></dt>
-<dd><p>TextRank keyphrase extraction model.
-This model is essentially the same as SingleRank as its core is the
-PageRank algorithm. In this model the edge’s weight is not used.</p>
+<dd><p>TextRank for keyword extraction.</p>
+<p>This model builds a graph that represents the text. A graph based ranking
+algorithm is then applied to extract the lexical units (here the words) that
+are most important in the text.</p>
+<p>In this implementation, nodes are words of certain part-of-speech (nouns
+and adjectives) and edges represent co-occurrence relation, controlled by
+the distance between word occurrences (here a window of 2 words). Nodes
+are ranked by the TextRank graph-based ranking algorithm in its unweighted
+variant.</p>
 <p>Parameterized example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pke</span>
-<span class="kn">import</span> <span class="nn">string</span>
-<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="k">import</span> <span class="n">stopwords</span>
+
+<span class="c1"># define the set of valid Part-of-Speeches</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;NOUN&#39;</span><span class="p">,</span> <span class="s1">&#39;PROPN&#39;</span><span class="p">,</span> <span class="s1">&#39;ADJ&#39;</span><span class="p">}</span>
 
 <span class="c1"># 1. create a TextRank extractor.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">TextRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">TextRank</span><span class="p">()</span>
 
 <span class="c1"># 2. load the content of the document.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="s1">&#39;path/to/input&#39;</span><span class="p">,</span>
+                        <span class="n">language</span><span class="o">=</span><span class="s1">&#39;en&#39;</span><span class="p">,</span>
+                        <span class="n">normalization</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-<span class="c1"># 3. select the the longest sequences of nouns and adjectives, that do</span>
-<span class="c1">#    not contain punctuation marks or stopwords as candidates.</span>
-<span class="n">pos</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;NN&#39;</span><span class="p">,</span> <span class="s1">&#39;NNS&#39;</span><span class="p">,</span> <span class="s1">&#39;NNP&#39;</span><span class="p">,</span> <span class="s1">&#39;NNPS&#39;</span><span class="p">,</span> <span class="s1">&#39;JJ&#39;</span><span class="p">,</span> <span class="s1">&#39;JJR&#39;</span><span class="p">,</span> <span class="s1">&#39;JJS&#39;</span><span class="p">])</span>
-<span class="n">stoplist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">)</span>
-<span class="n">stoplist</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-lrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lsb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rsb-&#39;</span><span class="p">]</span>
-<span class="n">stoplist</span> <span class="o">+=</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
+<span class="c1"># 3. build the graph representation of the document and rank the words.</span>
+<span class="c1">#    Keyphrase candidates are composed from the 33-percent</span>
+<span class="c1">#    highest-ranked words.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                              <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span>
+                              <span class="n">top_percent</span><span class="o">=</span><span class="mf">0.33</span><span class="p">)</span>
 
-<span class="c1"># 4. weight the candidates using the sum of their word&#39;s scores</span>
-<span class="c1">#    that are computed using random walk. In the graph, nodes are words</span>
-<span class="c1">#    (nouns and adjectives only) that are connected if they occur in a</span>
-<span class="c1">#    window of 2 words.</span>
-<span class="c1">#    OR</span>
-<span class="c1">#    use option `top` to extract candidates according</span>
-<span class="c1">#    to (Mihalcea and Tarau, 2004, 3.1)</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">)</span>
-
-<span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
+<span class="c1"># 4. get the 10-highest scored candidates as keyphrases</span>
 <span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="method">
 <dt id="pke.unsupervised.TextRank.build_word_graph">
 <code class="descname">build_word_graph</code><span class="sig-paren">(</span><em>window=2</em>, <em>pos=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TextRank.build_word_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the word graph from the document.</p>
+<dd><p>Build a graph representation of the document in which nodes/vertices
+are words and edges represent co-occurrence relation. Syntactic filters
+can be applied to select only words of certain Part-of-Speech.
+Co-occurrence relations can be controlled using the distance between
+word occurrences in the document.</p>
+<p>As the original paper does not give precise details on how the word
+graph is constructed, we make the following assumptions from the example
+given in Figure 2: 1) sentence boundaries <strong>are not</strong> taken into account
+and, 2) stopwords and punctuation marks <strong>are</strong> considered as words when
+computing the window.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>window</strong> (<em>int</em>) – the window within the sentence for connecting two
-words in the graph, defaults to 2.</li>
+<li><strong>window</strong> (<em>int</em>) – the window for connecting two words in the graph,
+defaults to 2.</li>
 <li><strong>pos</strong> (<em>set</em>) – the set of valid pos for words to be considered as nodes
-in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).</li>
+in the graph, defaults to (‘NOUN’, ‘PROPN’, ‘ADJ’).</li>
 </ul>
 </td>
 </tr>
@@ -556,20 +564,14 @@ in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).</li>
 
 <dl class="method">
 <dt id="pke.unsupervised.TextRank.candidate_selection">
-<code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>pos=None</em>, <em>stoplist=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TextRank.candidate_selection" title="Permalink to this definition">¶</a></dt>
-<dd><p>The candidate selection as described in the TextRank paper.</p>
+<code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>pos=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TextRank.candidate_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Candidate selection using longest sequences of PoS.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pos</strong> (<em>set</em>) – the set of valid POS tags, defaults to (NN, NNS,
-NNP, NNPS, JJ, JJR, JJS).</li>
-<li><strong>stoplist</strong> (<em>list</em>) – the stoplist for filtering candidates, defaults
-to the nltk stoplist. Words that are punctuation marks from
-string.punctuation are not allowed.</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pos</strong> (<em>set</em>) – set of valid POS tags, defaults to (‘NOUN’, ‘PROPN’,
+‘ADJ’).</td>
 </tr>
 </tbody>
 </table>
@@ -577,21 +579,24 @@ string.punctuation are not allowed.</li>
 
 <dl class="method">
 <dt id="pke.unsupervised.TextRank.candidate_weighting">
-<code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>window=2</em>, <em>pos=None</em>, <em>normalized=False</em>, <em>top=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TextRank.candidate_weighting" title="Permalink to this definition">¶</a></dt>
-<dd><p>Candidate ranking using random walk.</p>
+<code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>window=2</em>, <em>pos=None</em>, <em>top_percent=None</em>, <em>normalized=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TextRank.candidate_weighting" title="Permalink to this definition">¶</a></dt>
+<dd><p>Tailored candidate ranking method for TextRank. Keyphrase candidates
+are either composed from the T-percent highest-ranked words as in the
+original paper or extracted using the <cite>candidate_selection()</cite> method.
+Candidates are ranked using the sum of their (normalized?) words.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>window</strong> (<em>int</em>) – the window within the sentence for connecting two
-words in the graph, defaults to 2.</li>
+<li><strong>window</strong> (<em>int</em>) – the window for connecting two words in the graph,
+defaults to 2.</li>
 <li><strong>pos</strong> (<em>set</em>) – the set of valid pos for words to be considered as nodes
-in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).</li>
+in the graph, defaults to (‘NOUN’, ‘PROPN’, ‘ADJ’).</li>
+<li><strong>top_percent</strong> (<em>float</em>) – percentage of top vertices to keep for phrase
+generation.</li>
 <li><strong>normalized</strong> (<em>False</em>) – normalize keyphrase score by their length,
 defaults to False.</li>
-<li><strong>top</strong> (<em>float</em>) – percent of top vertices to keep for keyterm
-generation as described in (Mihalcea and Tarau, 2004, 3.1)</li>
 </ul>
 </td>
 </tr>
@@ -614,30 +619,31 @@ generation as described in (Mihalcea and Tarau, 2004, 3.1)</li>
 <dt id="pke.unsupervised.SingleRank">
 <em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">SingleRank</code><a class="headerlink" href="#pke.unsupervised.SingleRank" title="Permalink to this definition">¶</a></dt>
 <dd><p>SingleRank keyphrase extraction model.</p>
+<p>This model is an extension of the TextRank model that uses the number of
+co-occurrences to weigh edges in the graph.</p>
 <p>Parameterized example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pke</span>
-<span class="kn">import</span> <span class="nn">string</span>
-<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="k">import</span> <span class="n">stopwords</span>
+
+<span class="c1"># define the set of valid Part-of-Speeches</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;NOUN&#39;</span><span class="p">,</span> <span class="s1">&#39;PROPN&#39;</span><span class="p">,</span> <span class="s1">&#39;ADJ&#39;</span><span class="p">}</span>
 
 <span class="c1"># 1. create a SingleRank extractor.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">SingleRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">SingleRank</span><span class="p">()</span>
 
 <span class="c1"># 2. load the content of the document.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="s1">&#39;path/to/input&#39;</span><span class="p">,</span>
+                        <span class="n">language</span><span class="o">=</span><span class="s1">&#39;en&#39;</span><span class="p">,</span>
+                        <span class="n">normalization</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-<span class="c1"># 3. select the the longest sequences of nouns and adjectives, that do</span>
-<span class="c1">#    not contain punctuation marks or stopwords as candidates.</span>
-<span class="n">pos</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;NN&#39;</span><span class="p">,</span> <span class="s1">&#39;NNS&#39;</span><span class="p">,</span> <span class="s1">&#39;NNP&#39;</span><span class="p">,</span> <span class="s1">&#39;NNPS&#39;</span><span class="p">,</span> <span class="s1">&#39;JJ&#39;</span><span class="p">,</span> <span class="s1">&#39;JJR&#39;</span><span class="p">,</span> <span class="s1">&#39;JJS&#39;</span><span class="p">])</span>
-<span class="n">stoplist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">)</span>
-<span class="n">stoplist</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-lrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lsb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rsb-&#39;</span><span class="p">]</span>
-<span class="n">stoplist</span> <span class="o">+=</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
+<span class="c1"># 3. select the longest sequences of nouns and adjectives as candidates.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">)</span>
 
 <span class="c1"># 4. weight the candidates using the sum of their word&#39;s scores that are</span>
-<span class="c1">#    computed using random walk. In the graph, nodes are words (nouns</span>
-<span class="c1">#    and adjectives only) that are connected if they occur in a window</span>
-<span class="c1">#    of 10 words.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">)</span>
+<span class="c1">#    computed using random walk. In the graph, nodes are words of</span>
+<span class="c1">#    certain part-of-speech (nouns and adjectives) that are connected if</span>
+<span class="c1">#    they occur in a window of 10 words.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                              <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">)</span>
 
 <span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
 <span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -646,37 +652,23 @@ generation as described in (Mihalcea and Tarau, 2004, 3.1)</li>
 <dl class="method">
 <dt id="pke.unsupervised.SingleRank.build_word_graph">
 <code class="descname">build_word_graph</code><span class="sig-paren">(</span><em>window=10</em>, <em>pos=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.SingleRank.build_word_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the word graph from the document.</p>
+<dd><p>Build a graph representation of the document in which nodes/vertices
+are words and edges represent co-occurrence relation. Syntactic filters
+can be applied to select only words of certain Part-of-Speech.
+Co-occurrence relations can be controlled using the distance (window)
+between word occurrences in the document.</p>
+<p>The number of times two words co-occur in a window is encoded as <em>edge
+weights</em>. Sentence boundaries <strong>are not</strong> taken into account in the
+window.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>window</strong> (<em>int</em>) – the window within the sentence for connecting two
-words in the graph, defaults to 10.</li>
+<li><strong>window</strong> (<em>int</em>) – the window for connecting two words in the graph,
+defaults to 10.</li>
 <li><strong>pos</strong> (<em>set</em>) – the set of valid pos for words to be considered as nodes
-in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pke.unsupervised.SingleRank.candidate_selection">
-<code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>pos=None</em>, <em>stoplist=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.SingleRank.candidate_selection" title="Permalink to this definition">¶</a></dt>
-<dd><p>The candidate selection as described in the SingleRank paper.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pos</strong> (<em>set</em>) – the set of valid POS tags, defaults to (NN, NNS,
-NNP, NNPS, JJ, JJR, JJS).</li>
-<li><strong>stoplist</strong> (<em>list</em>) – the stoplist for filtering candidates, defaults
-to the nltk stoplist. Words that are punctuation marks from
-string.punctuation are not allowed.</li>
+in the graph, defaults to (‘NOUN’, ‘PROPN’, ‘ADJ’).</li>
 </ul>
 </td>
 </tr>
@@ -687,7 +679,9 @@ string.punctuation are not allowed.</li>
 <dl class="method">
 <dt id="pke.unsupervised.SingleRank.candidate_weighting">
 <code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>window=10</em>, <em>pos=None</em>, <em>normalized=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.SingleRank.candidate_weighting" title="Permalink to this definition">¶</a></dt>
-<dd><p>Candidate ranking using random walk.</p>
+<dd><p>Keyphrase candidate ranking using the weighted variant of the
+TextRank formulae. Candidates are scored by the sum of the scores of
+their words.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -696,7 +690,7 @@ string.punctuation are not allowed.</li>
 <li><strong>window</strong> (<em>int</em>) – the window within the sentence for connecting two
 words in the graph, defaults to 10.</li>
 <li><strong>pos</strong> (<em>set</em>) – the set of valid pos for words to be considered as nodes
-in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).</li>
+in the graph, defaults to (‘NOUN’, ‘PROPN’, ‘ADJ’).</li>
 <li><strong>normalized</strong> (<em>False</em>) – normalize keyphrase score by their length,
 defaults to False.</li>
 </ul>
@@ -704,12 +698,6 @@ defaults to False.</li>
 </tr>
 </tbody>
 </table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pke.unsupervised.SingleRank.graph">
-<code class="descname">graph</code><em class="property"> = None</em><a class="headerlink" href="#pke.unsupervised.SingleRank.graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>The word graph.</p>
 </dd></dl>
 
 </dd></dl>
@@ -722,31 +710,31 @@ defaults to False.</li>
 <em class="property">class </em><code class="descclassname">pke.unsupervised.</code><code class="descname">TopicRank</code><a class="headerlink" href="#pke.unsupervised.TopicRank" title="Permalink to this definition">¶</a></dt>
 <dd><p>TopicRank keyphrase extraction model.</p>
 <p>Parameterized example:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pke</span>
-<span class="kn">import</span> <span class="nn">string</span>
-<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="k">import</span> <span class="n">stopwords</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span> <span class="kn">import</span> <span class="nn">pke</span>
+ <span class="kn">import</span> <span class="nn">string</span>
+ <span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="k">import</span> <span class="n">stopwords</span>
 
-<span class="c1"># 1. create a TopicRank extractor.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">TopicRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
+ <span class="c1"># 1. create a TopicRank extractor.</span>
+ <span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">TopicRank</span><span class="p">()</span>
 
-<span class="c1"># 2. load the content of the document.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+ <span class="c1"># 2. load the content of the document.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
 
-<span class="c1"># 3. select the longest sequences of nouns and adjectives, that do</span>
-<span class="c1">#    not contain punctuation marks or stopwords as candidates.</span>
-<span class="n">pos</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;NN&#39;</span><span class="p">,</span> <span class="s1">&#39;NNS&#39;</span><span class="p">,</span> <span class="s1">&#39;NNP&#39;</span><span class="p">,</span> <span class="s1">&#39;NNPS&#39;</span><span class="p">,</span> <span class="s1">&#39;JJ&#39;</span><span class="p">,</span> <span class="s1">&#39;JJR&#39;</span><span class="p">,</span> <span class="s1">&#39;JJS&#39;</span><span class="p">])</span>
-<span class="n">stoplist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">)</span>
-<span class="n">stoplist</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-lrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lsb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rsb-&#39;</span><span class="p">]</span>
-<span class="n">stoplist</span> <span class="o">+=</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
+ <span class="c1"># 3. select the longest sequences of nouns and adjectives, that do</span>
+ <span class="c1">#    not contain punctuation marks or stopwords as candidates.</span>
+ <span class="n">pos</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;NOUN&#39;</span><span class="p">,</span> <span class="s1">&#39;PROPN&#39;</span><span class="p">,</span> <span class="s1">&#39;ADJ&#39;</span><span class="p">}</span>
+ <span class="n">stoplist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">)</span>
+ <span class="n">stoplist</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-lrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lsb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rsb-&#39;</span><span class="p">]</span>
+ <span class="n">stoplist</span> <span class="o">+=</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
+ <span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span> <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
 
-<span class="c1"># 4. build topics by grouping candidates with HAC (average linkage,</span>
-<span class="c1">#    threshold of 1/4 of shared stems). Weight the topics using random</span>
-<span class="c1">#    walk, and select the first occuring candidate from each topic.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.74</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">)</span>
+ <span class="c1"># 4. build topics by grouping candidates with HAC (average linkage,</span>
+ <span class="c1">#    threshold of 1/4 of shared stems). Weight the topics using random</span>
+ <span class="c1">#    walk, and select the first occuring candidate from each topic.</span>
+ <span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">threshold</span><span class="o">=</span><span class="mf">0.74</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;average&#39;</span><span class="p">)</span>
 
-<span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
-<span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+ <span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
+ <span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
 <dl class="method">
@@ -765,8 +753,8 @@ candidates.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>pos</strong> (<em>set</em>) – the set of valid POS tags, defaults to (NN, NNS, NNP,
-NNPS, JJ, JJR, JJS).</li>
+<li><strong>pos</strong> (<em>set</em>) – the set of valid POS tags, defaults to (‘NOUN’,
+‘PROPN’, ‘ADJ’).</li>
 <li><strong>stoplist</strong> (<em>list</em>) – the stoplist for filtering candidates, defaults to
 the nltk stoplist. Words that are punctuation marks from
 string.punctuation are not allowed.</li>
@@ -861,28 +849,29 @@ X (matrix): vectorized representation of the candidates.</td>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pke</span>
 <span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="k">import</span> <span class="n">stopwords</span>
 
+<span class="c1"># define the valid Part-of-Speeches to occur in the graph</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;NOUN&#39;</span><span class="p">,</span> <span class="s1">&#39;PROPN&#39;</span><span class="p">,</span> <span class="s1">&#39;ADJ&#39;</span><span class="p">}</span>
+
+<span class="c1"># define the grammar for selecting the keyphrase candidates</span>
+<span class="n">grammar</span> <span class="o">=</span> <span class="s2">&quot;NP: {&lt;ADJ&gt;*&lt;NOUN|PROPN&gt;+}&quot;</span>
+
 <span class="c1"># 1. create a TopicalPageRank extractor.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">TopicalPageRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">TopicalPageRank</span><span class="p">()</span>
 
 <span class="c1"># 2. load the content of the document.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="s1">&#39;path/to/input&#39;</span><span class="p">,</span>
+                        <span class="n">language</span><span class="o">=</span><span class="s1">&#39;en&#39;</span><span class="p">,</span>
+                        <span class="n">normalization</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
 <span class="c1"># 3. select the noun phrases as keyphrase candidates.</span>
-<span class="n">grammar</span> <span class="o">=</span> <span class="s2">&quot;NP:{&lt;JJ.*&gt;*&lt;NN.*&gt;+}&quot;</span>
 <span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">grammar</span><span class="o">=</span><span class="n">grammar</span><span class="p">)</span>
 
-<span class="c1"># 4. weight the keyphrase candidates using Topical PageRank. Builds a</span>
-<span class="c1">#    word-graph in which nodes are words with POS and edges are weighted</span>
-<span class="c1">#    using the window of words.</span>
-<span class="n">window</span> <span class="o">=</span> <span class="mi">10</span>
-<span class="n">pos</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;NN&#39;</span><span class="p">,</span> <span class="s1">&#39;NNS&#39;</span><span class="p">,</span> <span class="s1">&#39;NNP&#39;</span><span class="p">,</span> <span class="s1">&#39;NNPS&#39;</span><span class="p">,</span> <span class="s1">&#39;JJ&#39;</span><span class="p">,</span> <span class="s1">&#39;JJR&#39;</span><span class="p">,</span> <span class="s1">&#39;JJS&#39;</span><span class="p">])</span>
-<span class="n">lda_model</span> <span class="o">=</span> <span class="s1">&#39;path/to/lda_model&#39;</span>
-<span class="n">stoplist</span> <span class="o">=</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
-                    <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span>
-                    <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span>
-                    <span class="n">lda_model</span><span class="o">=</span><span class="n">lda_model</span><span class="p">,</span>
-                    <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
+<span class="c1"># 4. weight the keyphrase candidates using Single Topical PageRank.</span>
+<span class="c1">#    Builds a word-graph in which edges connecting two words occurring</span>
+<span class="c1">#    in a window are weighted by co-occurrence counts.</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                              <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span>
+                              <span class="n">lda_model</span><span class="o">=</span><span class="s1">&#39;path/to/lda_model&#39;</span><span class="p">)</span>
 
 <span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
 <span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -892,15 +881,22 @@ X (matrix): vectorized representation of the candidates.</td>
 <dt id="pke.unsupervised.TopicalPageRank.candidate_selection">
 <code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>grammar=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TopicalPageRank.candidate_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Candidate selection heuristic.</p>
-<p>Keyphrase candidates are noun phrases that match the regular expression
+<p>Here we select noun phrases that match the regular expression
 (adjective)*(noun)+, which represents zero or more adjectives followed
 by one or more nouns (Liu et al., 2010).</p>
+<p>Note that there is no details on this in the Single TPR paper, and these
+are the only information that can be found:</p>
+<blockquote>
+<div><p>… a set of expressions or noun phrases …</p>
+<p>… Adjectives and nouns are then merged into keyphrases and
+corresponding scores are summed and ranked. …</p>
+</div></blockquote>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>grammar</strong> (<em>str</em>) – grammar defining POS patterns of NPs, defaults to
-“NP: {&lt;JJ.*&gt;*&lt;NN.*&gt;+}”.</td>
+“NP: {&lt;ADJ&gt;*&lt;NOUN|PROPN&gt;+}”.</td>
 </tr>
 </tbody>
 </table>
@@ -909,7 +905,8 @@ by one or more nouns (Liu et al., 2010).</p>
 <dl class="method">
 <dt id="pke.unsupervised.TopicalPageRank.candidate_weighting">
 <code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>window=10</em>, <em>pos=None</em>, <em>lda_model=None</em>, <em>stoplist=None</em>, <em>normalized=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.TopicalPageRank.candidate_weighting" title="Permalink to this definition">¶</a></dt>
-<dd><p>Candidate weight calculation using random walk.</p>
+<dd><p>Candidate weight calculation using a biased PageRank towards LDA
+topic distributions.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -918,8 +915,7 @@ by one or more nouns (Liu et al., 2010).</p>
 <li><strong>window</strong> (<em>int</em>) – the window within the sentence for connecting two
 words in the graph, defaults to 10.</li>
 <li><strong>pos</strong> (<em>set</em>) – the set of valid pos for words to be considered as
-nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
-JJR, JJS).</li>
+nodes in the graph, defaults to (‘NOUN’, ‘PROPN’, ‘ADJ’).</li>
 <li><strong>lda_model</strong> (<em>pickle.gz</em>) – an LDA model produced by sklearn in
 pickle compressed (.gz) format</li>
 <li><strong>stoplist</strong> (<em>list</em>) – the stoplist for filtering words in LDA, defaults
@@ -945,23 +941,31 @@ defaults to False.</li>
 <p>Parameterized example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pke</span>
 
+<span class="c1"># define the valid Part-of-Speeches to occur in the graph</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;NOUN&#39;</span><span class="p">,</span> <span class="s1">&#39;PROPN&#39;</span><span class="p">,</span> <span class="s1">&#39;ADJ&#39;</span><span class="p">}</span>
+
+<span class="c1"># define the grammar for selecting the keyphrase candidates</span>
+<span class="n">grammar</span> <span class="o">=</span> <span class="s2">&quot;NP: {&lt;ADJ&gt;*&lt;NOUN|PROPN&gt;+}&quot;</span>
+
 <span class="c1"># 1. create a PositionRank extractor.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">PositionRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">PositionRank</span><span class="p">()</span>
 
 <span class="c1"># 2. load the content of the document.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="s1">&#39;path/to/input&#39;</span><span class="p">,</span>
+                        <span class="n">language</span><span class="o">=</span><span class="s1">&#39;en&#39;</span><span class="p">,</span>
+                        <span class="n">normalization</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
 <span class="c1"># 3. select the noun phrases up to 3 words as keyphrase candidates.</span>
-<span class="n">grammar</span> <span class="o">=</span> <span class="s2">&quot;NP: {&lt;JJ.*&gt;*&lt;NN.*&gt;+}&quot;</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">grammar</span><span class="o">=</span><span class="n">grammar</span><span class="p">,</span> <span class="n">maximum_word_number</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">grammar</span><span class="o">=</span><span class="n">grammar</span><span class="p">,</span>
+                              <span class="n">maximum_word_number</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 
 <span class="c1"># 4. weight the candidates using the sum of their word&#39;s scores that are</span>
 <span class="c1">#    computed using random walk biaised with the position of the words</span>
 <span class="c1">#    in the document. In the graph, nodes are words (nouns and</span>
 <span class="c1">#    adjectives only) that are connected if they occur in a window of</span>
 <span class="c1">#    10 words.</span>
-<span class="n">pos</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;NN&#39;</span><span class="p">,</span> <span class="s1">&#39;NNS&#39;</span><span class="p">,</span> <span class="s1">&#39;NNP&#39;</span><span class="p">,</span> <span class="s1">&#39;NNPS&#39;</span><span class="p">,</span> <span class="s1">&#39;JJ&#39;</span><span class="p">,</span> <span class="s1">&#39;JJR&#39;</span><span class="p">,</span> <span class="s1">&#39;JJS&#39;</span><span class="p">])</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_weighting</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+                              <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">)</span>
 
 <span class="c1"># 5. get the 10-highest scored candidates as keyphrases</span>
 <span class="n">keyphrases</span> <span class="o">=</span> <span class="n">extractor</span><span class="o">.</span><span class="n">get_n_best</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
@@ -970,7 +974,12 @@ defaults to False.</li>
 <dl class="method">
 <dt id="pke.unsupervised.PositionRank.build_word_graph">
 <code class="descname">build_word_graph</code><span class="sig-paren">(</span><em>window=10</em>, <em>pos=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.PositionRank.build_word_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the word graph from the document.</p>
+<dd><p>Build the graph representation of the document.</p>
+<p>In the graph, nodes are words that passes a Part-of-Speech filter. Two
+nodes are connected if the words corresponding to these nodes co-occur
+within a <cite>window</cite> of contiguous tokens. The weight of an edge is
+computed based on the co-occurrence count of the two words within a
+<cite>window</cite> of successive tokens.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -979,7 +988,7 @@ defaults to False.</li>
 <li><strong>window</strong> (<em>int</em>) – the window within the sentence for connecting two
 words in the graph, defaults to 10.</li>
 <li><strong>pos</strong> (<em>set</em>) – the set of valid pos for words to be considered as nodes
-in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).</li>
+in the graph, defaults to (‘NOUN’, ‘PROPN’, ‘ADJ’).</li>
 </ul>
 </td>
 </tr>
@@ -990,7 +999,8 @@ in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).</li>
 <dl class="method">
 <dt id="pke.unsupervised.PositionRank.candidate_selection">
 <code class="descname">candidate_selection</code><span class="sig-paren">(</span><em>grammar=None</em>, <em>maximum_word_number=3</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.PositionRank.candidate_selection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Candidate selection heuristic.</p>
+<dd><p>Candidate selection heuristic using a syntactic PoS pattern for
+noun phrase extraction.</p>
 <p>Keyphrase candidates are noun phrases that match the regular expression
 (adjective)*(noun)+, of length up to three.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -999,7 +1009,7 @@ in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).</li>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>grammar</strong> (<em>str</em>) – grammar defining POS patterns of NPs, defaults to
-“NP: {&lt;JJ.*&gt;*&lt;NN.*&gt;+}”.</li>
+“NP: {&lt;ADJ&gt;*&lt;NOUN|PROPN&gt;+}”.</li>
 <li><strong>maximum_word_number</strong> (<em>int</em>) – the maximum number of words allowed for
 keyphrase candidates, defaults to 3.</li>
 </ul>
@@ -1012,7 +1022,7 @@ keyphrase candidates, defaults to 3.</li>
 <dl class="method">
 <dt id="pke.unsupervised.PositionRank.candidate_weighting">
 <code class="descname">candidate_weighting</code><span class="sig-paren">(</span><em>window=10</em>, <em>pos=None</em>, <em>normalized=False</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.unsupervised.PositionRank.candidate_weighting" title="Permalink to this definition">¶</a></dt>
-<dd><p>Candidate weight calculation using random walk.</p>
+<dd><p>Candidate weight calculation using a biased PageRank.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -1021,7 +1031,7 @@ keyphrase candidates, defaults to 3.</li>
 <li><strong>window</strong> (<em>int</em>) – the window within the sentence for connecting two
 words in the graph, defaults to 10.</li>
 <li><strong>pos</strong> (<em>set</em>) – the set of valid pos for words to be considered as nodes
-in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).</li>
+in the graph, defaults to (‘NOUN’, ‘PROPN’, ‘ADJ’).</li>
 <li><strong>normalized</strong> (<em>False</em>) – normalize keyphrase score by their length,
 defaults to False.</li>
 </ul>
@@ -1029,6 +1039,12 @@ defaults to False.</li>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.unsupervised.PositionRank.positions">
+<code class="descname">positions</code><em class="property"> = None</em><a class="headerlink" href="#pke.unsupervised.PositionRank.positions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Container the sums of word’s inverse positions.</p>
 </dd></dl>
 
 </dd></dl>
@@ -1046,14 +1062,14 @@ defaults to False.</li>
 <span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="k">import</span> <span class="n">stopwords</span>
 
 <span class="c1"># 1. create a MultipartiteRank extractor.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">MultipartiteRank</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;input.xml&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">MultipartiteRank</span><span class="p">()</span>
 
 <span class="c1"># 2. load the content of the document.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
 
 <span class="c1"># 3. select the longest sequences of nouns and adjectives, that do</span>
 <span class="c1">#    not contain punctuation marks or stopwords as candidates.</span>
-<span class="n">pos</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="s1">&#39;NN&#39;</span><span class="p">,</span> <span class="s1">&#39;NNS&#39;</span><span class="p">,</span> <span class="s1">&#39;NNP&#39;</span><span class="p">,</span> <span class="s1">&#39;NNPS&#39;</span><span class="p">,</span> <span class="s1">&#39;JJ&#39;</span><span class="p">,</span> <span class="s1">&#39;JJR&#39;</span><span class="p">,</span> <span class="s1">&#39;JJS&#39;</span><span class="p">])</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;NOUN&#39;</span><span class="p">,</span> <span class="s1">&#39;PROPN&#39;</span><span class="p">,</span> <span class="s1">&#39;ADJ&#39;</span><span class="p">}</span>
 <span class="n">stoplist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">)</span>
 <span class="n">stoplist</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-lrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lsb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rsb-&#39;</span><span class="p">]</span>
 <span class="n">stoplist</span> <span class="o">+=</span> <span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
