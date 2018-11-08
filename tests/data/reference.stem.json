@@ -1,98 +1,48 @@
 {
-    "C-41": [
-        [
-            "adapt resourc manag"
-        ],
-        [
-            "distribut real-tim embed system"
-        ],
-        [
-            "end-to-end qualiti of servic",
-            "servic end-to-end qualiti"
-        ],
-        [
-            "hybrid adapt resourcemanag middlewar"
-        ],
-        [
-            "hybrid control techniqu"
-        ],
-        [
-            "real-tim video distribut system"
-        ],
-        [
-            "real-tim corba specif"
-        ],
-        [
-            "video encoding/decod"
-        ],
-        [
-            "resourc reserv mechan"
-        ],
-        [
-            "dynam environ"
-        ],
-        [
-            "stream servic"
-        ],
-        [
-            "distribut real-tim emb system"
-        ],
-        [
-            "hybrid system"
-        ],
-        [
-            "qualiti of servic",
-            "servic qualiti"
-        ]
+  "C-41": [
+    [
+      "adapt resourc manag"
     ],
-    "C-42": [
-        [
-            "ensembl kalman filter"
-        ],
-        [
-            "data assimil methodolog"
-        ],
-        [
-            "hydrocarbon reservoir simul"
-        ],
-        [
-            "energi explor"
-        ],
-        [
-            "tigr grid comput environ"
-        ],
-        [
-            "grid comput"
-        ],
-        [
-            "cyberinfrastructur develop project"
-        ],
-        [
-            "high perform comput"
-        ],
-        [
-            "tigr grid middlewar"
-        ],
-        [
-            "strateg applic area"
-        ],
-        [
-            "gridwai metaschedul"
-        ],
-        [
-            "pool licens"
-        ],
-        [
-            "grid-enabl"
-        ],
-        [
-            "reservoir model"
-        ],
-        [
-            "enkf"
-        ],
-        [
-            "tigr"
-        ]
+    [
+      "distribut real-tim embed system"
+    ],
+    [
+      "end-to-end qualiti of servic",
+      "servic end-to-end qualiti"
+    ],
+    [
+      "hybrid adapt resourcemanag middlewar"
+    ],
+    [
+      "hybrid control techniqu"
+    ],
+    [
+      "real-tim video distribut system"
+    ],
+    [
+      "real-tim corba specif"
+    ],
+    [
+      "video encoding/decod"
+    ],
+    [
+      "resourc reserv mechan"
+    ],
+    [
+      "dynam environ"
+    ],
+    [
+      "stream servic"
+    ],
+    [
+      "distribut real-tim emb system"
+    ],
+    [
+      "hybrid system"
+    ],
+    [
+      "qualiti of servic",
+      "servic qualiti"
     ]
+  ]
 }

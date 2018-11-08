@@ -4,24 +4,33 @@
 import pke
 
 
-def test_load_reference_in_json_format():
-    """Various tests for loading a reference file in json format"""
+def test_load_reference():
+    """Various tests for loading a reference file."""
 
-    gold1 = pke.utils.load_references(input_file='tests/data/reference.json',
-                                      normalize_reference=True,
-                                      language="en",
-                                      encoding='utf-8')
+    id = 'C-41'
 
-    gold2 = pke.utils.load_references(input_file='tests/data/reference.stem.json',
-                                      normalize_reference=False,
-                                      language="en",
-                                      encoding='utf-8')
+    g1 = pke.utils.load_references(input_file='tests/data/reference.json',
+                                   normalize_reference=True,
+                                   language="en",
+                                   encoding='utf-8')
 
-    assert set(gold1['C-41']).issubset(set(gold2['C-41']))
+    g2 = pke.utils.load_references(input_file='tests/data/reference.stem.json',
+                                   normalize_reference=False,
+                                   language="en",
+                                   encoding='utf-8')
 
+    g3 = pke.utils.load_references(input_file='tests/data/reference.final',
+                                   normalize_reference=True,
+                                   language="en",
+                                   encoding='utf-8')
 
+    g4 = pke.utils.load_references(input_file='tests/data/reference.stem.final',
+                                   normalize_reference=False,
+                                   language="en",
+                                   encoding='utf-8')
 
+    assert set(g1[id]) == set(g2[id]) == set(g3[id]) == set(g4[id])
 
 
 if __name__ == '__main__':
-    test_load_reference_in_json_format()
+    test_load_reference()

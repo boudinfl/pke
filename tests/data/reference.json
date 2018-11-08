@@ -1,98 +1,48 @@
 {
-    "C-41": [
-        [
-            "adaptive resource management"
-        ],
-        [
-            "distributed real-time embedded system"
-        ],
-        [
-            "end-to-end quality of service",
-            "service end-to-end quality"
-        ],
-        [
-            "hybrid adaptive resourcemanagement middleware"
-        ],
-        [
-            "hybrid control technique"
-        ],
-        [
-            "real-time video distribution system"
-        ],
-        [
-            "real-time corba specification"
-        ],
-        [
-            "video encoding/decoding"
-        ],
-        [
-            "resource reservation mechanism"
-        ],
-        [
-            "dynamic environment"
-        ],
-        [
-            "streaming service"
-        ],
-        [
-            "distribute real-time embed system"
-        ],
-        [
-            "hybrid system"
-        ],
-        [
-            "quality of service",
-            "service quality"
-        ]
+  "C-41": [
+    [
+      "adaptive resource management"
     ],
-    "C-42": [
-        [
-            "ensemble kalman filter"
-        ],
-        [
-            "datum assimilation methodology"
-        ],
-        [
-            "hydrocarbon reservoir simulation"
-        ],
-        [
-            "energy exploration"
-        ],
-        [
-            "tigre grid computing environment"
-        ],
-        [
-            "grid computing"
-        ],
-        [
-            "cyberinfrastructure development project"
-        ],
-        [
-            "high performance computing"
-        ],
-        [
-            "tigre grid middleware"
-        ],
-        [
-            "strategic application area"
-        ],
-        [
-            "gridway metascheduler"
-        ],
-        [
-            "pooling license"
-        ],
-        [
-            "grid-enabling"
-        ],
-        [
-            "reservoir model"
-        ],
-        [
-            "enkf"
-        ],
-        [
-            "tigre"
-        ]
+    [
+      "distributed real-time embedded system"
+    ],
+    [
+      "end-to-end quality of service",
+      "service end-to-end quality"
+    ],
+    [
+      "hybrid adaptive resourcemanagement middleware"
+    ],
+    [
+      "hybrid control technique"
+    ],
+    [
+      "real-time video distribution system"
+    ],
+    [
+      "real-time corba specification"
+    ],
+    [
+      "video encoding/decoding"
+    ],
+    [
+      "resource reservation mechanism"
+    ],
+    [
+      "dynamic environment"
+    ],
+    [
+      "streaming service"
+    ],
+    [
+      "distribute real-time embed system"
+    ],
+    [
+      "hybrid system"
+    ],
+    [
+      "quality of service",
+      "service quality"
     ]
+  ]
 }
