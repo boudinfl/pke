@@ -60,26 +60,26 @@ A detailed example is provided in the [`examples/`](examples/) directory.
 Tutorials and code documentation are available at
 [https://boudinfl.github.io/pke/](https://boudinfl.github.io/pke/).
 
-### Implemented models
+## Implemented models
 
 `pke` currently implements the following keyphrase extraction models:
 
 * Unsupervised models
   * Statistical models
-    * [TfIdf](https://boudinfl.github.io/pke/build/html/unsupervised.html#tfidf)
-    * [KPMiner](https://boudinfl.github.io/pke/build/html/unsupervised.html#kpminer) [(El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf)
-    * [YAKE](https://boudinfl.github.io/pke/build/html/unsupervised.html#yake) [(Campos et al., 2018)](https://repositorio.inesctec.pt/bitstream/123456789/7623/1/P-00N-NF5.pdf)
+    * TfIdf [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#tfidf)]
+    * KPMiner [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#kpminer), [article by (El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf)]
+    * YAKE [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#yake), [article by (Campos et al., 2018)](https://repositorio.inesctec.pt/bitstream/123456789/7623/1/P-00N-NF5.pdf)]
   * Graph-based models
-    * [TextRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#textrank) [(Mihalcea and Tarau, 2004)](http://www.aclweb.org/anthology/W04-3252.pdf)
-    * [SingleRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#singlerank) [(Wan and Xiao, 2008)](http://www.aclweb.org/anthology/C08-1122.pdf)
-    * [TopicRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#topicrank) [(Bougouin et al., 2013)](http://aclweb.org/anthology/I13-1062.pdf)
-    * [TopicalPageRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#topicalpagerank) [(Sterckx et al., 2015)](http://users.intec.ugent.be/cdvelder/papers/2015/sterckx2015wwwb.pdf)
-    * [PositionRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#positionrank) [(Florescu and Caragea, 2017)](http://www.aclweb.org/anthology/P17-1102.pdf)
-    * [MultipartiteRank](https://boudinfl.github.io/pke/build/html/unsupervised.html#multipartiterank) [(Boudin, 2018)](https://arxiv.org/abs/1803.08721)
+    * TextRank [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#textrank), [article by (Mihalcea and Tarau, 2004)](http://www.aclweb.org/anthology/W04-3252.pdf)]
+    * SingleRank  [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#singlerank), [article by (Wan and Xiao, 2008)](http://www.aclweb.org/anthology/C08-1122.pdf)]
+    * TopicRank [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#topicrank), [article by (Bougouin et al., 2013)](http://aclweb.org/anthology/I13-1062.pdf)]
+    * TopicalPageRank [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#topicalpagerank), [article by (Sterckx et al., 2015)](http://users.intec.ugent.be/cdvelder/papers/2015/sterckx2015wwwb.pdf)]
+    * PositionRank [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#positionrank), [article by (Florescu and Caragea, 2017)](http://www.aclweb.org/anthology/P17-1102.pdf)]
+    * MultipartiteRank [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#multipartiterank), [article by (Boudin, 2018)](https://arxiv.org/abs/1803.08721)]
 * Supervised models
   * Feature-based models
-    * Kea [(Witten et al., 2005)](https://www.cs.waikato.ac.nz/ml/publications/2005/chap_Witten-et-al_Windows.pdf)
-    * WINGNUS [(Nguyen and Luong, 2010)](http://www.aclweb.org/anthology/S10-1035.pdf)
+    * Kea [[documentation](https://boudinfl.github.io/pke/build/html/supervised.html#kea), [article by(Witten et al., 2005)](https://www.cs.waikato.ac.nz/ml/publications/2005/chap_Witten-et-al_Windows.pdf)]
+    * WINGNUS [[documentation](https://boudinfl.github.io/pke/build/html/supervised.html#wingnus), [article by (Nguyen and Luong, 2010)](http://www.aclweb.org/anthology/S10-1035.pdf)]
 
 ## Citing pke
 
