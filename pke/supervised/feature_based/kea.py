@@ -17,17 +17,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.supervised.api import SupervisedLoadFile
-from pke.utils import load_document_frequency_file
-
 import math
 import string
+import logging
+
 import numpy as np
-
-from nltk.corpus import stopwords
-
-from sklearn.naive_bayes import MultinomialNB
 from sklearn.externals import joblib
+from sklearn.naive_bayes import MultinomialNB
+
+from pke.supervised.api import SupervisedLoadFile
+from pke.utils import load_document_frequency_file
 
 
 class Kea(SupervisedLoadFile):
@@ -39,10 +38,10 @@ class Kea(SupervisedLoadFile):
         from nltk.corpus import stopwords
 
         # 1. create a Kea extractor.
-        extractor = pke.supervised.Kea(input_file='path/to/input.xml')
+        extractor = pke.supervised.Kea()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input.xml')
 
         # 3. select 1-3 grams that do not start or end with a stopword as
         #    candidates.
@@ -59,20 +58,13 @@ class Kea(SupervisedLoadFile):
 
     """
 
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """Redefining initializer for Kea.
-
-        Args:
-            input_file (str): path to the input file, defaults to None.
-            language (str): language of the document, used for stopwords list,
-                default to 'english'.
-
         """
 
-        super(Kea, self).__init__(input_file=input_file, language=language)
+        super(Kea, self).__init__()
 
-
-    def candidate_selection(self, stoplist=None):
+    def candidate_selection(self, stoplist=None, **kwargs):
         """Select 1-3 grams as keyphrase candidates. Candidates that start or
         end with a stopword are discarded.
 
@@ -92,7 +84,7 @@ class Kea(SupervisedLoadFile):
 
         # initialize stoplist list if not provided
         if stoplist is None:
-            stoplist = stopwords.words(self.language)
+            stoplist = self.stoplist
 
         # filter candidates that start or end with a stopword
         # Python 2/3 compatible
@@ -105,7 +97,6 @@ class Kea(SupervisedLoadFile):
             words = [u.lower() for u in v.surface_forms[0]]
             if words[0] in stoplist or words[-1] in stoplist:
                 del self.candidates[k]
-
 
     def feature_extraction(self, df=None, training=False):
         """Extract features (tf*idf, first occurrence and length) for each
@@ -120,6 +111,8 @@ class Kea(SupervisedLoadFile):
 
         # initialize default document frequency counts if none provided
         if df is None:
+            logging.warning('LoadFile._df_counts is hard coded to {}'.format(
+                self._df_counts))
             df = load_document_frequency_file(self._df_counts, delimiter='\t')
 
         # initialize the number of documents as --NB_DOC--
@@ -144,11 +137,10 @@ class Kea(SupervisedLoadFile):
 
             # add the features to the instance container
             self.instances[k] = np.array([len(v.surface_forms) * idf,
-                                          v.offsets[0]/maximum_offset])
+                                          v.offsets[0] / maximum_offset])
 
         # scale features
         self.feature_scaling()
-
 
     def candidate_weighting(self, model_file=None, df=None):
         """Extract features and classify candidates.
@@ -158,10 +150,9 @@ class Kea(SupervisedLoadFile):
             df (dict): document frequencies, the number of documents should
                     be specified using the "--NB_DOC--" key.
         """
-        
+
         self.feature_extraction(df=df)
         self.classify_candidates(model=model_file)
-
 
     @staticmethod
     def train(training_instances, training_classes, model_file):
@@ -176,4 +167,3 @@ class Kea(SupervisedLoadFile):
         clf = MultinomialNB()
         clf.fit(training_instances, training_classes)
         joblib.dump(clf, model_file)
-

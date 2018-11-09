@@ -42,10 +42,9 @@ compute_pairwise_similarity_matrix(input_dir=input_dir,
                                    output_file=output_file,
                                    collection_dir=collection_dir,
                                    df=df_counts,
-                                   format="corenlp",
                                    extension="xml",
-                                   use_lemmas=False,
-                                   stemmer="porter",
+                                   language="en",
+                                   normalization="stemming",
                                    stoplist=stoplist)
 
 

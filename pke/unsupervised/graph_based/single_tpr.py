@@ -4,34 +4,32 @@
 
 """Single Topical PageRank keyphrase extraction model.
 
-Graph-based ranking approach to keyphrase extraction described in:
+This implementation is an improvement on a keyphrase extraction algorithm,
+Topical PageRank (TPR), incorporating topical information from topic model and
+described in:
 
 * Lucas Sterckx, Thomas Demeester, Johannes Deleu and Chris Develder.
   Topical Word Importance for Fast Keyphrase Extraction.
   *In proceedings of WWW*, pages 121-122, 2015.
-
 """
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.unsupervised import SingleRank
-
-import os
-import six
 import gzip
+import os
 import pickle
+import logging
 
-import numpy as np
 import networkx as nx
-
-from nltk.corpus import stopwords
-
+import numpy as np
+import six
 from scipy.spatial.distance import cosine
-
-from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
+from sklearn.feature_extraction.text import CountVectorizer
+
+from pke.unsupervised import SingleRank
 
 
 class TopicalPageRank(SingleRank):
@@ -42,68 +40,65 @@ class TopicalPageRank(SingleRank):
         import pke
         from nltk.corpus import stopwords
 
+        # define the valid Part-of-Speeches to occur in the graph
+        pos = {'NOUN', 'PROPN', 'ADJ'}
+
+        # define the grammar for selecting the keyphrase candidates
+        grammar = "NP: {<ADJ>*<NOUN|PROPN>+}"
+
         # 1. create a TopicalPageRank extractor.
-        extractor = pke.unsupervised.TopicalPageRank(input_file='path/to/input')
+        extractor = pke.unsupervised.TopicalPageRank()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input',
+                                language='en',
+                                normalization=None)
 
         # 3. select the noun phrases as keyphrase candidates.
-        grammar = "NP:{<JJ.*>*<NN.*>+}"
         extractor.candidate_selection(grammar=grammar)
 
-        # 4. weight the keyphrase candidates using Topical PageRank. Builds a
-        #    word-graph in which nodes are words with POS and edges are weighted
-        #    using the window of words.
-        window = 10
-        pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
-        lda_model = 'path/to/lda_model' 
-        stoplist = stopwords.words('english')
-        extractor.candidate_weighting(self,
-                            window=window,
-                            pos=pos,
-                            lda_model=lda_model,
-                            stoplist=stoplist)
+        # 4. weight the keyphrase candidates using Single Topical PageRank.
+        #    Builds a word-graph in which edges connecting two words occurring
+        #    in a window are weighted by co-occurrence counts.
+        extractor.candidate_weighting(window=10,
+                                      pos=pos,
+                                      lda_model='path/to/lda_model')
 
         # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
 
     """
 
-    def __init__(self, input_file=None, language='english'):
-        """Redefining initializer for TopicalPageRank.
+    def __init__(self):
+        """Redefining initializer for TopicalPageRank."""
 
-        Args:
-            input_file (str): path to the input file, defaults to None.
-            language (str): language of the document, used for stopwords list,
-                default to 'english'.
+        super(TopicalPageRank, self).__init__()
 
-        """
-
-        super(TopicalPageRank, self).__init__(input_file=input_file,
-                                              language=language)
-
-
-    def candidate_selection(self, grammar=None):
+    def candidate_selection(self, grammar=None, **kwargs):
         """Candidate selection heuristic.
 
-        Keyphrase candidates are noun phrases that match the regular expression
+        Here we select noun phrases that match the regular expression
         (adjective)*(noun)+, which represents zero or more adjectives followed
         by one or more nouns (Liu et al., 2010).
 
+        Note that there is no details on this in the Single TPR paper, and these
+        are the only information that can be found:
+
+            ... a set of expressions or noun phrases ...
+
+            ... Adjectives and nouns are then merged into keyphrases and
+            corresponding scores are summed and ranked. ...
+
         Args:
             grammar (str): grammar defining POS patterns of NPs, defaults to 
-                "NP: {<JJ.*>*<NN.*>+}".
-
+                "NP: {<ADJ>*<NOUN|PROPN>+}".
         """
 
-        # define default NP grammar if none provided
         if grammar is None:
-            grammar = "NP:{<JJ.*>*<NN.*>+}"
+            grammar = "NP:{<ADJ>*<NOUN|PROPN>+}"
 
         # select sequence of adjectives and nouns
         self.grammar_selection(grammar=grammar)
-
 
     def candidate_weighting(self,
                             window=10,
@@ -111,35 +106,34 @@ class TopicalPageRank(SingleRank):
                             lda_model=None,
                             stoplist=None,
                             normalized=False):
-        """Candidate weight calculation using random walk.
+        """Candidate weight calculation using a biased PageRank towards LDA
+        topic distributions.
 
         Args:
             window (int): the window within the sentence for connecting two
                 words in the graph, defaults to 10.
             pos (set): the set of valid pos for words to be considered as
-                nodes in the graph, defaults to (NN, NNS, NNP, NNPS, JJ,
-                JJR, JJS).
+                nodes in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
             lda_model (pickle.gz): an LDA model produced by sklearn in
                 pickle compressed (.gz) format
             stoplist (list): the stoplist for filtering words in LDA, defaults
                 to the nltk stoplist.
             normalized (False): normalize keyphrase score by their length,
                 defaults to False.
-
         """
 
-        # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # initialize stoplist list if not provided
         if stoplist is None:
-            stoplist = stopwords.words(self.language)
+            stoplist = self.stoplist
 
         # build the word graph
         # ``Since keyphrases are usually noun phrases, we only add adjectives
         # and nouns in word graph.'' -> (Liu et al., 2010)
-        self.build_word_graph(window=window, pos=pos)
+        self.build_word_graph(window=window,
+                              pos=pos)
 
         # create a blank model
         model = LatentDirichletAllocation()
@@ -148,10 +142,11 @@ class TopicalPageRank(SingleRank):
         if lda_model is None:
             if six.PY2:
                 lda_model = os.path.join(self._models,
-                                     "lda-1000-semeval2010.py2.pickle.gz")
+                                         "lda-1000-semeval2010.py2.pickle.gz")
             else:
                 lda_model = os.path.join(self._models,
-                                     "lda-1000-semeval2010.py3.pickle.gz")
+                                         "lda-1000-semeval2010.py3.pickle.gz")
+            logging.warning('LDA model is hard coded to {}'.format(lda_model))
 
         # load parameters from file
         with gzip.open(lda_model, 'rb') as f:
@@ -175,35 +170,41 @@ class TopicalPageRank(SingleRank):
         distribution_topic_document = model.transform(tf)[0]
 
         # compute the word distributions over topics
-        distributions = model.components_ / model.components_.sum(axis=1)[:, np.newaxis]
+        distributions = model.components_ / model.components_.sum(axis=1)[:,
+                                            np.newaxis]
 
-        # compute the topical word importance
-        twi = {}
+        # Computing W(w_i) indicating the full topical importance of each word
+        # w_i in the PageRank
+
+        # First, we determine the cosine similarity between the vector of
+        # word-topic probabilities P(w_i, Z) and the document-topic
+        # probabilities of the document P(Z, d)
+        K = len(distribution_topic_document)
+        W = {}
         for word in self.graph.nodes():
             if word in dictionary:
                 index = dictionary.index(word)
-                distribution_word_topic = [distributions[k][index] for k \
-                                     in range(len(distribution_topic_document))]
+                distribution_word_topic = [distributions[k][index] for k
+                                           in range(K)]
+                W[word] = 1 - cosine(distribution_word_topic,
+                                     distribution_topic_document)
 
-                twi[word] = 1 - cosine(distribution_word_topic,
-                                       distribution_topic_document)
-
-        # assign default probabilities to OOV words
-        default_similarity = min(twi.values())
+        # get the default probability for OOV words
+        default_similarity = min(W.values())
         for word in self.graph.nodes():
-            if word not in twi:
-                twi[word] = default_similarity
+            if word not in W:
+                W[word] = 0.0
 
-        # normalize the probabilities
-        norm = sum(twi.values())
-        for word in twi:
-            twi[word] /= norm
+        # Normalize the topical word importance of words
+        norm = sum(W.values())
+        for word in W:
+            W[word] /= norm
 
-        # compute the word scores using biaised random walk
+        # compute the word scores using biased random walk
         w = nx.pagerank(G=self.graph,
+                        personalization=W,
                         alpha=0.85,
-                        personalization=twi,
-                        max_iter=100,
+                        tol=0.0001,
                         weight='weight')
 
         # loop through the candidates
@@ -212,4 +213,3 @@ class TopicalPageRank(SingleRank):
             self.weights[k] = sum([w[t] for t in tokens])
             if normalized:
                 self.weights[k] /= len(tokens)
-

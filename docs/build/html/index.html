@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>pke : Python-based Keyphrase Extraction toolkit &mdash; pke 1.72 documentation</title>
+  <title>pke documentation &mdash; pke 1.8 documentation</title>
   
 
   
@@ -35,8 +35,8 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="pke 1.72 documentation" href="#"/>
-        <link rel="next" title="Base classes" href="base.html"/> 
+    <link rel="top" title="pke 1.8 documentation" href="#"/>
+        <link rel="next" title="Document frequency counts" href="tutorials/df.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -64,6 +64,10 @@
           
             
             
+              <div class="version">
+                1.8
+              </div>
+            
           
 
           
@@ -85,7 +89,14 @@
               
             
             
-              <p class="caption"><span class="caption-text">Package reference</span></p>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/df.html">Document frequency counts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/input.html">Input formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/non-english.html">Non English languages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/training.html">Training supervised models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="base.html">Base classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unsupervised.html">Unsupervised models</a></li>
@@ -136,7 +147,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li><code class="docutils literal notranslate"><span class="pre">pke</span></code> : Python-based Keyphrase Extraction toolkit</li>
+      <li>pke documentation</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -155,13 +166,23 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="pke-python-based-keyphrase-extraction-toolkit">
-<h1><code class="docutils literal notranslate"><span class="pre">pke</span></code> : Python-based Keyphrase Extraction toolkit<a class="headerlink" href="#pke-python-based-keyphrase-extraction-toolkit" title="Permalink to this headline">¶</a></h1>
-<p><code class="docutils literal notranslate"><span class="pre">pke</span></code> is an open source python-based keyphrase extraction toolkit. It provides
-an end-to-end keyphrase extraction pipeline in which each component can be
-easily modified or extented to develop new approaches. <code class="docutils literal notranslate"><span class="pre">pke</span></code> also allows for
-easy benchmarking of state-of-the-art keyphrase extraction approaches, and
-ships with supervised models trained on the <a class="reference external" href="http://aclweb.org/anthology/S10-1004.pdf">SemEval-2010 dataset</a>.</p>
+  <div class="section" id="pke-documentation">
+<h1>pke documentation<a class="headerlink" href="#pke-documentation" title="Permalink to this headline">¶</a></h1>
+<p>pke is an <strong>open source</strong> python-based <strong>keyphrase extraction</strong> toolkit.</p>
+<p>The pke module provides an end-to-end keyphrase extraction pipeline in which
+each component can be easily modified or extended to develop new approaches.
+pke also allows for easy benchmarking of state-of-the-art keyphrase extraction
+approaches, and ships with supervised models trained on the
+<a class="reference external" href="http://aclweb.org/anthology/S10-1004">SemEval-2010 dataset</a>.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/df.html">Document frequency counts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/input.html">Input formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/non-english.html">Non English languages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/training.html">Training supervised models</a></li>
+</ul>
+</div>
 <div class="toctree-wrapper compound">
 <p class="caption"><span class="caption-text">Package reference</span></p>
 <ul>
@@ -172,14 +193,6 @@ ships with supervised models trained on the <a class="reference external" href="
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Useful functions</a></li>
 </ul>
 </div>
-</div>
-<div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<ul class="simple">
-<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
-<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
-<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
-</ul>
 </div>
 
 
@@ -192,7 +205,7 @@ ships with supervised models trained on the <a class="reference external" href="
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="base.html" class="btn btn-neutral float-right" title="Base classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="tutorials/df.html" class="btn btn-neutral float-right" title="Document frequency counts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>
@@ -202,7 +215,7 @@ ships with supervised models trained on the <a class="reference external" href="
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Florian Boudin.
+        &copy; Copyright 2018, pke Contributors.
 
     </p>
   </div>
@@ -224,7 +237,7 @@ ships with supervised models trained on the <a class="reference external" href="
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.72',
+            VERSION:'1.8',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

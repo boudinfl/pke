@@ -4,164 +4,131 @@
 
 """SingleRank keyphrase extraction model.
 
-Graph-based ranking approach to keyphrase extraction described in:
+Simple extension of the TextRank model described in:
 
 * Xiaojun Wan and Jianguo Xiao.
   CollabRank: Towards a Collaborative Approach to Single-Document Keyphrase
   Extraction.
   *In proceedings of the COLING*, pages 969-976, 2008.
-
 """
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.base import LoadFile
-from nltk.corpus import stopwords
-
-import string
 import networkx as nx
 
+from pke.unsupervised.graph_based.textrank import TextRank
 
-class SingleRank(LoadFile):
+
+class SingleRank(TextRank):
     """SingleRank keyphrase extraction model.
+
+    This model is an extension of the TextRank model that uses the number of
+    co-occurrences to weigh edges in the graph.
 
     Parameterized example::
 
         import pke
-        import string
-        from nltk.corpus import stopwords
+
+        # define the set of valid Part-of-Speeches
+        pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # 1. create a SingleRank extractor.
-        extractor = pke.unsupervised.SingleRank(input_file='path/to/input.xml')
+        extractor = pke.unsupervised.SingleRank()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input',
+                                language='en',
+                                normalization=None)
 
-        # 3. select the the longest sequences of nouns and adjectives, that do
-        #    not contain punctuation marks or stopwords as candidates.
-        pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
-        stoplist = list(string.punctuation)
-        stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
-        stoplist += stopwords.words('english')
-        extractor.candidate_selection(pos=pos, stoplist=stoplist)
+        # 3. select the longest sequences of nouns and adjectives as candidates.
+        extractor.candidate_selection(pos=pos)
 
         # 4. weight the candidates using the sum of their word's scores that are
-        #    computed using random walk. In the graph, nodes are words (nouns
-        #    and adjectives only) that are connected if they occur in a window
-        #    of 10 words.
-        extractor.candidate_weighting(window=10, pos=pos)
+        #    computed using random walk. In the graph, nodes are words of
+        #    certain part-of-speech (nouns and adjectives) that are connected if
+        #    they occur in a window of 10 words.
+        extractor.candidate_weighting(window=10,
+                                      pos=pos)
 
         # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
 
     """
 
+    def __init__(self):
+        """Redefining initializer for SingleRank."""
 
-    def __init__(self, input_file=None, language='english'):
-        """Redefining initializer for SingleRank.
-
-        Args:
-            input_file (str): path to the input file, defaults to None.
-            language (str): language of the document, used for stopwords list,
-                default to 'english'.
-
-        """
-
-        super(SingleRank, self).__init__(input_file=input_file,
-                                         language=language)
-
-        self.graph = nx.Graph()
-        """ The word graph. """
-
-
-    def candidate_selection(self, pos=None, stoplist=None):
-        """ The candidate selection as described in the SingleRank paper.
-
-            Args:
-                pos (set): the set of valid POS tags, defaults to (NN, NNS,
-                    NNP, NNPS, JJ, JJR, JJS).
-                stoplist (list): the stoplist for filtering candidates, defaults
-                    to the nltk stoplist. Words that are punctuation marks from
-                    string.punctuation are not allowed.
-        """
-
-        # define default pos tags set
-        if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
-
-        # select sequence of adjectives and nouns
-        self.longest_pos_sequence_selection(valid_pos=pos)
-
-        # initialize stoplist list if not provided
-        if stoplist is None:
-            stoplist = stopwords.words(self.language)
-
-        # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=list(string.punctuation) +
-                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'] +
-                                  stoplist)
-
+        super(SingleRank, self).__init__()
 
     def build_word_graph(self, window=10, pos=None):
-        """Build the word graph from the document.
+        """Build a graph representation of the document in which nodes/vertices
+        are words and edges represent co-occurrence relation. Syntactic filters
+        can be applied to select only words of certain Part-of-Speech.
+        Co-occurrence relations can be controlled using the distance (window)
+        between word occurrences in the document.
+
+        The number of times two words co-occur in a window is encoded as *edge
+        weights*. Sentence boundaries **are not** taken into account in the
+        window.
 
         Args:
-            window (int): the window within the sentence for connecting two
-   				words in the graph, defaults to 10.
+            window (int): the window for connecting two words in the graph,
+                defaults to 10.
             pos (set): the set of valid pos for words to be considered as nodes
-            	in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).
-
+                in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
         """
 
-        # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NOUN', 'PROPN', 'ADJ'}
 
-        # flatten document and initialize nodes 
-        sequence = []
+        # flatten document as a sequence of (word, pass_syntactic_filter) tuples
+        text = [(word, sentence.pos[i] in pos) for sentence in self.sentences
+                for i, word in enumerate(sentence.stems)]
 
-        for sentence in self.sentences:
-            for j, node in enumerate(sentence.stems):
-                if sentence.pos[j] in pos:
-                    self.graph.add_node(node)
-                sequence.append((node, sentence.pos[j]))
+        # add nodes to the graph
+        self.graph.add_nodes_from([word for word, valid in text if valid])
 
-        # loop through sequence to build the edges in the graph
-        for j, node_1 in enumerate(sequence):
-            for k in range(j+1, min(j+window, len(sequence))):
-                node_2 = sequence[k]
-                if node_1[1] in pos and node_2[1] in pos \
-                   and node_1[0] != node_2[0]:
-                    if not self.graph.has_edge(node_1[0], node_2[0]):
-                        self.graph.add_edge(node_1[0], node_2[0], weight=0)
-                    self.graph[node_1[0]][node_2[0]]['weight'] += 1.0
+        # add edges to the graph
+        for i, (node1, is_in_graph1) in enumerate(text):
 
+            # speed up things
+            if not is_in_graph1:
+                continue
+
+            for j in range(i + 1, min(i + window, len(text))):
+                node2, is_in_graph2 = text[j]
+                if is_in_graph2 and node1 != node2:
+                    if not self.graph.has_edge(node1, node2):
+                        self.graph.add_edge(node1, node2, weight=0.0)
+                    self.graph[node1][node2]['weight'] += 1.0
 
     def candidate_weighting(self, window=10, pos=None, normalized=False):
-        """Candidate ranking using random walk.
+        """Keyphrase candidate ranking using the weighted variant of the
+        TextRank formulae. Candidates are scored by the sum of the scores of
+        their words.
 
         Args:
             window (int): the window within the sentence for connecting two
                 words in the graph, defaults to 10.
             pos (set): the set of valid pos for words to be considered as nodes
-            	in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).
+                in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
             normalized (False): normalize keyphrase score by their length,
-				defaults to False.
-
+                defaults to False.
         """
 
-        # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # build the word graph
         self.build_word_graph(window=window, pos=pos)
 
         # compute the word scores using random walk
-        w = nx.pagerank_scipy(self.graph, alpha=0.85, weight='weight')
+        w = nx.pagerank_scipy(self.graph,
+                              alpha=0.85,
+                              tol=0.0001,
+                              weight='weight')
 
         # loop through the candidates
         for k in self.candidates.keys():
@@ -170,3 +137,5 @@ class SingleRank(LoadFile):
             if normalized:
                 self.weights[k] /= len(tokens)
 
+            # use position to break ties
+            self.weights[k] += (self.candidates[k].offsets[0] * 1e-8)

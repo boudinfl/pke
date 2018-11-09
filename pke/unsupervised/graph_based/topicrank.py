@@ -16,17 +16,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.base import LoadFile
-from nltk.corpus import stopwords
-
 import string
+from itertools import combinations
+
 import networkx as nx
 import numpy as np
-
-from scipy.spatial.distance import pdist
 from scipy.cluster.hierarchy import linkage, fcluster
+from scipy.spatial.distance import pdist
 
-from itertools import combinations
+from pke.base import LoadFile
 
 
 class TopicRank(LoadFile):
@@ -39,14 +37,14 @@ class TopicRank(LoadFile):
         from nltk.corpus import stopwords
 
         # 1. create a TopicRank extractor.
-        extractor = pke.unsupervised.TopicRank(input_file='path/to/input.xml')
+        extractor = pke.unsupervised.TopicRank()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+       extractor.load_document(input='path/to/input.xml')
 
         # 3. select the longest sequences of nouns and adjectives, that do
         #    not contain punctuation marks or stopwords as candidates.
-        pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+        pos = {'NOUN', 'PROPN', 'ADJ'}
         stoplist = list(string.punctuation)
         stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
         stoplist += stopwords.words('english')
@@ -62,19 +60,11 @@ class TopicRank(LoadFile):
 
     """
 
-
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """Redefining initializer for TopicRank.
-
-        Args:
-            input_file (str): path to the input file, defaults to None.
-            language (str): language of the document, used for stopwords list,
-                default to 'english'.
-
         """
 
-        super(TopicRank, self).__init__(input_file=input_file,
-                                        language=language)
+        super(TopicRank, self).__init__()
 
         self.graph = nx.Graph()
         """ The topic graph. """
@@ -82,14 +72,13 @@ class TopicRank(LoadFile):
         self.topics = []
         """ The topic container. """
 
-
     def candidate_selection(self, pos=None, stoplist=None):
         """Selects longest sequences of nouns and adjectives as keyphrase
         candidates.
 
         Args:
-            pos (set): the set of valid POS tags, defaults to (NN, NNS, NNP,
-                NNPS, JJ, JJR, JJS).
+            pos (set): the set of valid POS tags, defaults to ('NOUN',
+                'PROPN', 'ADJ').
             stoplist (list): the stoplist for filtering candidates, defaults to
                 the nltk stoplist. Words that are punctuation marks from
                 string.punctuation are not allowed.
@@ -98,21 +87,19 @@ class TopicRank(LoadFile):
 
         # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # select sequence of adjectives and nouns
         self.longest_pos_sequence_selection(valid_pos=pos)
 
         # initialize stoplist list if not provided
         if stoplist is None:
-            stoplist = stopwords.words(self.language)
+            stoplist = self.stoplist
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=list(string.punctuation) +
-                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'] +
-                                  stoplist)
-
+                                          ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-'] +
+                                          stoplist)
 
     def vectorize_candidates(self):
         """Vectorize the keyphrase candidates.
@@ -133,7 +120,7 @@ class TopicRank(LoadFile):
         dim = list(dim)
 
         # vectorize the candidates Python 2/3 + sort for random issues
-        C = list(self.candidates) #.keys()
+        C = list(self.candidates)  # .keys()
         C.sort()
 
         X = np.zeros((len(C), len(dim)))
@@ -142,7 +129,6 @@ class TopicRank(LoadFile):
                 X[i, dim.index(w)] += 1
 
         return C, X
-
 
     def topic_clustering(self, threshold=0.74, method='average'):
         """Clustering candidates into topics.
@@ -172,10 +158,9 @@ class TopicRank(LoadFile):
         clusters = fcluster(Z, t=threshold, criterion='distance')
 
         # for each topic identifier
-        for cluster_id in range(1, max(clusters)+1):
+        for cluster_id in range(1, max(clusters) + 1):
             self.topics.append([candidates[j] for j in range(len(clusters))
                                 if clusters[j] == cluster_id])
-
 
     def build_topic_graph(self):
         """Build topic graph."""
@@ -192,11 +177,10 @@ class TopicRank(LoadFile):
                         for p_j in self.candidates[c_j].offsets:
                             gap = abs(p_i - p_j)
                             if p_i < p_j:
-                                gap -= len(self.candidates[c_i].lexical_form)-1
+                                gap -= len(self.candidates[c_i].lexical_form) - 1
                             if p_j < p_i:
-                                gap -= len(self.candidates[c_j].lexical_form)-1
+                                gap -= len(self.candidates[c_j].lexical_form) - 1
                             self.graph[i][j]['weight'] += 1.0 / gap
-
 
     def candidate_weighting(self,
                             threshold=0.74,
@@ -247,4 +231,3 @@ class TopicRank(LoadFile):
             else:
                 first = offsets.index(min(offsets))
                 self.weights[topic[first]] = w[i]
-

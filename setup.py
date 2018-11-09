@@ -1,9 +1,9 @@
 from distutils.core import setup
 
 setup(name='pke',
-      version='1.72',
+      version='1.8',
       description='Python Keyphrase Extraction module',
-      author='Florian Boudin',
+      author='pke contributors',
       author_email='florian.boudin@univ-nantes.fr',
       license='gnu',
       packages=['pke', 'pke.unsupervised', 'pke.supervised',
@@ -11,14 +11,15 @@ setup(name='pke',
                 'pke.unsupervised.statistical'],
       url="https://github.com/boudinfl/pke",
       install_requires=[
-      	'nltk',
-      	'networkx',
-      	'numpy',
-      	'scipy',
-            'sklearn',
-            'unidecode',
-            'future'
+          'nltk',
+          'networkx',
+          'numpy',
+          'scipy',
+          'spacy',
+          'six',
+          'sklearn',
+          'unidecode',
+          'future'
       ],
       package_data={'pke': ['models/*.pickle', 'models/*.gz']}
-     )
-
+      )

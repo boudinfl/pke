@@ -34,14 +34,14 @@ class ExpandRank(SingleRank):
         from nltk.corpus import stopwords
 
         # 1. create an ExpandRank extractor.
-        extractor = pke.unsupervised.ExpandRank(input_file='path/to/input.xml')
+        extractor = pke.unsupervised.ExpandRank()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input.xml')
 
         # 3. select the the longest sequences of nouns and adjectives, that do
         #    not contain punctuation marks or stopwords as candidates.
-        pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+        pos = {'NOUN', 'PROPN', 'ADJ'}
         stoplist = list(string.punctuation)
         stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
         stoplist += stopwords.words('english')
@@ -64,17 +64,14 @@ class ExpandRank(SingleRank):
 
     """
 
-    def __init__(self, input_file, language='english'):
+    def __init__(self):
         """ Redefining initializer for ExpandRank. """
 
-        super(ExpandRank, self).__init__(input_file=input_file,
-                                         language=language)
-
+        super(ExpandRank, self).__init__()
 
     def expand_word_graph(self,
                           input_file,
                           similarity,
-                          format='raw',
                           window=10,
                           pos=None):
         """Expands the word graph using the given document.
@@ -82,22 +79,23 @@ class ExpandRank(SingleRank):
         Args:
             input_file (str): path to the input file.
             similarity (float): similarity for weighting edges.
-            format (str): the input format, defaults to raw.
             window (int): the window within the sentence for connecting two
                 words in the graph, defaults to 10.
             pos (set): the set of valid pos for words to be considered as nodes
-                in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).
+                in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
         """
 
         # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # initialize document loader
-        doc = LoadFile(input_file=input_file, language=self.language)
+        doc = LoadFile()
 
         # read document
-        doc.read_document(format=format)
+        doc.load_document(input=input_file,
+                          language=self.language,
+                          normalization=self.normalization)
 
         # flatten document and initialize nodes 
         sequence = []
@@ -110,20 +108,18 @@ class ExpandRank(SingleRank):
 
         # loop through sequence to build the edges in the graph
         for j, node_1 in enumerate(sequence):
-            for k in range(j+1, min(j+window, len(sequence))):
+            for k in range(j + 1, min(j + window, len(sequence))):
                 node_2 = sequence[k]
                 if node_1[1] in pos and node_2[1] in pos \
-                   and node_1[0] != node_2[0]:
+                        and node_1[0] != node_2[0]:
                     if not self.graph.has_edge(node_1[0], node_2[0]):
                         self.graph.add_edge(node_1[0], node_2[0], weight=0)
                     self.graph[node_1[0]][node_2[0]]['weight'] += similarity
-
 
     def candidate_weighting(self,
                             window=10,
                             pos=None,
                             expanded_documents=[],
-                            format='raw',
                             normalized=False):
         """Candidate ranking using random walk.
 
@@ -131,19 +127,17 @@ class ExpandRank(SingleRank):
             window (int): the window within the sentence for connecting two
                 words in the graph, defaults to 10.
             pos (set): the set of valid pos for words to be considered as nodes
-                in the graph, defaults to (NN, NNS, NNP, NNPS, JJ, JJR, JJS).
+                in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
             expanded_documents (list): the set of documents to expand the graph,
                 should be a list of tuples (input_path, similarity). Defaults to
                 empty list, i.e. no expansion.
-            format (str): the input format of the expanded documents, defaults
-                to raw.
             normalized (False): normalize keyphrase score by their length,
                 defaults to False.
         """
 
         # define default pos tags set
         if pos is None:
-            pos = set(['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR', 'JJS'])
+            pos = {'NOUN', 'PROPN', 'ADJ'}
 
         # build the word graph
         self.build_word_graph(window=window, pos=pos)
@@ -152,7 +146,6 @@ class ExpandRank(SingleRank):
         for input_file, similarity in expanded_documents:
             self.expand_word_graph(input_file=input_file,
                                    similarity=similarity,
-                                   format=format,
                                    window=window,
                                    pos=pos)
 
@@ -165,4 +158,3 @@ class ExpandRank(SingleRank):
             self.weights[k] = sum([w[t] for t in tokens])
             if normalized:
                 self.weights[k] /= len(tokens)
-

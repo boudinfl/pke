@@ -17,17 +17,15 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.base import LoadFile
-
-import re
 import math
-import numpy
+import re
 import string
+from collections import defaultdict
 
-from nltk.corpus import stopwords
+import numpy
 from nltk.metrics import edit_distance
 
-from collections import defaultdict
+from pke.base import LoadFile
 
 
 class YAKE(LoadFile):
@@ -39,10 +37,13 @@ class YAKE(LoadFile):
         from nltk.corpus import stopwords
 
         # 1. create a YAKE extractor.
-        extractor = pke.unsupervised.YAKE(input_file='path/to/input.xml')
+        extractor = pke.unsupervised.YAKE()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input',
+                                language='en',
+                                normalization=None)
+
 
         # 3. select {1-3}-grams not containing punctuation marks and not
         #    beginning/ending with a stopword as candidates.
@@ -62,20 +63,13 @@ class YAKE(LoadFile):
         #    distance and a threshold.
         threshold = 0.8
         keyphrases = extractor.get_n_best(n=10, threshold=threshold)
-
     """
 
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """Redefining initializer for YAKE.
-
-        Args:
-            input_file (str): path to the input file, defaults to None.
-            language (str): language of the document, used for stopwords list,
-                default to 'english'.
-
         """
 
-        super(YAKE, self).__init__(input_file=input_file, language=language)
+        super(YAKE, self).__init__()
 
         self.words = defaultdict(set)
         """ Container for the vocabulary. """
@@ -89,8 +83,7 @@ class YAKE(LoadFile):
         self.surface_to_lexical = {}
         """ Mapping from surface form to lexical form. """
 
-
-    def candidate_selection(self, n=3, stoplist=None):
+    def candidate_selection(self, n=3, stoplist=None, **kwargs):
         """Select 1-3 grams as keyphrase candidates. Candidates beginning or
         ending with a stopword are filtered out. Words that do not contain
         at least one alpha-numeric character are not allowed.
@@ -105,13 +98,14 @@ class YAKE(LoadFile):
         self.ngram_selection(n=n)
 
         # filter candidates containing punctuation marks
-        self.candidate_filtering(stoplist=list(string.punctuation) +
-                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'])
+        self.candidate_filtering(
+            stoplist=list(string.punctuation) +
+                     ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
+        )
 
         # initialize empty list if stoplist is not provided
         if stoplist is None:
-            stoplist = stopwords.words(self.language)
+            stoplist = self.stoplist
 
         # further filter candidates
         for k in list(self.candidates):
@@ -121,9 +115,8 @@ class YAKE(LoadFile):
 
             # filter candidates starting/ending with a stopword
             if v.surface_forms[0][0].lower() in stoplist or \
-               v.surface_forms[0][-1].lower() in stoplist:
+                    v.surface_forms[0][-1].lower() in stoplist:
                 del self.candidates[k]
-
 
     def _vocabulary_building(self, use_stems=False):
         """Build the vocabulary that will be used to weight candidates. Only
@@ -145,7 +138,7 @@ class YAKE(LoadFile):
 
                 # consider words containing at least one alpha-numeric character
                 if self._is_alphanum(word) and \
-                   not re.search('(?i)^-[lr][rcs]b-$', word):
+                        not re.search('(?i)^-[lr][rcs]b-$', word):
 
                     # get the word or stem
                     index = word.lower()
@@ -153,8 +146,7 @@ class YAKE(LoadFile):
                         index = sentence.stems[j]
 
                     # add the word occurrence
-                    self.words[index].add((shift+j, shift, i, word))
-
+                    self.words[index].add((shift + j, shift, i, word))
 
     def _contexts_building(self, use_stems=False, window=2):
         """Build the contexts of the words for computing the relatdeness
@@ -187,15 +179,14 @@ class YAKE(LoadFile):
 
                 # add the left context
                 self.contexts[word][0].extend(
-                    [w for w in words[max(0, j-window):j] if w in self.words]
+                    [w for w in words[max(0, j - window):j] if w in self.words]
                 )
 
                 # add the right context
                 self.contexts[word][1].extend(
-                    [w for w in words[j+1:min(len(words), j+window+1)]\
+                    [w for w in words[j + 1:min(len(words), j + window + 1)]
                      if w in self.words]
                 )
-
 
     def _feature_extraction(self, stoplist=None):
         """Compute the weight of individual words using the following five
@@ -244,7 +235,7 @@ class YAKE(LoadFile):
 
         # initialize stoplist list if not provided
         if stoplist is None:
-            stoplist = stopwords.words(self.language)
+            stoplist = self.stoplist
 
         # get the Term Frequency of each word
         TF = [len(self.words[w]) for w in self.words]
@@ -262,7 +253,7 @@ class YAKE(LoadFile):
 
             # Term Frequency
             self.features[word]['TF'] = len(self.words[word])
-            
+
             # Uppercase/Acronym Term Frequencies
             self.features[word]['TF_A'] = 0
             self.features[word]['TF_U'] = 0
@@ -276,15 +267,14 @@ class YAKE(LoadFile):
             self.features[word]['CASING'] = max(self.features[word]['TF_A'],
                                                 self.features[word]['TF_U'])
             self.features[word]['CASING'] /= 1.0 + math.log(
-                                                self.features[word]['TF'])
-
+                self.features[word]['TF'])
 
             # 2. POSITION feature
             sentence_ids = list(set([t[2] for t in self.words[word]]))
             self.features[word]['POSITION'] = math.log(
-                                             3.0 + numpy.median(sentence_ids))
+                3.0 + numpy.median(sentence_ids))
             self.features[word]['POSITION'] = math.log(
-                                              self.features[word]['POSITION'])
+                self.features[word]['POSITION'])
 
             # 3. FREQUENCY feature
             self.features[word]['FREQUENCY'] = self.features[word]['TF']
@@ -295,20 +285,20 @@ class YAKE(LoadFile):
             if len(self.contexts[word][0]):
                 self.features[word]['WL'] = len(set(self.contexts[word][0]))
                 self.features[word]['WL'] /= len(self.contexts[word][0])
-            self.features[word]['PL'] = len(set(self.contexts[word][0]))/max_TF
+            self.features[word]['PL'] = len(set(self.contexts[word][0])) / max_TF
 
             self.features[word]['WR'] = 0.0
             if len(self.contexts[word][1]):
-                self.features[word]['WR'] = len(set(self.contexts[word][1])) 
+                self.features[word]['WR'] = len(set(self.contexts[word][1]))
                 self.features[word]['WR'] /= len(self.contexts[word][1])
-            self.features[word]['PR'] = len(set(self.contexts[word][1]))/max_TF
+            self.features[word]['PR'] = len(set(self.contexts[word][1])) / max_TF
 
             self.features[word]['RELATEDNESS'] = 1
             self.features[word]['RELATEDNESS'] += self.features[word]['PL']
             self.features[word]['RELATEDNESS'] += self.features[word]['PR']
-            self.features[word]['RELATEDNESS'] += (self.features[word]['WR'] +\
-                                                   self.features[word]['WL']) *\
-                                            (self.features[word]['TF'] / max_TF)
+            self.features[word]['RELATEDNESS'] += (self.features[word]['WR'] +
+                                                   self.features[word]['WL']) * \
+                                                  (self.features[word]['TF'] / max_TF)
 
             # 5. DIFFERENT feature
             self.features[word]['DIFFERENT'] = len(set(sentence_ids))
@@ -321,7 +311,6 @@ class YAKE(LoadFile):
             D = self.features[word]['RELATEDNESS']
             E = self.features[word]['DIFFERENT']
             self.features[word]['weight'] = (D * B) / (A + (C / D) + (E / D))
-
 
     def candidate_weighting(self, window=2, stoplist=None, use_stems=False):
         """Candidate weight calculation as described in the YAKE paper.
@@ -358,12 +347,11 @@ class YAKE(LoadFile):
                 lowercase_forms = [' '.join(t).lower() for t in v.surface_forms]
                 for i, candidate in enumerate(lowercase_forms):
                     TF = lowercase_forms.count(candidate)
-                    weights = [self.features[t.lower()]['weight'] for t \
-                                in v.surface_forms[i]]
+                    weights = [self.features[t.lower()]['weight'] for t
+                               in v.surface_forms[i]]
                     self.weights[candidate] = numpy.prod(weights)
                     self.weights[candidate] /= TF * (1 + sum(weights))
                     self.surface_to_lexical[candidate] = k
-
 
     def is_redundant(self, candidate, prev, threshold=0.8):
         """Test if one candidate is redundant with respect to a list of already
@@ -385,7 +373,6 @@ class YAKE(LoadFile):
             if (1.0 - dist) > threshold:
                 return True
         return False
-
 
     def get_n_best(self,
                    n=10,
@@ -447,4 +434,3 @@ class YAKE(LoadFile):
 
         # return the list of best candidates
         return n_best
-

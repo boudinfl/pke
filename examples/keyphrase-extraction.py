@@ -4,21 +4,19 @@
 # this example uses TopicRank
 from pke.unsupervised import TopicRank
 
-# create a TopicRank extractor and set the input language to English (used for
-# the stoplist in the candidate selection method)
-extractor = TopicRank(input_file='C-1.xml',
-                      language='english')
+# create a TopicRank extractor
+extractor = TopicRank()
 
 # load the content of the document, here in CoreNLP XML format
-# the use_lemmas parameter allows to choose using CoreNLP lemmas or stems 
-# computed using nltk
-extractor.read_document(format='corenlp',
-                        use_lemmas=False)
+# the input language is set to English (used for the stoplist)
+# normalization is set to stemming (computed with Porter's stemming algorithm)
+extractor.load_document(input='C-1.xml',
+                        language="en",
+                        normalization='stemming')
 
 # select the keyphrase candidates, for TopicRank the longest sequences of 
 # nouns and adjectives
-extractor.candidate_selection(pos=['NN', 'NNS', 'NNP', 'NNPS', 'JJ', 'JJR',
-                                   'JJS'])
+extractor.candidate_selection(pos={'NOUN', 'PROPN', 'ADJ'})
 
 # weight the candidates using a random walk. The threshold parameter sets the
 # minimum similarity for clustering, and the method parameter defines the 
@@ -27,5 +25,5 @@ extractor.candidate_weighting(threshold=0.74,
                               method='average')
 
 # print the n-highest (10) scored candidates
-for (keyphrase, score) in extractor.get_n_best(n=10):
-	print(keyphrase, score)
+for (keyphrase, score) in extractor.get_n_best(n=10, stemming=True):
+    print(keyphrase, score)

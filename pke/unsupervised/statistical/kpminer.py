@@ -16,13 +16,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.base import LoadFile
-from pke.utils import load_document_frequency_file
-
-from nltk.corpus import stopwords
-
 import math
 import string
+import logging
+
+from pke.base import LoadFile
+from pke.utils import load_document_frequency_file
 
 
 class KPMiner(LoadFile):
@@ -33,11 +32,13 @@ class KPMiner(LoadFile):
         import pke
 
         # 1. create a KPMiner extractor. 
-        extractor = pke.unsupervised.KPMiner(input_file='path/to/input.xml',
-                                             language='english')
+        extractor = pke.unsupervised.KPMiner()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input',
+                                language='en',
+                                normalization=None)
+
 
         # 3. select {1-5}-grams that do not contain punctuation marks or
         #    stopwords as keyphrase candidates. Set the least allowable seen
@@ -55,10 +56,9 @@ class KPMiner(LoadFile):
 
         # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
-
     """
 
-    def candidate_selection(self, lasf=3, cutoff=400, stoplist=None):
+    def candidate_selection(self, lasf=3, cutoff=400, stoplist=None, **kwargs):
         """The candidate selection as described in the KP-Miner paper.
 
         Args:
@@ -75,13 +75,13 @@ class KPMiner(LoadFile):
 
         # initialize stoplist list if not provided
         if stoplist is None:
-            stoplist = stopwords.words(self.language)
+            stoplist = self.stoplist
 
         # filter candidates containing stopwords or punctuation marks
         self.candidate_filtering(stoplist=list(string.punctuation) +
-                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'] +
-                                  stoplist)
+                                          ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
+                                           '-rsb-'] +
+                                          stoplist)
 
         # further filter candidates using lasf and cutoff
         # Python 2/3 compatible
@@ -97,7 +97,6 @@ class KPMiner(LoadFile):
             # delete if frequency is lower than lasf
             elif len(v.surface_forms) < lasf:
                 del self.candidates[k]
-
 
     def candidate_weighting(self, df=None, sigma=3.0, alpha=2.3):
         """Candidate weight calculation as described in the KP-Miner paper.
@@ -120,6 +119,8 @@ class KPMiner(LoadFile):
 
         # initialize default document frequency counts if none provided
         if df is None:
+            logging.warning('LoadFile._df_counts is hard coded to {}'.format(
+                self._df_counts))
             df = load_document_frequency_file(self._df_counts, delimiter='\t')
 
         # initialize the number of documents as --NB_DOC-- + 1 (current)
@@ -136,7 +137,7 @@ class KPMiner(LoadFile):
         N_d = sum([len(v.surface_forms) for v in self.candidates.values()])
 
         # compute the boosting factor
-        B = min(N_d / (P_d*alpha), sigma)
+        B = min(N_d / (P_d * alpha), sigma)
 
         # loop throught the candidates
         for k, v in self.candidates.items():
@@ -152,4 +153,3 @@ class KPMiner(LoadFile):
             idf = math.log(N / candidate_df, 2)
 
             self.weights[k] = len(v.surface_forms) * B * idf
-

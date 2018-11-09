@@ -7,25 +7,23 @@ from __future__ import absolute_import
 
 import os
 import six
-import pickle
 
 from pke.base import LoadFile
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.externals import joblib
 
+
 class SupervisedLoadFile(LoadFile):
     """ The SupervisedLoadFile class that provides extra base functions for
         supervised models. """
 
-    def __init__(self, input_file=None, language='english'):
+    def __init__(self):
         """ Redefining initializer. """
 
-        super(SupervisedLoadFile, self).__init__(input_file=input_file,
-                                                 language=language)
+        super(SupervisedLoadFile, self).__init__()
 
         self.instances = {}
         """ The instances container. """
-
 
     def feature_scaling(self):
         """ Scale features to [0,1]. """
@@ -36,11 +34,9 @@ class SupervisedLoadFile(LoadFile):
         for i, candidate in enumerate(candidates):
             self.instances[candidate] = X[i]
 
-
     def feature_extraction(self):
-        """ Skeletton for feature extraction. """
+        """ Skeleton for feature extraction. """
         pass
-
 
     def classify_candidates(self, model=None):
         """ Classify the candidates as keyphrase or not keyphrase.
@@ -56,10 +52,10 @@ class SupervisedLoadFile(LoadFile):
             # model = os.path.join(self._models, instance+"-semeval2010.pickle")
             if six.PY2:
                 model = os.path.join(self._models,
-                                     instance+"-semeval2010.py2.pickle")
+                                     instance + "-semeval2010.py2.pickle")
             else:
                 model = os.path.join(self._models,
-                                     instance+"-semeval2010.py3.pickle")
+                                     instance + "-semeval2010.py3.pickle")
 
         # load the model
         clf = joblib.load(model)
@@ -76,10 +72,8 @@ class SupervisedLoadFile(LoadFile):
         for i, candidate in enumerate(candidates):
             self.weights[candidate] = y[i][1]
 
-
     def candidate_weighting(self):
         """ Extract features and classify candidates with default parameters."""
-        
+
         self.feature_extraction()
         self.classify_candidates()
-

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Base classes &mdash; pke 1.72 documentation</title>
+  <title>Base classes &mdash; pke 1.8 documentation</title>
   
 
   
@@ -35,9 +35,9 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="pke 1.72 documentation" href="index.html"/>
+    <link rel="top" title="pke 1.8 documentation" href="index.html"/>
         <link rel="next" title="Unsupervised models" href="unsupervised.html"/>
-        <link rel="prev" title="pke : Python-based Keyphrase Extraction toolkit" href="index.html"/> 
+        <link rel="prev" title="pke documentation" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -64,6 +64,10 @@
 
           
             
+            
+              <div class="version">
+                1.8
+              </div>
             
           
 
@@ -160,44 +164,8 @@
 <span id="base-classes"></span><h1>Base classes<a class="headerlink" href="#module-pke.base" title="Permalink to this headline">¶</a></h1>
 <p>Base classes for the pke module.</p>
 <dl class="class">
-<dt id="pke.base.Candidate">
-<em class="property">class </em><code class="descclassname">pke.base.</code><code class="descname">Candidate</code><a class="headerlink" href="#pke.base.Candidate" title="Permalink to this definition">¶</a></dt>
-<dd><p>The keyphrase candidate data structure.</p>
-<dl class="attribute">
-<dt id="pke.base.Candidate.lexical_form">
-<code class="descname">lexical_form</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.Candidate.lexical_form" title="Permalink to this definition">¶</a></dt>
-<dd><p>the lexical form of the candidate.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pke.base.Candidate.offsets">
-<code class="descname">offsets</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.Candidate.offsets" title="Permalink to this definition">¶</a></dt>
-<dd><p>the offsets of the surface forms.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pke.base.Candidate.pos_patterns">
-<code class="descname">pos_patterns</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.Candidate.pos_patterns" title="Permalink to this definition">¶</a></dt>
-<dd><p>the Part-Of-Speech patterns of the candidate.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pke.base.Candidate.sentence_ids">
-<code class="descname">sentence_ids</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.Candidate.sentence_ids" title="Permalink to this definition">¶</a></dt>
-<dd><p>the sentence id of each surface form.</p>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="pke.base.Candidate.surface_forms">
-<code class="descname">surface_forms</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.Candidate.surface_forms" title="Permalink to this definition">¶</a></dt>
-<dd><p>the surface forms of the candidate.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="pke.base.LoadFile">
-<em class="property">class </em><code class="descclassname">pke.base.</code><code class="descname">LoadFile</code><span class="sig-paren">(</span><em>input_file=None</em>, <em>language='english'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pke.base.</code><code class="descname">LoadFile</code><a class="headerlink" href="#pke.base.LoadFile" title="Permalink to this definition">¶</a></dt>
 <dd><p>The LoadFile class that provides base functions.</p>
 <dl class="method">
 <dt id="pke.base.LoadFile.add_candidate">
@@ -218,6 +186,12 @@
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.base.LoadFile.apply_stemming">
+<code class="descname">apply_stemming</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.apply_stemming" title="Permalink to this definition">¶</a></dt>
+<dd><p>Populates the stem containers of sentences.</p>
 </dd></dl>
 
 <dl class="method">
@@ -255,7 +229,7 @@ candidates, defaults to [].</li>
 <dl class="attribute">
 <dt id="pke.base.LoadFile.candidates">
 <code class="descname">candidates</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.LoadFile.candidates" title="Permalink to this definition">¶</a></dt>
-<dd><p>The candidate container (dict of Candidate).</p>
+<dd><p>Keyphrase candidates container (dict of Candidate objects).</p>
 </dd></dl>
 
 <dl class="method">
@@ -298,7 +272,7 @@ noun phrases (NP).</p>
 <dl class="attribute">
 <dt id="pke.base.LoadFile.input_file">
 <code class="descname">input_file</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.LoadFile.input_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>The path of the input file.</p>
+<dd><p>Path to the input file.</p>
 </dd></dl>
 
 <dl class="method">
@@ -327,18 +301,44 @@ to be considered, defaults to 1.</li>
 <dl class="attribute">
 <dt id="pke.base.LoadFile.language">
 <code class="descname">language</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.LoadFile.language" title="Permalink to this definition">¶</a></dt>
-<dd><p>The language of the input file.</p>
+<dd><p>Language of the input file.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pke.base.LoadFile.longest_pos_sequence_selection">
-<code class="descname">longest_pos_sequence_selection</code><span class="sig-paren">(</span><em>valid_pos=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.longest_pos_sequence_selection" title="Permalink to this definition">¶</a></dt>
+<dt id="pke.base.LoadFile.load_document">
+<code class="descname">load_document</code><span class="sig-paren">(</span><em>input</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.load_document" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the content of a document/string/stream in a given language.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input</strong> (<em>str</em>) – input</li>
+<li><strong>language</strong> (<em>str</em>) – language of the input, defaults to ‘en’.</li>
+<li><strong>encoding</strong> (<em>str</em>) – encoding of the raw file.</li>
+<li><strong>normalization</strong> (<em>str</em>) – word normalization method, defaults to
+‘stemming’. Other possible values are ‘lemmatization’ or ‘None’
+for using word surface forms instead of stems/lemmas.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pke.base.LoadFile.longest_sequence_selection">
+<code class="descname">longest_sequence_selection</code><span class="sig-paren">(</span><em>key</em>, <em>valid_values</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.longest_sequence_selection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Select the longest sequences of given POS tags as candidates.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>valid_pos</strong> (<em>set</em>) – the set of valid POS tags, defaults to None.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>key</strong> (<em>func</em>) – function that given a sentence return an iterable</li>
+<li><strong>valid_values</strong> (<em>set</em>) – the set of valid values, defaults to None.</li>
+</ul>
+</td>
 </tr>
 </tbody>
 </table>
@@ -358,158 +358,143 @@ to be considered, defaults to 1.</li>
 </table>
 </dd></dl>
 
-<dl class="method">
-<dt id="pke.base.LoadFile.read_corenlp_document">
-<code class="descname">read_corenlp_document</code><span class="sig-paren">(</span><em>use_lemmas=False</em>, <em>stemmer='porter'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.read_corenlp_document" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read the input file in CoreNLP XML format and populate the sentence
-list.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>use_lemmas</strong> (<em>bool</em>) – whether lemmas from stanford corenlp are used
-instead of stems (computed by nltk), defaults to False.</li>
-<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to use (if used), defaults
-to porter (can be set to None for using word surface forms
-instead of stems).</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dl class="attribute">
+<dt id="pke.base.LoadFile.normalization">
+<code class="descname">normalization</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.LoadFile.normalization" title="Permalink to this definition">¶</a></dt>
+<dd><p>Word normalization method.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pke.base.LoadFile.read_document">
-<code class="descname">read_document</code><span class="sig-paren">(</span><em>format='raw'</em>, <em>use_lemmas=False</em>, <em>stemmer='porter'</em>, <em>sep='/'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.read_document" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read the input file in a given format.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>format</strong> (<em>str</em>) – the input format, defaults to raw.</li>
-<li><strong>use_lemmas</strong> (<em>bool</em>) – whether lemmas from stanford corenlp are used
-instead of stems (computed by nltk), defaults to False.</li>
-<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to use (if used), defaults
-to porter (can be set to None for using word surface forms
-instead of stems).</li>
-<li><strong>sep</strong> (<em>str</em>) – the separator of the tagged word, defaults to <cite>/</cite>.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pke.base.LoadFile.read_preprocessed_document">
-<code class="descname">read_preprocessed_document</code><span class="sig-paren">(</span><em>stemmer='porter'</em>, <em>sep='/'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.read_preprocessed_document" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read the preprocessed input file and populate the sentence list.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to use, defaults to porter
-(can be set to None for using word surface forms instead of
-stems).</li>
-<li><strong>sep</strong> (<em>str</em>) – the separator of the tagged word, defaults to /.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pke.base.LoadFile.read_raw_document">
-<code class="descname">read_raw_document</code><span class="sig-paren">(</span><em>stemmer='porter'</em>, <em>input_text=None</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.read_raw_document" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read the raw input file and populate the sentence list.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to use, defaults to porter
-(can be set to None for using word surface forms instead of
-stems).</li>
-<li><strong>input_text</strong> (<em>str</em>) – the text if directly given as input, defaults
-to None (i.e. using an input file).</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="pke.base.LoadFile.read_text">
-<code class="descname">read_text</code><span class="sig-paren">(</span><em>input_text=None</em>, <em>stemmer='porter'</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.read_text" title="Permalink to this definition">¶</a></dt>
-<dd><p>Read text as input.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>input_text</strong> (<em>str</em>) – the input text.</li>
-<li><strong>stemmer</strong> (<em>str</em>) – the stemmer in nltk to use, defaults to porter
-(can be set to None for using word surface forms instead of
-stems).</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
+<dt id="pke.base.LoadFile.normalize_POS_tags">
+<code class="descname">normalize_POS_tags</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.LoadFile.normalize_POS_tags" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalizes the PoS tags from udp-penn to UD.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pke.base.LoadFile.sentences">
 <code class="descname">sentences</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.LoadFile.sentences" title="Permalink to this definition">¶</a></dt>
-<dd><p>The sentence container (list of Sentence).</p>
+<dd><p>Sentence container (list of Sentence objects).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.base.LoadFile.stoplist">
+<code class="descname">stoplist</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.LoadFile.stoplist" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of stopwords.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pke.base.LoadFile.weights">
 <code class="descname">weights</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.LoadFile.weights" title="Permalink to this definition">¶</a></dt>
-<dd><p>The weight container (can be either word or candidate weights).</p>
+<dd><p>Weight container (can be either word or candidate weights).</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-pke.data_structures"></span><p>Data structures for the pke module.</p>
+<dl class="class">
+<dt id="pke.data_structures.Candidate">
+<em class="property">class </em><code class="descclassname">pke.data_structures.</code><code class="descname">Candidate</code><a class="headerlink" href="#pke.data_structures.Candidate" title="Permalink to this definition">¶</a></dt>
+<dd><p>The keyphrase candidate data structure.</p>
+<dl class="attribute">
+<dt id="pke.data_structures.Candidate.lexical_form">
+<code class="descname">lexical_form</code><em class="property"> = None</em><a class="headerlink" href="#pke.data_structures.Candidate.lexical_form" title="Permalink to this definition">¶</a></dt>
+<dd><p>the lexical form of the candidate.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.data_structures.Candidate.offsets">
+<code class="descname">offsets</code><em class="property"> = None</em><a class="headerlink" href="#pke.data_structures.Candidate.offsets" title="Permalink to this definition">¶</a></dt>
+<dd><p>the offsets of the surface forms.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.data_structures.Candidate.pos_patterns">
+<code class="descname">pos_patterns</code><em class="property"> = None</em><a class="headerlink" href="#pke.data_structures.Candidate.pos_patterns" title="Permalink to this definition">¶</a></dt>
+<dd><p>the Part-Of-Speech patterns of the candidate.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.data_structures.Candidate.sentence_ids">
+<code class="descname">sentence_ids</code><em class="property"> = None</em><a class="headerlink" href="#pke.data_structures.Candidate.sentence_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>the sentence id of each surface form.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.data_structures.Candidate.surface_forms">
+<code class="descname">surface_forms</code><em class="property"> = None</em><a class="headerlink" href="#pke.data_structures.Candidate.surface_forms" title="Permalink to this definition">¶</a></dt>
+<dd><p>the surface forms of the candidate.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="class">
-<dt id="pke.base.Sentence">
-<em class="property">class </em><code class="descclassname">pke.base.</code><code class="descname">Sentence</code><span class="sig-paren">(</span><em>words</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.base.Sentence" title="Permalink to this definition">¶</a></dt>
-<dd><p>The sentence data structure.</p>
-<dl class="attribute">
-<dt id="pke.base.Sentence.length">
-<code class="descname">length</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.Sentence.length" title="Permalink to this definition">¶</a></dt>
-<dd><p>length of the sentence.</p>
+<dt id="pke.data_structures.Document">
+<em class="property">class </em><code class="descclassname">pke.data_structures.</code><code class="descname">Document</code><a class="headerlink" href="#pke.data_structures.Document" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Document data structure.</p>
+<dl class="staticmethod">
+<dt id="pke.data_structures.Document.from_sentences">
+<em class="property">static </em><code class="descname">from_sentences</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.data_structures.Document.from_sentences" title="Permalink to this definition">¶</a></dt>
+<dd><p>Populate the sentence list.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>sentences</strong> (<em>Sentence list</em>) – content to create the document.</li>
+<li><strong>input_file</strong> (<em>str</em>) – path to the input file.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pke.base.Sentence.meta">
-<code class="descname">meta</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.Sentence.meta" title="Permalink to this definition">¶</a></dt>
+<dt id="pke.data_structures.Document.input_file">
+<code class="descname">input_file</code><em class="property"> = None</em><a class="headerlink" href="#pke.data_structures.Document.input_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>The path of the input file.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.data_structures.Document.sentences">
+<code class="descname">sentences</code><em class="property"> = None</em><a class="headerlink" href="#pke.data_structures.Document.sentences" title="Permalink to this definition">¶</a></dt>
+<dd><p>The sentence container (list of Sentence).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pke.data_structures.Sentence">
+<em class="property">class </em><code class="descclassname">pke.data_structures.</code><code class="descname">Sentence</code><span class="sig-paren">(</span><em>words</em><span class="sig-paren">)</span><a class="headerlink" href="#pke.data_structures.Sentence" title="Permalink to this definition">¶</a></dt>
+<dd><p>The sentence data structure.</p>
+<dl class="attribute">
+<dt id="pke.data_structures.Sentence.length">
+<code class="descname">length</code><em class="property"> = None</em><a class="headerlink" href="#pke.data_structures.Sentence.length" title="Permalink to this definition">¶</a></dt>
+<dd><p>length (number of tokens) of the sentence.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pke.data_structures.Sentence.meta">
+<code class="descname">meta</code><em class="property"> = None</em><a class="headerlink" href="#pke.data_structures.Sentence.meta" title="Permalink to this definition">¶</a></dt>
 <dd><p>meta-information of the sentence.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pke.base.Sentence.pos">
-<code class="descname">pos</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.Sentence.pos" title="Permalink to this definition">¶</a></dt>
-<dd><p>Part-Of-Speeches as a list.</p>
+<dt id="pke.data_structures.Sentence.pos">
+<code class="descname">pos</code><em class="property"> = None</em><a class="headerlink" href="#pke.data_structures.Sentence.pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of Part-Of-Speeches.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pke.base.Sentence.stems">
-<code class="descname">stems</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.Sentence.stems" title="Permalink to this definition">¶</a></dt>
-<dd><p>stems as a list.</p>
+<dt id="pke.data_structures.Sentence.stems">
+<code class="descname">stems</code><em class="property"> = None</em><a class="headerlink" href="#pke.data_structures.Sentence.stems" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of stems.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pke.base.Sentence.words">
-<code class="descname">words</code><em class="property"> = None</em><a class="headerlink" href="#pke.base.Sentence.words" title="Permalink to this definition">¶</a></dt>
-<dd><p>tokens as a list.</p>
+<dt id="pke.data_structures.Sentence.words">
+<code class="descname">words</code><em class="property"> = None</em><a class="headerlink" href="#pke.data_structures.Sentence.words" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of words (tokens) in the sentence.</p>
 </dd></dl>
 
 </dd></dl>
@@ -529,7 +514,7 @@ stems).</li>
         <a href="unsupervised.html" class="btn btn-neutral float-right" title="Unsupervised models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="index.html" class="btn btn-neutral" title="pke : Python-based Keyphrase Extraction toolkit" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="index.html" class="btn btn-neutral" title="pke documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -538,7 +523,7 @@ stems).</li>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Florian Boudin.
+        &copy; Copyright 2018, pke Contributors.
 
     </p>
   </div>
@@ -560,7 +545,7 @@ stems).</li>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.72',
+            VERSION:'1.8',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

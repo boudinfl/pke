@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-import codecs
 import logging
+
 import pke
 
 # setting info in terminal
@@ -19,7 +17,7 @@ reference_file = "gold-annotation.txt"
 df_file = "df.tsv.gz"
 logging.info('Loading df counts from {}'.format(df_file))
 df_counts = pke.load_document_frequency_file(input_file=df_file,
-											 delimiter='\t')
+                                             delimiter='\t')
 
 # path to the model, saved as a pickle
 output_mdl = "model.pickle"
@@ -27,10 +25,8 @@ output_mdl = "model.pickle"
 pke.train_supervised_model(input_dir=input_dir,
                            reference_file=reference_file,
                            model_file=output_mdl,
+                           extension='xml',
+                           language='en',
+                           normalization="stemming",
                            df=df_counts,
-                           format="corenlp",
-                           use_lemmas=False,
-                           stemmer="porter",
-                           model=pke.supervised.Kea(),
-                           language='english',
-                           extension="xml")
+                           model=pke.supervised.Kea())

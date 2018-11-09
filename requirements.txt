@@ -1,3 +1,5 @@
+six
+spacy
 nltk
 networkx
 numpy

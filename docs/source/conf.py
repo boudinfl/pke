@@ -15,19 +15,17 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('../../'))
-import pke
-
 
 # -- Project information -----------------------------------------------------
 
 project = 'pke'
-copyright = '2018, Florian Boudin'
-author = 'Florian Boudin'
+copyright = '2018, pke Contributors'
+author = 'pke Contributors'
 
 # The short X.Y version
-version = ''
+version = '1.8'
 # The full version, including alpha/beta/rc tags
-release = '1.72'
+release = '1.8'
 
 
 # -- General configuration ---------------------------------------------------
@@ -53,8 +51,7 @@ templates_path = ['_templates']
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-source_suffix = ['.rst', '.md']
-# source_suffix = '.rst'
+source_suffix = '.rst'
 
 # The master toctree document.
 master_doc = 'index'
@@ -108,57 +105,6 @@ html_static_path = ['_static']
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'pkedoc'
-
-
-# -- Options for LaTeX output ------------------------------------------------
-
-latex_elements = {
-    # The paper size ('letterpaper' or 'a4paper').
-    #
-    # 'papersize': 'letterpaper',
-
-    # The font size ('10pt', '11pt' or '12pt').
-    #
-    # 'pointsize': '10pt',
-
-    # Additional stuff for the LaTeX preamble.
-    #
-    # 'preamble': '',
-
-    # Latex figure (float) alignment
-    #
-    # 'figure_align': 'htbp',
-}
-
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title,
-#  author, documentclass [howto, manual, or own class]).
-latex_documents = [
-    (master_doc, 'pke.tex', 'pke Documentation',
-     'Florian Boudin', 'manual'),
-]
-
-
-# -- Options for manual page output ------------------------------------------
-
-# One entry per manual page. List of tuples
-# (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'pke', 'pke Documentation',
-     [author], 1)
-]
-
-
-# -- Options for Texinfo output ----------------------------------------------
-
-# Grouping the document tree into Texinfo files. List of tuples
-# (source start file, target name, title, author,
-#  dir menu entry, description, category)
-texinfo_documents = [
-    (master_doc, 'pke', 'pke Documentation',
-     author, 'pke', 'One line description of project.',
-     'Miscellaneous'),
-]
 
 
 # -- Extension configuration -------------------------------------------------

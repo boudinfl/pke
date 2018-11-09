@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; pke 1.72 documentation</title>
+  <title>Index &mdash; pke 1.8 documentation</title>
   
 
   
@@ -36,7 +36,7 @@
         <link rel="index" title="Index"
               href="#"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="pke 1.72 documentation" href="index.html"/> 
+    <link rel="top" title="pke 1.8 documentation" href="index.html"/> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -64,6 +64,10 @@
           
             
             
+              <div class="version">
+                1.8
+              </div>
+            
           
 
           
@@ -85,7 +89,14 @@
               
             
             
-              <p class="caption"><span class="caption-text">Package reference</span></p>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/df.html">Document frequency counts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/input.html">Input formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/non-english.html">Non English languages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/training.html">Training supervised models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="base.html">Base classes</a></li>
 <li class="toctree-l1"><a class="reference internal" href="unsupervised.html">Unsupervised models</a></li>
@@ -160,6 +171,7 @@
  <a href="#A"><strong>A</strong></a>
  | <a href="#B"><strong>B</strong></a>
  | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#G"><strong>G</strong></a>
  | <a href="#I"><strong>I</strong></a>
@@ -183,6 +195,10 @@
       <li><a href="base.html#pke.base.LoadFile.add_candidate">add_candidate() (pke.base.LoadFile method)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="base.html#pke.base.LoadFile.apply_stemming">apply_stemming() (pke.base.LoadFile method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="B">B</h2>
@@ -201,6 +217,8 @@
       <ul>
         <li><a href="unsupervised.html#pke.unsupervised.SingleRank.build_word_graph">(pke.unsupervised.SingleRank method)</a>
 </li>
+        <li><a href="unsupervised.html#pke.unsupervised.TextRank.build_word_graph">(pke.unsupervised.TextRank method)</a>
+</li>
       </ul></li>
   </ul></td>
 </tr></table>
@@ -208,7 +226,7 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="base.html#pke.base.Candidate">Candidate (class in pke.base)</a>
+      <li><a href="base.html#pke.data_structures.Candidate">Candidate (class in pke.data_structures)</a>
 </li>
       <li><a href="base.html#pke.base.LoadFile.candidate_filtering">candidate_filtering() (pke.base.LoadFile method)</a>
 </li>
@@ -221,7 +239,7 @@
 </li>
         <li><a href="unsupervised.html#pke.unsupervised.PositionRank.candidate_selection">(pke.unsupervised.PositionRank method)</a>
 </li>
-        <li><a href="unsupervised.html#pke.unsupervised.SingleRank.candidate_selection">(pke.unsupervised.SingleRank method)</a>
+        <li><a href="unsupervised.html#pke.unsupervised.TextRank.candidate_selection">(pke.unsupervised.TextRank method)</a>
 </li>
         <li><a href="unsupervised.html#pke.unsupervised.TfIdf.candidate_selection">(pke.unsupervised.TfIdf method)</a>
 </li>
@@ -247,6 +265,8 @@
 </li>
         <li><a href="unsupervised.html#pke.unsupervised.SingleRank.candidate_weighting">(pke.unsupervised.SingleRank method)</a>
 </li>
+        <li><a href="unsupervised.html#pke.unsupervised.TextRank.candidate_weighting">(pke.unsupervised.TextRank method)</a>
+</li>
         <li><a href="unsupervised.html#pke.unsupervised.TfIdf.candidate_weighting">(pke.unsupervised.TfIdf method)</a>
 </li>
         <li><a href="unsupervised.html#pke.unsupervised.TopicRank.candidate_weighting">(pke.unsupervised.TopicRank method)</a>
@@ -266,7 +286,17 @@
 </li>
       <li><a href="utils.html#pke.utils.compute_lda_model">compute_lda_model() (in module pke.utils)</a>
 </li>
+      <li><a href="utils.html#pke.utils.compute_pairwise_similarity_matrix">compute_pairwise_similarity_matrix() (in module pke.utils)</a>
+</li>
       <li><a href="unsupervised.html#pke.unsupervised.YAKE.contexts">contexts (pke.unsupervised.YAKE attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="base.html#pke.data_structures.Document">Document (class in pke.data_structures)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -288,6 +318,8 @@
 </li>
       <li><a href="unsupervised.html#pke.unsupervised.YAKE.features">features (pke.unsupervised.YAKE attribute)</a>
 </li>
+      <li><a href="base.html#pke.data_structures.Document.from_sentences">from_sentences() (pke.data_structures.Document static method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -307,7 +339,7 @@
       <li><a href="unsupervised.html#pke.unsupervised.MultipartiteRank.graph">graph (pke.unsupervised.MultipartiteRank attribute)</a>
 
       <ul>
-        <li><a href="unsupervised.html#pke.unsupervised.SingleRank.graph">(pke.unsupervised.SingleRank attribute)</a>
+        <li><a href="unsupervised.html#pke.unsupervised.TextRank.graph">(pke.unsupervised.TextRank attribute)</a>
 </li>
         <li><a href="unsupervised.html#pke.unsupervised.TopicRank.graph">(pke.unsupervised.TopicRank attribute)</a>
 </li>
@@ -319,11 +351,15 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="base.html#pke.base.LoadFile.input_file">input_file (pke.base.LoadFile attribute)</a>
+
+      <ul>
+        <li><a href="base.html#pke.data_structures.Document.input_file">(pke.data_structures.Document attribute)</a>
 </li>
-      <li><a href="supervised.html#pke.supervised.SupervisedLoadFile.instances">instances (pke.supervised.SupervisedLoadFile attribute)</a>
-</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="supervised.html#pke.supervised.SupervisedLoadFile.instances">instances (pke.supervised.SupervisedLoadFile attribute)</a>
+</li>
       <li><a href="base.html#pke.base.LoadFile.is_redundant">is_redundant() (pke.base.LoadFile method)</a>
 
       <ul>
@@ -350,19 +386,23 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="base.html#pke.base.LoadFile.language">language (pke.base.LoadFile attribute)</a>
 </li>
-      <li><a href="base.html#pke.base.Sentence.length">length (pke.base.Sentence attribute)</a>
+      <li><a href="base.html#pke.data_structures.Sentence.length">length (pke.data_structures.Sentence attribute)</a>
 </li>
-      <li><a href="base.html#pke.base.Candidate.lexical_form">lexical_form (pke.base.Candidate attribute)</a>
+      <li><a href="base.html#pke.data_structures.Candidate.lexical_form">lexical_form (pke.data_structures.Candidate attribute)</a>
+</li>
+      <li><a href="base.html#pke.base.LoadFile.load_document">load_document() (pke.base.LoadFile method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#pke.utils.load_document_as_bos">load_document_as_bos() (in module pke.utils)</a>
+</li>
       <li><a href="utils.html#pke.utils.load_document_frequency_file">load_document_frequency_file() (in module pke.utils)</a>
 </li>
       <li><a href="utils.html#pke.utils.load_references">load_references() (in module pke.utils)</a>
 </li>
       <li><a href="base.html#pke.base.LoadFile">LoadFile (class in pke.base)</a>
 </li>
-      <li><a href="base.html#pke.base.LoadFile.longest_pos_sequence_selection">longest_pos_sequence_selection() (pke.base.LoadFile method)</a>
+      <li><a href="base.html#pke.base.LoadFile.longest_sequence_selection">longest_sequence_selection() (pke.base.LoadFile method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -370,11 +410,11 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="base.html#pke.base.Sentence.meta">meta (pke.base.Sentence attribute)</a>
+      <li><a href="base.html#pke.data_structures.Sentence.meta">meta (pke.data_structures.Sentence attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="readers.html#pke.readers.MinimalCoreNLPParser">MinimalCoreNLPParser (class in pke.readers)</a>
+      <li><a href="readers.html#pke.readers.MinimalCoreNLPReader">MinimalCoreNLPReader (class in pke.readers)</a>
 </li>
       <li><a href="unsupervised.html#pke.unsupervised.MultipartiteRank">MultipartiteRank (class in pke.unsupervised)</a>
 </li>
@@ -387,12 +427,18 @@
       <li><a href="base.html#pke.base.LoadFile.ngram_selection">ngram_selection() (pke.base.LoadFile method)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="base.html#pke.base.LoadFile.normalization">normalization (pke.base.LoadFile attribute)</a>
+</li>
+      <li><a href="base.html#pke.base.LoadFile.normalize_POS_tags">normalize_POS_tags() (pke.base.LoadFile method)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="base.html#pke.base.Candidate.offsets">offsets (pke.base.Candidate attribute)</a>
+      <li><a href="base.html#pke.data_structures.Candidate.offsets">offsets (pke.data_structures.Candidate attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -401,6 +447,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="base.html#module-pke.base">pke.base (module)</a>
+</li>
+      <li><a href="base.html#module-pke.data_structures">pke.data_structures (module)</a>
 </li>
       <li><a href="readers.html#module-pke.readers">pke.readers (module)</a>
 </li>
@@ -412,13 +460,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="utils.html#module-pke.utils">pke.utils (module)</a>
 </li>
-      <li><a href="base.html#pke.base.Sentence.pos">pos (pke.base.Sentence attribute)</a>
+      <li><a href="base.html#pke.data_structures.Sentence.pos">pos (pke.data_structures.Sentence attribute)</a>
 </li>
-      <li><a href="base.html#pke.base.Candidate.pos_patterns">pos_patterns (pke.base.Candidate attribute)</a>
+      <li><a href="base.html#pke.data_structures.Candidate.pos_patterns">pos_patterns (pke.data_structures.Candidate attribute)</a>
 </li>
       <li><a href="unsupervised.html#pke.unsupervised.PositionRank">PositionRank (class in pke.unsupervised)</a>
 </li>
-      <li><a href="readers.html#pke.readers.PreProcessedTextReader">PreProcessedTextReader (class in pke.readers)</a>
+      <li><a href="unsupervised.html#pke.unsupervised.PositionRank.positions">positions (pke.unsupervised.PositionRank attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -428,17 +476,9 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="readers.html#pke.readers.RawTextReader">RawTextReader (class in pke.readers)</a>
 </li>
-      <li><a href="base.html#pke.base.LoadFile.read_corenlp_document">read_corenlp_document() (pke.base.LoadFile method)</a>
-</li>
-      <li><a href="base.html#pke.base.LoadFile.read_document">read_document() (pke.base.LoadFile method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="base.html#pke.base.LoadFile.read_preprocessed_document">read_preprocessed_document() (pke.base.LoadFile method)</a>
-</li>
-      <li><a href="base.html#pke.base.LoadFile.read_raw_document">read_raw_document() (pke.base.LoadFile method)</a>
-</li>
-      <li><a href="base.html#pke.base.LoadFile.read_text">read_text() (pke.base.LoadFile method)</a>
+      <li><a href="readers.html#pke.readers.RawTextReader.read">read() (pke.readers.RawTextReader method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -446,21 +486,27 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="base.html#pke.base.Sentence">Sentence (class in pke.base)</a>
+      <li><a href="base.html#pke.data_structures.Sentence">Sentence (class in pke.data_structures)</a>
 </li>
-      <li><a href="base.html#pke.base.Candidate.sentence_ids">sentence_ids (pke.base.Candidate attribute)</a>
+      <li><a href="base.html#pke.data_structures.Candidate.sentence_ids">sentence_ids (pke.data_structures.Candidate attribute)</a>
 </li>
       <li><a href="base.html#pke.base.LoadFile.sentences">sentences (pke.base.LoadFile attribute)</a>
+
+      <ul>
+        <li><a href="base.html#pke.data_structures.Document.sentences">(pke.data_structures.Document attribute)</a>
 </li>
+      </ul></li>
       <li><a href="unsupervised.html#pke.unsupervised.SingleRank">SingleRank (class in pke.unsupervised)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="base.html#pke.base.Sentence.stems">stems (pke.base.Sentence attribute)</a>
+      <li><a href="base.html#pke.data_structures.Sentence.stems">stems (pke.data_structures.Sentence attribute)</a>
+</li>
+      <li><a href="base.html#pke.base.LoadFile.stoplist">stoplist (pke.base.LoadFile attribute)</a>
 </li>
       <li><a href="supervised.html#pke.supervised.SupervisedLoadFile">SupervisedLoadFile (class in pke.supervised)</a>
 </li>
-      <li><a href="base.html#pke.base.Candidate.surface_forms">surface_forms (pke.base.Candidate attribute)</a>
+      <li><a href="base.html#pke.data_structures.Candidate.surface_forms">surface_forms (pke.data_structures.Candidate attribute)</a>
 </li>
       <li><a href="unsupervised.html#pke.unsupervised.YAKE.surface_to_lexical">surface_to_lexical (pke.unsupervised.YAKE attribute)</a>
 </li>
@@ -470,6 +516,8 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="unsupervised.html#pke.unsupervised.TextRank">TextRank (class in pke.unsupervised)</a>
+</li>
       <li><a href="unsupervised.html#pke.unsupervised.TfIdf">TfIdf (class in pke.unsupervised)</a>
 </li>
       <li><a href="unsupervised.html#pke.unsupervised.MultipartiteRank.topic_clustering">topic_clustering() (pke.unsupervised.MultipartiteRank method)</a>
@@ -480,10 +528,10 @@
       </ul></li>
       <li><a href="unsupervised.html#pke.unsupervised.MultipartiteRank.topic_identifiers">topic_identifiers (pke.unsupervised.MultipartiteRank attribute)</a>
 </li>
-      <li><a href="unsupervised.html#pke.unsupervised.TopicalPageRank">TopicalPageRank (class in pke.unsupervised)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="unsupervised.html#pke.unsupervised.TopicalPageRank">TopicalPageRank (class in pke.unsupervised)</a>
+</li>
       <li><a href="unsupervised.html#pke.unsupervised.TopicRank">TopicRank (class in pke.unsupervised)</a>
 </li>
       <li><a href="unsupervised.html#pke.unsupervised.TopicRank.topics">topics (pke.unsupervised.TopicRank attribute)</a>
@@ -518,7 +566,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="supervised.html#pke.supervised.WINGNUS">WINGNUS (class in pke.supervised)</a>
 </li>
-      <li><a href="base.html#pke.base.Sentence.words">words (pke.base.Sentence attribute)</a>
+      <li><a href="base.html#pke.data_structures.Sentence.words">words (pke.data_structures.Sentence attribute)</a>
 
       <ul>
         <li><a href="unsupervised.html#pke.unsupervised.YAKE.words">(pke.unsupervised.YAKE attribute)</a>
@@ -549,7 +597,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Florian Boudin.
+        &copy; Copyright 2018, pke Contributors.
 
     </p>
   </div>
@@ -571,7 +619,7 @@
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.72',
+            VERSION:'1.8',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

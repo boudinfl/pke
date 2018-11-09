@@ -8,13 +8,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from pke.base import LoadFile
-from pke.utils import load_document_frequency_file
-
-from nltk.corpus import stopwords
-
 import math
 import string
+import logging
+
+from pke.base import LoadFile
+from pke.utils import load_document_frequency_file
 
 
 class TfIdf(LoadFile):
@@ -26,16 +25,15 @@ class TfIdf(LoadFile):
         import pke
 
         # 1. create a TfIdf extractor.
-        extractor = pke.unsupervised.TfIdf(input_file='path/to/input.xml')
+        extractor = pke.unsupervised.TfIdf()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input',
+                                language='en',
+                                normalization=None)
 
         # 3. select {1-3}-grams not containing punctuation marks as candidates.
-        n = 3
-        stoplist = list(string.punctuation)
-        stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
-        extractor.candidate_selection(n=n, stoplist=stoplist)
+        extractor.candidate_selection(n=3, stoplist=list(string.punctuation))
 
         # 4. weight the candidates using a `tf` x `idf`
         df = pke.load_document_frequency_file(input_file='path/to/df.tsv.gz')
@@ -43,11 +41,9 @@ class TfIdf(LoadFile):
 
         # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
-
     """
 
-
-    def candidate_selection(self, n=3, stoplist=None):
+    def candidate_selection(self, n=3, stoplist=None, **kwargs):
         """Select 1-3 grams as keyphrase candidates.
 
         Args:
@@ -67,10 +63,8 @@ class TfIdf(LoadFile):
 
         # filter candidates containing punctuation marks
         self.candidate_filtering(stoplist=list(string.punctuation) +
-                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'] +
-                                  stoplist)
-
+                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-',
+                                  '-lsb-', '-rsb-'] + stoplist)
 
     def candidate_weighting(self, df=None):
         """Candidate weighting function using document frequencies.
@@ -82,6 +76,8 @@ class TfIdf(LoadFile):
 
         # initialize default document frequency counts if none provided
         if df is None:
+            logging.warning('LoadFile._df_counts is hard coded to {}'.format(
+                self._df_counts))
             df = load_document_frequency_file(self._df_counts, delimiter='\t')
 
         # initialize the number of documents as --NB_DOC-- + 1 (current)
@@ -89,7 +85,6 @@ class TfIdf(LoadFile):
 
         # loop throught the candidates
         for k, v in self.candidates.items():
-
             # get candidate document frequency
             candidate_df = 1 + df.get(k, 0)
 
@@ -98,4 +93,3 @@ class TfIdf(LoadFile):
 
             # add the idf score to the weights container
             self.weights[k] = len(v.surface_forms) * idf
-
