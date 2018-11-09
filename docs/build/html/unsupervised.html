@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Unsupervised models &mdash; pke 1.73 documentation</title>
+  <title>Unsupervised models &mdash; pke 1.8 documentation</title>
   
 
   
@@ -35,7 +35,7 @@
         <link rel="index" title="Index"
               href="genindex.html"/>
         <link rel="search" title="Search" href="search.html"/>
-    <link rel="top" title="pke 1.73 documentation" href="index.html"/>
+    <link rel="top" title="pke 1.8 documentation" href="index.html"/>
         <link rel="next" title="Supervised models" href="supervised.html"/>
         <link rel="prev" title="Base classes" href="base.html"/> 
 
@@ -65,6 +65,10 @@
           
             
             
+              <div class="version">
+                1.8
+              </div>
+            
           
 
           
@@ -86,7 +90,14 @@
               
             
             
-              <p class="caption"><span class="caption-text">Package reference</span></p>
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/df.html">Document frequency counts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/input.html">Input formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/non-english.html">Non English languages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorials/training.html">Training supervised models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package reference</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="base.html">Base classes</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Unsupervised models</a><ul>
@@ -188,16 +199,15 @@
 <span class="kn">import</span> <span class="nn">pke</span>
 
 <span class="c1"># 1. create a TfIdf extractor.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">TfIdf</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">TfIdf</span><span class="p">()</span>
 
 <span class="c1"># 2. load the content of the document.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="s1">&#39;path/to/input&#39;</span><span class="p">,</span>
+                        <span class="n">language</span><span class="o">=</span><span class="s1">&#39;en&#39;</span><span class="p">,</span>
+                        <span class="n">normalization</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
 <span class="c1"># 3. select {1-3}-grams not containing punctuation marks as candidates.</span>
-<span class="n">n</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="n">stoplist</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">)</span>
-<span class="n">stoplist</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">&#39;-lrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rrb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rcb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-lsb-&#39;</span><span class="p">,</span> <span class="s1">&#39;-rsb-&#39;</span><span class="p">]</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">stoplist</span><span class="o">=</span><span class="n">stoplist</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">candidate_selection</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">stoplist</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">string</span><span class="o">.</span><span class="n">punctuation</span><span class="p">))</span>
 
 <span class="c1"># 4. weight the candidates using a `tf` x `idf`</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">load_document_frequency_file</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/df.tsv.gz&#39;</span><span class="p">)</span>
@@ -255,11 +265,13 @@ specified using the “–NB_DOC–” key.</td>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pke</span>
 
 <span class="c1"># 1. create a KPMiner extractor.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">KPMiner</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">,</span>
-                                     <span class="n">language</span><span class="o">=</span><span class="s1">&#39;english&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">KPMiner</span><span class="p">()</span>
 
 <span class="c1"># 2. load the content of the document.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="s1">&#39;path/to/input&#39;</span><span class="p">,</span>
+                        <span class="n">language</span><span class="o">=</span><span class="s1">&#39;en&#39;</span><span class="p">,</span>
+                        <span class="n">normalization</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
 
 <span class="c1"># 3. select {1-5}-grams that do not contain punctuation marks or</span>
 <span class="c1">#    stopwords as keyphrase candidates. Set the least allowable seen</span>
@@ -348,10 +360,13 @@ be specified using the “–NB_DOC–” key.</li>
 <span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="k">import</span> <span class="n">stopwords</span>
 
 <span class="c1"># 1. create a YAKE extractor.</span>
-<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">YAKE</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;path/to/input.xml&#39;</span><span class="p">)</span>
+<span class="n">extractor</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">unsupervised</span><span class="o">.</span><span class="n">YAKE</span><span class="p">()</span>
 
 <span class="c1"># 2. load the content of the document.</span>
-<span class="n">extractor</span><span class="o">.</span><span class="n">read_document</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="s1">&#39;corenlp&#39;</span><span class="p">)</span>
+<span class="n">extractor</span><span class="o">.</span><span class="n">load_document</span><span class="p">(</span><span class="nb">input</span><span class="o">=</span><span class="s1">&#39;path/to/input&#39;</span><span class="p">,</span>
+                        <span class="n">language</span><span class="o">=</span><span class="s1">&#39;en&#39;</span><span class="p">,</span>
+                        <span class="n">normalization</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
 
 <span class="c1"># 3. select {1-3}-grams not containing punctuation marks and not</span>
 <span class="c1">#    beginning/ending with a stopword as candidates.</span>
@@ -1188,7 +1203,7 @@ weight adjustment, defaults to 1.1.</td>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2016-2018, Florian Boudin, Ygor Gallina.
+        &copy; Copyright 2018, pke Contributors.
 
     </p>
   </div>
@@ -1210,7 +1225,7 @@ weight adjustment, defaults to 1.1.</td>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'1.73',
+            VERSION:'1.8',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

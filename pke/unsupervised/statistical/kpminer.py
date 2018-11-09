@@ -32,11 +32,13 @@ class KPMiner(LoadFile):
         import pke
 
         # 1. create a KPMiner extractor. 
-        extractor = pke.unsupervised.KPMiner(input_file='path/to/input.xml',
-                                             language='english')
+        extractor = pke.unsupervised.KPMiner()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input',
+                                language='en',
+                                normalization=None)
+
 
         # 3. select {1-5}-grams that do not contain punctuation marks or
         #    stopwords as keyphrase candidates. Set the least allowable seen
@@ -54,7 +56,6 @@ class KPMiner(LoadFile):
 
         # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
-
     """
 
     def candidate_selection(self, lasf=3, cutoff=400, stoplist=None, **kwargs):

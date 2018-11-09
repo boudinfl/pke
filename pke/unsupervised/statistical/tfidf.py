@@ -25,16 +25,15 @@ class TfIdf(LoadFile):
         import pke
 
         # 1. create a TfIdf extractor.
-        extractor = pke.unsupervised.TfIdf(input_file='path/to/input.xml')
+        extractor = pke.unsupervised.TfIdf()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input',
+                                language='en',
+                                normalization=None)
 
         # 3. select {1-3}-grams not containing punctuation marks as candidates.
-        n = 3
-        stoplist = list(string.punctuation)
-        stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
-        extractor.candidate_selection(n=n, stoplist=stoplist)
+        extractor.candidate_selection(n=3, stoplist=list(string.punctuation))
 
         # 4. weight the candidates using a `tf` x `idf`
         df = pke.load_document_frequency_file(input_file='path/to/df.tsv.gz')
@@ -42,7 +41,6 @@ class TfIdf(LoadFile):
 
         # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
-
     """
 
     def candidate_selection(self, n=3, stoplist=None, **kwargs):

@@ -37,10 +37,13 @@ class YAKE(LoadFile):
         from nltk.corpus import stopwords
 
         # 1. create a YAKE extractor.
-        extractor = pke.unsupervised.YAKE(input_file='path/to/input.xml')
+        extractor = pke.unsupervised.YAKE()
 
         # 2. load the content of the document.
-        extractor.read_document(format='corenlp')
+        extractor.load_document(input='path/to/input',
+                                language='en',
+                                normalization=None)
+
 
         # 3. select {1-3}-grams not containing punctuation marks and not
         #    beginning/ending with a stopword as candidates.
@@ -60,7 +63,6 @@ class YAKE(LoadFile):
         #    distance and a threshold.
         threshold = 0.8
         keyphrases = extractor.get_n_best(n=10, threshold=threshold)
-
     """
 
     def __init__(self):

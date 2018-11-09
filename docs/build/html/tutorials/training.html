@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Training supervised models &mdash; pke 1.8 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="pke 1.8 documentation" href="../index.html"/>
+        <link rel="next" title="Base classes" href="../base.html"/>
+        <link rel="prev" title="Document frequency counts" href="df.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> pke
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Tutorials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="df.html">Document frequency counts</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Training supervised models</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Package reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../base.html">Base classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../unsupervised.html">Unsupervised models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../supervised.html">Supervised models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readers.html">Reader classes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Useful functions</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pke</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Training supervised models</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/tutorials/training.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="training-supervised-models">
+<h1>Training supervised models<a class="headerlink" href="#training-supervised-models" title="Permalink to this headline">¶</a></h1>
+<p>pke ships with a collection of already trained models (for supervised
+keyphrase extraction approaches) and document frequency counts that were
+computed on the training set of the SemEval-2010 benchmark dataset. These
+resources are located into the <code class="docutils literal notranslate"><span class="pre">pke/models/</span></code> directory.</p>
+<p><strong>Note that already trained models/DF counts are used by default if no parameters
+are given.</strong></p>
+<p>The following snippet of code illustrates how to train a new supervised model:</p>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pke</span>
+
+<span class="sd">&quot;&quot;&quot;Train a Kea model given a collection of document, a document frequency</span>
+<span class="sd">counts file and a reference file (gold keyphrases).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># load the DF counts from file</span>
+<span class="n">df_counts</span> <span class="o">=</span> <span class="n">pke</span><span class="o">.</span><span class="n">load_document_frequency_file</span><span class="p">(</span><span class="n">input_file</span><span class="o">=</span><span class="s1">&#39;/path/to/df_counts&#39;</span><span class="p">)</span>
+
+<span class="c1"># train a new Kea model</span>
+<span class="n">pke</span><span class="o">.</span><span class="n">train_supervised_model</span><span class="p">(</span><span class="n">input_dir</span><span class="o">=</span><span class="s1">&#39;/path/to/collection/of/documents/&#39;</span><span class="p">,</span>
+                           <span class="n">reference_file</span><span class="o">=</span><span class="s1">&#39;/path/to/reference/file&#39;</span><span class="p">,</span>
+                           <span class="n">model_file</span><span class="o">=</span><span class="s1">&#39;/path/to/model/file&#39;</span><span class="p">,</span>
+                           <span class="n">df</span><span class="o">=</span><span class="n">df_counts</span><span class="p">,</span>
+                           <span class="n">extension</span><span class="o">=</span><span class="s1">&#39;xml&#39;</span><span class="p">,</span>
+                           <span class="n">language</span><span class="o">=</span><span class="s1">&#39;en&#39;</span><span class="p">,</span>
+                           <span class="n">normalization</span><span class="o">=</span><span class="s2">&quot;stemming&quot;</span><span class="p">,</span>
+                           <span class="n">model</span><span class="o">=</span><span class="n">pke</span><span class="o">.</span><span class="n">supervised</span><span class="o">.</span><span class="n">Kea</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>The training data consists of a set of documents along with a reference file
+containing annotated keyphrases in the following formats:</p>
+<ol class="arabic simple">
+<li><a class="reference external" href="http://docs.google.com/Doc?id=ddshp584_46gqkkjng4">SemEval-2010 format</a>,
+i.e. <code class="docutils literal notranslate"><span class="pre">FILENAME\s:\sKEYPHRASE_LIST</span></code></li>
+</ol>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="o">-</span><span class="mi">41</span> <span class="p">:</span> <span class="n">hybrid</span> <span class="n">system</span><span class="p">,</span><span class="n">quality</span> <span class="n">of</span> <span class="n">service</span><span class="o">+</span><span class="n">service</span> <span class="n">quality</span><span class="p">,</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li>json format</li>
+</ol>
+<div class="code highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;C-41&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">[</span>
+      <span class="s2">&quot;hybrid system&quot;</span>
+    <span class="p">],</span>
+    <span class="p">[</span>
+      <span class="s2">&quot;quality of service&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;service quality&quot;</span>
+    <span class="p">],</span>
+    <span class="p">[</span><span class="o">...</span><span class="p">]</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../base.html" class="btn btn-neutral float-right" title="Base classes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="df.html" class="btn btn-neutral" title="Document frequency counts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, pke Contributors.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.8',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
