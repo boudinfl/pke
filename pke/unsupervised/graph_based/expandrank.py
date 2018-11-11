@@ -22,6 +22,7 @@ from pke.unsupervised import SingleRank
 from pke.base import LoadFile
 
 import networkx as nx
+import logging
 
 
 class ExpandRank(SingleRank):
@@ -119,7 +120,7 @@ class ExpandRank(SingleRank):
     def candidate_weighting(self,
                             window=10,
                             pos=None,
-                            expanded_documents=[],
+                            expanded_documents=None,
                             normalized=False):
         """Candidate ranking using random walk.
 
@@ -138,6 +139,10 @@ class ExpandRank(SingleRank):
         # define default pos tags set
         if pos is None:
             pos = {'NOUN', 'PROPN', 'ADJ'}
+
+        if expanded_documents is None:
+            expanded_documents = []
+            logging.warning('No neighbor documents provided for ExpandRank.')
 
         # build the word graph
         self.build_word_graph(window=window, pos=pos)

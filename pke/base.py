@@ -66,7 +66,7 @@ class LoadFile(object):
         """Loads the content of a document/string/stream in a given language.
 
         Args:
-            input (str): input
+            input (str): input.
             language (str): language of the input, defaults to 'en'.
             encoding (str): encoding of the raw file.
             normalization (str): word normalization method, defaults to
@@ -442,20 +442,20 @@ class LoadFile(object):
         return word.isalnum()
 
     def candidate_filtering(self,
-                            stoplist=[],
+                            stoplist=None,
                             minimum_length=3,
                             minimum_word_size=2,
                             valid_punctuation_marks='-',
                             maximum_word_number=5,
                             only_alphanum=True,
-                            pos_blacklist=[]):
+                            pos_blacklist=None):
         """Filter the candidates containing strings from the stoplist. Only
         keep the candidates containing alpha-numeric characters (if the
         non_latin_filter is set to True) and those length exceeds a given
         number of characters.
             
         Args:
-            stoplist (list): list of strings, defaults to [].
+            stoplist (list): list of strings, defaults to None.
             minimum_length (int): minimum number of characters for a
                 candidate, defaults to 3.
             minimum_word_size (int): minimum number of characters for a
@@ -470,7 +470,13 @@ class LoadFile(object):
                 candidates, defaults to [].
         """
 
-        # loop throught the candidates
+        if stoplist is None:
+            stoplist = []
+
+        if pos_blacklist is None:
+            pos_blacklist = []
+
+        # loop through the candidates
         for k in list(self.candidates):
 
             # get the candidate

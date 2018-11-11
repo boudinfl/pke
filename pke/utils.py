@@ -370,7 +370,7 @@ def compute_lda_model(input_dir,
 def load_document_as_bos(input_file,
                          language="en",
                          normalization="stemming",
-                         stoplist=[]):
+                         stoplist=None):
     """Load a document as a bag of words/stems/lemmas.
 
     Args:
@@ -382,6 +382,10 @@ def load_document_as_bos(input_file,
             surface forms instead of stems/lemmas.
         stoplist (list): the stop words for filtering tokens, default to [].
     """
+
+    # initialize empty stoplist is None provided
+    if stoplist is None:
+        stoplist = []
 
     # initialize load file object
     doc = LoadFile()
@@ -411,7 +415,7 @@ def compute_pairwise_similarity_matrix(input_dir,
                                        extension="xml",
                                        language="en",
                                        normalization="stemming",
-                                       stoplist=[]):
+                                       stoplist=None):
     """Compute the pairwise similarity between documents in `input_dir` and
     documents in `collection_dir`. Similarity scores are computed using a cosine
     similarity over TF x IDF term weights. If there is no collection to compute
@@ -439,6 +443,10 @@ def compute_pairwise_similarity_matrix(input_dir,
 
     # initialize the number of documents
     N = df.get('--NB_DOC--', 1)
+
+    # initialize stoplist as empty if None provided
+    if stoplist is None:
+        stoplist = []
 
     # build collection tf*idf vectors
     if collection_dir is not None:
