@@ -8,6 +8,7 @@ import spacy
 
 from pke.data_structures import Document
 
+
 class Reader(object):
     def read(self, path):
         raise NotImplementedError
@@ -58,7 +59,6 @@ class RawTextReader(Reader):
 
         if language is None:
             self.language = 'en'
-
 
     def read(self, text, **kwargs):
         """Read the input file and use spacy to pre-process.

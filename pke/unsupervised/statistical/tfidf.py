@@ -33,7 +33,8 @@ class TfIdf(LoadFile):
                                 normalization=None)
 
         # 3. select {1-3}-grams not containing punctuation marks as candidates.
-        extractor.candidate_selection(n=3, stoplist=list(string.punctuation))
+        extractor.candidate_selection(n=3,
+                                      stoplist=list(string.punctuation))
 
         # 4. weight the candidates using a `tf` x `idf`
         df = pke.load_document_frequency_file(input_file='path/to/df.tsv.gz')
@@ -59,12 +60,10 @@ class TfIdf(LoadFile):
 
         # initialize empty list if stoplist is not provided
         if stoplist is None:
-            stoplist = []
+            stoplist = list(string.punctuation)
 
         # filter candidates containing punctuation marks
-        self.candidate_filtering(stoplist=list(string.punctuation) +
-                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-',
-                                  '-lsb-', '-rsb-'] + stoplist)
+        self.candidate_filtering(stoplist=stoplist)
 
     def candidate_weighting(self, df=None):
         """Candidate weighting function using document frequencies.
@@ -85,6 +84,7 @@ class TfIdf(LoadFile):
 
         # loop throught the candidates
         for k, v in self.candidates.items():
+
             # get candidate document frequency
             candidate_df = 1 + df.get(k, 0)
 

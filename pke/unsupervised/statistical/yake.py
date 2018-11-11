@@ -98,10 +98,7 @@ class YAKE(LoadFile):
         self.ngram_selection(n=n)
 
         # filter candidates containing punctuation marks
-        self.candidate_filtering(
-            stoplist=list(string.punctuation) +
-                     ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
-        )
+        self.candidate_filtering(stoplist=list(string.punctuation))
 
         # initialize empty list if stoplist is not provided
         if stoplist is None:
