@@ -25,6 +25,9 @@ ISO_to_language = {'en': 'english',
                    'pt': 'portuguese',
                    'fr': 'french'}
 
+escaped_punctuation = {'-lrb-': '(', '-rrb-': ')', '-lsb-': '[', '-rsb-': ']',
+                       '-lcb-': '{', '-rcb-': '}'}
+
 
 class LoadFile(object):
     """The LoadFile class that provides base functions."""
@@ -63,7 +66,7 @@ class LoadFile(object):
         """Loads the content of a document/string/stream in a given language.
 
         Args:
-            input (str): input
+            input (str): input.
             language (str): language of the input, defaults to 'en'.
             encoding (str): encoding of the raw file.
             normalization (str): word normalization method, defaults to
@@ -148,7 +151,8 @@ class LoadFile(object):
 
         # POS normalization
         if getattr(doc, 'is_corenlp_file', False):
-            self.normalize_POS_tags()
+            self.normalize_pos_tags()
+            self.unescape_punctuation_marks()
 
     def apply_stemming(self):
         """Populates the stem containers of sentences."""
@@ -165,7 +169,7 @@ class LoadFile(object):
         for i, sentence in enumerate(self.sentences):
             self.sentences[i].stems = [stemmer.stem(w) for w in sentence.words]
 
-    def normalize_POS_tags(self):
+    def normalize_pos_tags(self):
         """Normalizes the PoS tags from udp-penn to UD."""
 
         if self.language == 'en':
@@ -174,7 +178,15 @@ class LoadFile(object):
                 self.sentences[i].pos = [map_tag('en-ptb', 'universal', tag)
                                          for tag in sentence.pos]
 
-    def is_redundant(self, candidate, prev, mininum_length=1):
+    def unescape_punctuation_marks(self):
+        """Replaces the special punctuation marks produced by CoreNLP."""
+
+        for i, sentence in enumerate(self.sentences):
+            for j, word in enumerate(sentence.words):
+                self.sentences[i].words[j] = escaped_punctuation.get(word.lower,
+                                                                     word)
+
+    def is_redundant(self, candidate, prev, minimum_length=1):
         """Test if one candidate is redundant with respect to a list of already
         selected candidates. A candidate is considered redundant if it is
         included in another candidate that is ranked higher in the list.
@@ -183,7 +195,7 @@ class LoadFile(object):
             candidate (str): the lexical form of the candidate.
             prev (list): the list of already selected candidates (lexical
                 forms).
-            mininum_length (int): minimum length (in words) of the candidate
+            minimum_length (int): minimum length (in words) of the candidate
                 to be considered, defaults to 1.
         """
 
@@ -191,7 +203,7 @@ class LoadFile(object):
         candidate = self.candidates[candidate].lexical_form
 
         # only consider candidate greater than one word
-        if len(candidate) < mininum_length:
+        if len(candidate) < minimum_length:
             return False
 
         # get the tokenized lexical forms from the selected candidates
@@ -430,23 +442,23 @@ class LoadFile(object):
         return word.isalnum()
 
     def candidate_filtering(self,
-                            stoplist=[],
-                            mininum_length=3,
-                            mininum_word_size=2,
+                            stoplist=None,
+                            minimum_length=3,
+                            minimum_word_size=2,
                             valid_punctuation_marks='-',
                             maximum_word_number=5,
                             only_alphanum=True,
-                            pos_blacklist=[]):
+                            pos_blacklist=None):
         """Filter the candidates containing strings from the stoplist. Only
         keep the candidates containing alpha-numeric characters (if the
         non_latin_filter is set to True) and those length exceeds a given
         number of characters.
             
         Args:
-            stoplist (list): list of strings, defaults to [].
-            mininum_length (int): minimum number of characters for a
+            stoplist (list): list of strings, defaults to None.
+            minimum_length (int): minimum number of characters for a
                 candidate, defaults to 3.
-            mininum_word_size (int): minimum number of characters for a
+            minimum_word_size (int): minimum number of characters for a
                 token to be considered as a valid word, defaults to 2.
             valid_punctuation_marks (str): punctuation marks that are valid
                 for a candidate, defaults to '-'.
@@ -458,7 +470,13 @@ class LoadFile(object):
                 candidates, defaults to [].
         """
 
-        # loop throught the candidates
+        if stoplist is None:
+            stoplist = []
+
+        if pos_blacklist is None:
+            pos_blacklist = []
+
+        # loop through the candidates
         for k in list(self.candidates):
 
             # get the candidate
@@ -480,11 +498,11 @@ class LoadFile(object):
                 del self.candidates[k]
 
             # discard candidates composed of 1-2 characters
-            elif len(''.join(words)) < mininum_length:
+            elif len(''.join(words)) < minimum_length:
                 del self.candidates[k]
 
             # discard candidates containing small words (1-character)
-            elif min([len(u) for u in words]) < mininum_word_size:
+            elif min([len(u) for u in words]) < minimum_word_size:
                 del self.candidates[k]
 
             # discard candidates composed of more than 5 words

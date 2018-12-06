@@ -2,15 +2,16 @@
 # Author: Florian Boudin
 # Date: 09-10-2018
 
-"""Kea keyphrase extraction model.
+"""Kea supervised keyphrase extraction model.
 
-Supervised approach to keyphrase extraction described in:
+Kea is a supervised model for keyphrase extraction that uses two features,
+namely TF x IDF and first occurrence, to classify keyphrase candidates as
+keyphrase or not. The model is described in:
 
 * Ian Witten, Gordon Paynter, Eibe Frank, Carl Gutwin and Craig Nevill-Mannin.
   KEA: Practical Automatic Keyphrase Extraction.
   *Proceedings of the 4th ACM Conference on Digital Libraries*, pages 254–255,
   1999.
-
 """
 
 from __future__ import absolute_import
@@ -37,57 +38,60 @@ class Kea(SupervisedLoadFile):
         import pke
         from nltk.corpus import stopwords
 
+        # define a list of stopwords
+        stoplist = stopwords.words('english')
+
         # 1. create a Kea extractor.
         extractor = pke.supervised.Kea()
 
         # 2. load the content of the document.
-        extractor.load_document(input='path/to/input.xml')
+        extractor.load_document(input='path/to/input',
+                                language='en',
+                                normalization=None)
 
         # 3. select 1-3 grams that do not start or end with a stopword as
-        #    candidates.
-        stoplist = stopwords.words('english')
+        #    candidates. Candidates that contain punctuation marks as words
+        #    are discarded.
         extractor.candidate_selection(stoplist=stoplist)
 
         # 4. classify candidates as keyphrase or not keyphrase.
         df = pke.load_document_frequency_file(input_file='path/to/df.tsv.gz')
         model_file = 'path/to/kea_model'
-        extractor.candidate_weighting(self, model_file=model_file, df=df)
+        extractor.candidate_weighting(self,
+                                      model_file=model_file,
+                                      df=df)
 
         # 5. get the 10-highest scored candidates as keyphrases
         keyphrases = extractor.get_n_best(n=10)
-
     """
 
     def __init__(self):
-        """Redefining initializer for Kea.
-        """
+        """Redefining initializer for Kea."""
 
         super(Kea, self).__init__()
 
     def candidate_selection(self, stoplist=None, **kwargs):
-        """Select 1-3 grams as keyphrase candidates. Candidates that start or
-        end with a stopword are discarded.
+        """Select 1-3 grams of `normalized` words as keyphrase candidates.
+        Candidates that start or end with a stopword are discarded. Candidates
+        that contain punctuation marks (from `string.punctuation`) as words are
+        filtered out.
 
         Args:
             stoplist (list): the stoplist for filtering candidates, defaults
-                to the nltk stoplist. Words that are punctuation marks from
-                string.punctuation are not allowed.
+                to the nltk stoplist.
         """
 
         # select ngrams from 1 to 3 grams
         self.ngram_selection(n=3)
 
         # filter candidates containing punctuation marks
-        self.candidate_filtering(list(string.punctuation) +
-                                 ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                  '-rsb-'])
+        self.candidate_filtering(list(string.punctuation))
 
         # initialize stoplist list if not provided
         if stoplist is None:
             stoplist = self.stoplist
 
         # filter candidates that start or end with a stopword
-        # Python 2/3 compatible
         for k in list(self.candidates):
 
             # get the candidate
@@ -99,8 +103,9 @@ class Kea(SupervisedLoadFile):
                 del self.candidates[k]
 
     def feature_extraction(self, df=None, training=False):
-        """Extract features (tf*idf, first occurrence and length) for each
-        candidate.
+        """Extract features for each keyphrase candidate. Features are the
+        tf*idf of the candidate and its first occurrence relative to the
+        document.
 
         Args:
             df (dict): document frequencies, the number of documents should be

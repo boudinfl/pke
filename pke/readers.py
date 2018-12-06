@@ -8,6 +8,7 @@ import spacy
 
 from pke.data_structures import Document
 
+
 class Reader(object):
     def read(self, path):
         raise NotImplementedError
@@ -59,15 +60,18 @@ class RawTextReader(Reader):
         if language is None:
             self.language = 'en'
 
-
     def read(self, text, **kwargs):
         """Read the input file and use spacy to pre-process.
 
         Args:
             text (str): raw text to pre-process.
+            max_length (int): maximum number of characters in a single text for
+                spacy, default to 1,000,000 characters (1mb).
         """
 
-        nlp = spacy.load(self.language)
+        max_length = kwargs.get('max_length', 10**6)
+        nlp = spacy.load(self.language,
+                         max_length=max_length)
         spacy_doc = nlp(text)
 
         sentences = []

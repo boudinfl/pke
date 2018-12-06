@@ -78,10 +78,7 @@ class KPMiner(LoadFile):
             stoplist = self.stoplist
 
         # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=list(string.punctuation) +
-                                          ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-',
-                                           '-rsb-'] +
-                                          stoplist)
+        self.candidate_filtering(stoplist=list(string.punctuation) + stoplist)
 
         # further filter candidates using lasf and cutoff
         # Python 2/3 compatible
