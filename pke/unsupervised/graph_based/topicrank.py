@@ -208,7 +208,7 @@ class TopicRank(LoadFile):
         # compute the word scores using random walk
         w = nx.pagerank_scipy(self.graph, alpha=0.85, weight='weight')
 
-        # loop throught the topics
+        # loop through the topics
         for i, topic in enumerate(self.topics):
 
             # get the offsets of the topic candidates

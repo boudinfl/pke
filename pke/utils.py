@@ -7,6 +7,7 @@ from __future__ import absolute_import
 from __future__ import print_function
 
 import os
+import sys
 import csv
 import math
 import glob
@@ -90,15 +91,15 @@ def compute_document_frequency(input_dir,
     """
 
     # document frequency container
-    frequencies = defaultdict(set)
+    frequencies = defaultdict(int)
 
     # initialize number of documents
     nb_documents = 0
 
     # loop through the documents
-    for input_file in glob.glob(input_dir + '/*.' + extension):
+    for input_file in glob.iglob(input_dir + '/*.' + extension):
 
-        logging.info('reading file ' + input_file)
+        #logging.info('reading file {}'.format(input_file))
 
         # initialize load file object
         doc = LoadFile()
@@ -116,9 +117,15 @@ def compute_document_frequency(input_dir,
 
         # loop through candidates
         for lexical_form in doc.candidates:
-            frequencies[lexical_form].add(input_file)
+            frequencies[lexical_form] += 1
 
         nb_documents += 1
+
+        if nb_documents % 1000 == 0:
+            logging.info("{} docs, memory used: {} mb".format(nb_documents,
+                                                           sys.getsizeof(
+                                                               frequencies)
+                                                           / 1024 / 1024 ))
 
     # create directories from path if not exists
     if os.path.dirname(output_file):
@@ -132,7 +139,7 @@ def compute_document_frequency(input_dir,
         f.write(first_line.encode('utf-8') + b'\n')
 
         for ngram in frequencies:
-            line = ngram + delimiter + str(len(frequencies[ngram]))
+            line = ngram + delimiter + str(frequencies[ngram])
             f.write(line.encode('utf-8') + b'\n')
 
 
@@ -146,7 +153,8 @@ def train_supervised_model(input_dir,
                            model=None,
                            sep_doc_id=':',
                            sep_ref_keyphrases=',',
-                           normalize_reference=False):
+                           normalize_reference=False,
+                           leave_one_out=False):
     """Build a supervised keyphrase extraction model from a set of documents and
     a reference file.
 
@@ -168,6 +176,8 @@ def train_supervised_model(input_dir,
             reference file, defaults to ','.
         normalize_reference (bool): whether to normalize the reference
             keyphrases, default to False.
+        leave_one_out (bool): whether to use a leave-one-out procedure for
+            training, creating one model per input, defaults to False.
     """
 
     logging.info('building model {} from {}'.format(model, input_dir))
@@ -179,17 +189,20 @@ def train_supervised_model(input_dir,
                                  language=language)
     training_instances = []
     training_classes = []
+    masks = {}
+    offsets = []
+    sizes = []
 
     # get the input files from the input directory
-    for input_file in glob.glob(input_dir + '/*.' + extension):
+    for input_file in glob.iglob(input_dir + '/*.' + extension):
 
         logging.info('reading file {}'.format(input_file))
 
-        # initialize the input file
-        model.__init__()
-
         # get the document id from file name
         doc_id = '.'.join(input_file.split('/')[-1].split('.')[0:-1])
+
+        # initialize the input file
+        model.__init__()
 
         # load the document
         model.load_document(input=input_file,
@@ -202,6 +215,9 @@ def train_supervised_model(input_dir,
         # extract features
         model.feature_extraction(df=df, training=True)
 
+        # add the first offset for leave-one-out masking
+        masks[doc_id] = [len(training_classes)]
+
         # annotate the reference keyphrases in the instances
         for candidate in model.instances:
             if candidate in references[doc_id]:
@@ -210,10 +226,25 @@ def train_supervised_model(input_dir,
                 training_classes.append(0)
             training_instances.append(model.instances[candidate])
 
-    logging.info('writing model to {}'.format(model_file))
-    model.train(training_instances=training_instances,
-                training_classes=training_classes,
-                model_file=model_file)
+        # add the last offset for leave-one-out masking
+        masks[doc_id].append(len(training_classes))
+
+    if not leave_one_out:
+        logging.info('writing model to {}'.format(model_file))
+        model.train(training_instances=training_instances,
+                    training_classes=training_classes,
+                    model_file=model_file)
+    else:
+        logging.info('leave-one-out training procedure')
+
+        for doc_id in masks:
+            logging.info('writing model to {}'.format(doc_id))
+            ind = masks[doc_id]
+            fold = training_instances[:ind[0]] + training_instances[ind[1]:]
+            gold = training_classes[:ind[0]] + training_classes[ind[1]:]
+            model.train(training_instances=fold,
+                        training_classes=gold,
+                        model_file=model_file+"."+doc_id+".pickle")
 
 
 def load_references(input_file,
@@ -307,7 +338,7 @@ def compute_lda_model(input_dir,
     texts = []
 
     # loop throught the documents
-    for input_file in glob.glob(input_dir + '/*.' + extension):
+    for input_file in glob.iglob(input_dir + '/*.' + extension):
 
         logging.info('reading file {}'.format(input_file))
 
@@ -452,7 +483,7 @@ def compute_pairwise_similarity_matrix(input_dir,
     if collection_dir is not None:
 
         # loop throught the documents in the collection
-        for input_file in glob.glob(collection_dir + '/*.' + extension):
+        for input_file in glob.iglob(collection_dir + '/*.' + extension):
 
             logging.info('Reading file from {}'.format(input_file))
 
@@ -470,7 +501,7 @@ def compute_pairwise_similarity_matrix(input_dir,
         N += 1
 
     # loop throught the documents in the input directory
-    for input_file in glob.glob(input_dir + '/*.' + extension):
+    for input_file in glob.iglob(input_dir + '/*.' + extension):
 
         logging.info('Reading file from {}'.format(input_file))
 
