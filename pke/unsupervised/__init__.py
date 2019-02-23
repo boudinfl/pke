@@ -15,3 +15,4 @@ from pke.unsupervised.statistical.tfidf import TfIdf
 from pke.unsupervised.statistical.kpminer import KPMiner
 from pke.unsupervised.statistical.yake import YAKE
 from pke.unsupervised.statistical.firstphrases import FirstPhrases
+from pke.unsupervised.statistical.embedrank import EmbedRank
