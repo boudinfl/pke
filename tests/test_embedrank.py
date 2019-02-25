@@ -16,15 +16,16 @@ tems of mixed types."
 
 pos = {'NOUN', 'PROPN', 'ADJ'}
 
+
 def test_singlerank_candidate_weighting():
     """Test SingleRank candidate weighting method."""
 
     extractor = pke.unsupervised.EmbedRank()
     extractor.load_document(input=text)
     extractor.candidate_selection()
-    extractor.candidate_weighting(l=0.25)
+    extractor.candidate_weighting(l=1)
     keyphrases = [k for k, s in extractor.get_n_best(n=3)]
-    assert keyphrases == []
+    assert keyphrases == ['types systems', 'systems', 'algorithms']
 
 
 if __name__ == '__main__':
