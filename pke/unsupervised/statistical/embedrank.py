@@ -1,7 +1,7 @@
 import os
 import logging
 
-# import sent2vec  # See https://github.com/epfml/sent2vec
+import sent2vec  # See https://github.com/epfml/sent2vec
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -43,8 +43,8 @@ class EmbedRank(LoadFile):
         else:
             self._embedding_path = embedding_path
         logging.info('Loading sent2vec model')
-        #self._embedding_model = sent2vec.Sent2vecModel()
-        #self._embedding_model.load_model(self._embedding_path)
+        self._embedding_model = sent2vec.Sent2vecModel()
+        self._embedding_model.load_model(self._embedding_path)
         logging.info('Done loading sent2vec model')
         self._pos = None
 
@@ -72,7 +72,7 @@ class EmbedRank(LoadFile):
             l (float): ratio between distance to query or distance between
                 chosen candidates
         Returns:
-            ordered list of candidates indexes
+            list of candidates rank
         """
 
         def norm(sim, **kwargs):
@@ -89,29 +89,29 @@ class EmbedRank(LoadFile):
         sim_can[np.isnan(sim_can)] = 0.
         sim_can = norm(sim_can, axis=1)
 
-
         sel = np.zeros(len(candidates), dtype=bool)
+        ranks = [None] * len(candidates)
 
         # Compute first candidate, the second part of the calculation is 0
         # as there are no other chosen candidates to maximise distance to
-        first = (sim_doc * l).argmax()
-        selected = [first]
-        sel[first] = True
+        chosen_candidate = (sim_doc * l).argmax()
+        sel[chosen_candidate] = True
+        ranks[chosen_candidate] = 0
 
-        for _ in range(len(candidates) - 1):
+        for r in range(1, len(candidates)):
 
             # Remove already chosen candidates
             sim_can[sel] = np.nan
 
             # Compute MMR score
             scores = l * sim_doc - (1 - l) * sim_can[:, sel].max(axis=1)
-            max_score = np.nanargmax(scores)
+            chosen_candidate = np.nanargmax(scores)
 
             # Update output and mask with chosen candidate
-            selected.append(max_score)
-            sel[max_score] = True
+            sel[chosen_candidate] = True
+            ranks[chosen_candidate] = r
 
-        return selected
+        return ranks
 
     def candidate_weighting(self, l=1):
         """Candidate weighting function using distance to document.
@@ -123,29 +123,19 @@ class EmbedRank(LoadFile):
             (defaults to 1).
         """
 
-        np.random.seed(seed=78)
-
-        def embed_sentence(sent):
-            return np.random.randint(0, 300, (1, 300))
-
-        def embed_sentences(sents):
-            return np.concatenate(list(map(embed_sentence, sents)), axis=0)
-
         # Flatten sentences and remove words with unvalid POS
         doc = ' '.join(w for s in self.sentences
                        for i, w in enumerate(s.words)
                        if s.pos[i] in self._pos)
-        #doc_embed = self._embedding_model.embed_sentence(doc)
-        doc_embed = embed_sentence(doc)
+        doc_embed = self._embedding_model.embed_sentence(doc)
 
         cand_name = list(self.candidates.keys())
         cand = (self.candidates[k] for k in cand_name)
         cand = [' '.join(k.surface_forms[0]).lower() for k in cand]
 
-        # cand_embed = self._embedding_model.embed_sentences(cand)
-        cand_embed = embed_sentences(cand)
+        cand_embed = self._embedding_model.embed_sentences(cand)
 
         rank = self.mmr_ranking(doc_embed, cand_embed, l)
 
-        for rank, candidate_id in enumerate(rank):
-            self.weights[cand_name[candidate_id]] = rank
+        for candidate_id, r in enumerate(rank):
+            self.weights[cand_name[candidate_id]] = ((len(rank)-1) - r) / (len(rank)-1)
