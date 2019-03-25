@@ -23,7 +23,34 @@ from builtins import str
 
 ISO_to_language = {'en': 'english',
                    'pt': 'portuguese',
-                   'fr': 'french'}
+                   'fr': 'french',
+                   'es': 'spanish',
+                   'it': 'italian',
+                   'nl': 'dutch',
+                   'de': 'german',
+                   'el': 'greek'}
+
+ISO_to_language_stopwords = {'ar': 'arabic',
+                'az': 'azerbaijani',
+                'da': 'danish',
+                'nl': 'dutch',
+                'en': 'english',
+                'fi': 'finnish',
+                'fr': 'french',
+                'de': 'german',
+                'el': 'greek',
+                'hu': 'hungarian',
+                'id': 'indonesian',
+                'it': 'italian',
+                'kk': 'kazakh',
+                'ne': 'nepali',
+                'nb': 'norwegian',
+                'pt': 'portuguese',
+                'ro': 'romanian',
+                'ru': 'russian',
+                'es': 'spanish',
+                'sv': 'swedish',
+                'tr': 'turkish'}
 
 escaped_punctuation = {'-lrb-': '(', '-rrb-': ')', '-lsb-': '[', '-rsb-': ']',
                        '-lcb-': '{', '-rcb-': '}'}
@@ -100,7 +127,7 @@ class LoadFile(object):
 
                 # other extensions are considered as raw text
                 else:
-                    parser = RawTextReader(language=language)
+                    parser = RawTextReader(language=kwargs['language'])
                     encoding = kwargs.get('encoding', 'utf-8')
                     with codecs.open(input, 'r', encoding=encoding) as file:
                         text = file.read()
@@ -108,7 +135,7 @@ class LoadFile(object):
 
             # if input is a string
             else:
-                parser = RawTextReader(language=language)
+                parser = RawTextReader(language=kwargs['language'])
                 doc = parser.read(text=input, **kwargs)
 
         elif getattr(input, 'read', None):
@@ -135,7 +162,10 @@ class LoadFile(object):
         self.sentences = doc.sentences
 
         # initialize the stoplist
-        self.stoplist = stopwords.words(ISO_to_language[self.language])
+        if self.language not in ISO_to_language_stopwords:
+            self.stoplist = []
+        else:
+            self.stoplist = stopwords.words(ISO_to_language_stopwords[self.language])
 
         # word normalization
         self.normalization = kwargs.get('normalization', 'stemming')
