@@ -48,8 +48,8 @@ def load_document_frequency_file(input_file,
     frequencies = {}
 
     # open the input file
-    with gzip.open(input_file, 'rt') if input_file.endswith('.gz') else \
-            codecs.open(input_file, 'rt') as f:
+    with gzip.open(input_file, 'rt', encoding="utf8") if input_file.endswith('.gz') else \
+            open(input_file, 'rt', encoding="utf8") as f:
         # read the csv file
         df_reader = csv.reader(f, delimiter=delimiter)
 
