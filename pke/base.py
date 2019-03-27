@@ -52,6 +52,22 @@ ISO_to_language_stopwords = {'ar': 'arabic',
                 'sv': 'swedish',
                 'tr': 'turkish'}
 
+ISO_to_language_stemming_SnowballStemmer = {'en': 'english',
+                   'pt': 'portuguese',
+                   'fr': 'french',
+                   'es': 'spanish',
+                   'it': 'italian',
+                   'nl': 'dutch',
+                   'de': 'german',
+                   'da': 'danish',
+                   'fi': 'finnish',
+                   'da': 'danish',
+                   'hu': 'hungarian',
+                   'nb': 'norwegian',
+                   'ro': 'romanian',
+                   'ru': 'russian',
+                   'sv': 'swedish'}
+
 escaped_punctuation = {'-lrb-': '(', '-rrb-': ')', '-lsb-': '[', '-rsb-': ']',
                        '-lcb-': '{', '-rcb-': '}'}
 
@@ -169,9 +185,9 @@ class LoadFile(object):
 
         # word normalization
         self.normalization = kwargs.get('normalization', 'stemming')
-        if self.normalization == 'stemming':
+        if self.normalization == 'stemming' and self.language in ISO_to_language_stemming_SnowballStemmer::
             self.apply_stemming()
-        elif self.normalization is None:
+        elif self.normalization is None or self.language not in ISO_to_language_stemming_SnowballStemmer:
             for i, sentence in enumerate(self.sentences):
                 self.sentences[i].stems = sentence.words
 
@@ -192,7 +208,7 @@ class LoadFile(object):
             stemmer = SnowballStemmer("porter")
         else:
             # create a new instance of a porter stemmer
-            stemmer = SnowballStemmer(ISO_to_language[self.language],
+            stemmer = SnowballStemmer(ISO_to_language_stemming_SnowballStemmer[self.language],
                                       ignore_stopwords=True)
 
         # iterate throughout the sentences
