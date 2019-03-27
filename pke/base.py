@@ -185,7 +185,7 @@ class LoadFile(object):
 
         # word normalization
         self.normalization = kwargs.get('normalization', 'stemming')
-        if self.normalization == 'stemming' and self.language in ISO_to_language_stemming_SnowballStemmer::
+        if self.normalization == 'stemming' and self.language in ISO_to_language_stemming_SnowballStemmer:
             self.apply_stemming()
         elif self.normalization is None or self.language not in ISO_to_language_stemming_SnowballStemmer:
             for i, sentence in enumerate(self.sentences):
