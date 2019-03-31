@@ -28,11 +28,14 @@ class SupervisedLoadFile(LoadFile):
     def feature_scaling(self):
         """ Scale features to [0,1]. """
 
-        candidates = self.instances.keys()
-        X = [self.instances[u] for u in candidates]
-        X = MinMaxScaler().fit_transform(X)
-        for i, candidate in enumerate(candidates):
-            self.instances[candidate] = X[i]
+        try:
+            candidates = self.instances.keys()
+            X = [self.instances[u] for u in candidates]
+            X = MinMaxScaler().fit_transform(X)
+            for i, candidate in enumerate(candidates):
+                self.instances[candidate] = X[i]
+        except:
+            self.instances = {}
 
     def feature_extraction(self):
         """ Skeleton for feature extraction. """
