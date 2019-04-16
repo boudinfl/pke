@@ -57,8 +57,7 @@ class Kea(SupervisedLoadFile):
         # 4. classify candidates as keyphrase or not keyphrase.
         df = pke.load_document_frequency_file(input_file='path/to/df.tsv.gz')
         model_file = 'path/to/kea_model'
-        extractor.candidate_weighting(self,
-                                      model_file=model_file,
+        extractor.candidate_weighting(model_file=model_file,
                                       df=df)
 
         # 5. get the 10-highest scored candidates as keyphrases

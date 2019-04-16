@@ -173,7 +173,8 @@ class TopicCoRank(TopicRank):
     def candidate_weighting(self,
                             input_file=None,
                             excluded_file=None,
-                            lambda_parameter=0.5,
+                            lambda_t=0.1,
+                            lambda_k=0.5,
                             nb_iter=100,
                             convergence_threshold=0.001):
         """Weight candidates using the co-ranking formulae.
@@ -182,8 +183,10 @@ class TopicCoRank(TopicRank):
             input_file (str): path to the reference file.
             excluded_file (str): file to exclude (for leave-one-out
                 cross-validation), defaults to None.
-            lambda_parameter (float): lambda used in the co-ranking formulae,
-                defaults to 0.5.
+            lambda_t(float): lambda for topics used in the co-ranking formulae,
+                defaults to 0.1.
+            lambda_k(float): lambda for keyphrases used in the co-ranking
+                formulae, defaults to 0.5.
             nb_iter (int): maximum number of iterations, defaults to 100.
             convergence_threshold (float): early stop threshold, defaults to
                 0.001.
@@ -195,39 +198,20 @@ class TopicCoRank(TopicRank):
         # build graph
         self.build_topic_graph()
 
-        #logging.info("unify domain with graph")
-
         # unify with domain graph
         self.unify_with_domain_graph(input_file=input_file,
                                      excluded_file=excluded_file)
 
         logging.info("resulting graph is {} nodes".format(
                                                     len(self.graph.nodes())))
-        #
-        # # tyring to find the the components
-        # interesting_nodes = set()
-        # for i in range(len(self.topics)):
-        #     interesting_nodes.update(nx.node_connected_component(self.graph, i))
-        # logging.info("interesting graph is {} nodes".format(
-        #     len(interesting_nodes)))
-        #
-        # self.graph.remove_nodes_from(set(self.graph.nodes) - interesting_nodes)
-        #
-        # logging.info("new graph is {} nodes".format(
-        #     len(self.graph.nodes)))
 
-        # initialize the weights
-        #weights = {i: 1.0 for i in self.graph.nodes()}
         weights = [1.0] * len(self.graph.nodes)
 
         # pre-compute the inner/outer normalizations
         inner_norms = [0.0] * len(self.graph.nodes)
         outer_norms = [0.0] * len(self.graph.nodes)
-        #inner_norms = defaultdict(float)
-        #outer_norms = defaultdict(float)
 
         for j in self.graph.nodes():
-            #print(j)
             inner_norm = 0
             outer_norm = 0
             for k in self.graph.neighbors(j):
@@ -244,7 +228,7 @@ class TopicCoRank(TopicRank):
 
             converged = True
 
-            logging.info("{} iter left".format(nb_iter))
+            #logging.info("{} iter left".format(nb_iter))
 
             # save the weights
             w = weights.copy()
@@ -266,8 +250,12 @@ class TopicCoRank(TopicRank):
                         r_out += w[j] / outer_norms[j]
 
                 # compute the new weight
-                weights[i] = (1 - lambda_parameter) * r_out
-                weights[i] += lambda_parameter * r_in
+                if self.graph.node[i]["src"] == "topic":
+                    weights[i] = (1 - lambda_t) * r_out
+                    weights[i] += lambda_t * r_in
+                else:
+                    weights[i] = (1 - lambda_k) * r_out
+                    weights[i] += lambda_k * r_in
 
                 # check for non convergence
                 if math.fabs(weights[i] - w[i]) > convergence_threshold:

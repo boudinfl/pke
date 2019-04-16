@@ -4,5 +4,5 @@ docs/build/doctrees/*
 docs/build/html/_sources/*
 dev/
 .pytest_cache/
-
+/venv/
 \.idea/
