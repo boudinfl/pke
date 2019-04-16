@@ -183,7 +183,8 @@ class LoadFile(object):
 
         for i, sentence in enumerate(self.sentences):
             for j, word in enumerate(sentence.words):
-                self.sentences[i].words[j] = escaped_punctuation.get(word.lower,
+                l_word = word.lower()
+                self.sentences[i].words[j] = escaped_punctuation.get(l_word,
                                                                      word)
 
     def is_redundant(self, candidate, prev, minimum_length=1):
@@ -362,16 +363,11 @@ class LoadFile(object):
                 # add sequence as candidate if non empty
                 if seq:
 
-                    # bias for candidate in last position within sentence
-                    bias = 0
-                    if j == (sentence.length - 1):
-                        bias = 1
-
                     # add the ngram to the candidate container
                     self.add_candidate(words=sentence.words[seq[0]:seq[-1] + 1],
                                        stems=sentence.stems[seq[0]:seq[-1] + 1],
                                        pos=sentence.pos[seq[0]:seq[-1] + 1],
-                                       offset=shift + j - len(seq) + bias,
+                                       offset=shift + seq[0],
                                        sentence_id=i)
 
                 # flush sequence container

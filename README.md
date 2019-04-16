@@ -25,6 +25,16 @@ To pip install `pke` from github:
 pip install git+https://github.com/boudinfl/pke.git
 ```
 
+`pke` also requires external resources that can be obtained using:
+
+```bash
+python -m nltk.downloader stopwords
+python -m nltk.downloader universal_tagset
+python -m spacy download en # download the english model
+```
+
+As of April 2019, `pke` only supports Python 3.6+.
+
 ## Minimal example
 
 `pke` provides a standardized API for extracting keyphrases from a document.
