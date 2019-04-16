@@ -212,6 +212,10 @@ def train_supervised_model(input_dir,
         # candidate selection
         model.candidate_selection()
 
+        # skipping documents without candidates
+        if not len(model.candidates):
+            continue
+
         # extract features
         model.feature_extraction(df=df, training=True)
 
