@@ -7,3 +7,4 @@ scipy
 sklearn
 unidecode
 future
+joblib

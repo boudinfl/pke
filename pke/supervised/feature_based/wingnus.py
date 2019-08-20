@@ -20,7 +20,7 @@ import math
 import logging
 
 import numpy as np
-from sklearn.externals import joblib
+from joblib import dump as dump_model
 from sklearn.naive_bayes import MultinomialNB
 
 from pke.supervised.api import SupervisedLoadFile
@@ -253,6 +253,6 @@ class WINGNUS(SupervisedLoadFile):
 
         clf = MultinomialNB()
         clf.fit(training_instances, training_classes)
-        joblib.dump(clf, model_file)
+        dump_model(clf, model_file)
         # with open(model_file, 'wb') as f:
         #     pickle.dump(clf, f)
