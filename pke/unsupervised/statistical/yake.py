@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Author: Florian Boudin
+# Author: Florian Boudin and Vítor Mangaravite
 # Date: 09-10-2018
 
 """YAKE keyphrase extraction model.
@@ -110,9 +110,12 @@ class YAKE(LoadFile):
             # get the candidate
             v = self.candidates[k]
 
-            # filter candidates starting/ending with a stopword
-            if v.surface_forms[0][0].lower() in stoplist or \
-                    v.surface_forms[0][-1].lower() in stoplist:
+            # filter candidates starting/ending with a stopword or containing
+            # a first/last word with less than 3 characters
+            if v.surface_forms[0][0].lower() in stoplist or v.surface_forms[0][
+                -1].lower() in stoplist or len(
+                    v.surface_forms[0][0]) < 3 or len(
+                    v.surface_forms[0][-1]) < 3:
                 del self.candidates[k]
 
     def _vocabulary_building(self, use_stems=False):
@@ -146,9 +149,10 @@ class YAKE(LoadFile):
                     self.words[index].add((shift + j, shift, i, word))
 
     def _contexts_building(self, use_stems=False, window=2):
-        """Build the contexts of the words for computing the relatdeness
+        """Build the contexts of the words for computing the relatedness
         feature. Words that occur within a window of n words are considered as
-        context words.
+        context words. Only words co-occurring in a block (sequence of words
+        that appear in the vocabulary) are considered.
 
         Args:
             use_stems (bool): whether to use stems instead of lowercase words
@@ -167,23 +171,28 @@ class YAKE(LoadFile):
             if use_stems:
                 words = sentence.stems
 
+            # block container
+            block = []
+
             # loop through words in sentence
             for j, word in enumerate(words):
 
-                # skip if word is not in vocabulary
+                # skip and flush block if word is not in vocabulary
                 if word not in self.words:
+                    block = []
                     continue
 
                 # add the left context
                 self.contexts[word][0].extend(
-                    [w for w in words[max(0, j - window):j] if w in self.words]
+                    [w for w in block[max(0, len(block) - window):len(block)]]
                 )
 
                 # add the right context
-                self.contexts[word][1].extend(
-                    [w for w in words[j + 1:min(len(words), j + window + 1)]
-                     if w in self.words]
-                )
+                for w in block[max(0, len(block) - window):len(block)]:
+                    self.contexts[w][1].append(word)
+
+                # add word to the current block
+                block.append(word)
 
     def _feature_extraction(self, stoplist=None):
         """Compute the weight of individual words using the following five
@@ -248,6 +257,9 @@ class YAKE(LoadFile):
         # Loop through the words
         for word in self.words:
 
+            # Indicating whether the word is a stopword (vitordouzi change)
+            self.features[word]['isstop'] = word in stoplist or len(word) < 3
+
             # Term Frequency
             self.features[word]['TF'] = len(self.words[word])
 
@@ -291,8 +303,8 @@ class YAKE(LoadFile):
             self.features[word]['PR'] = len(set(self.contexts[word][1])) / max_TF
 
             self.features[word]['RELATEDNESS'] = 1
-            self.features[word]['RELATEDNESS'] += self.features[word]['PL']
-            self.features[word]['RELATEDNESS'] += self.features[word]['PR']
+            #self.features[word]['RELATEDNESS'] += self.features[word]['PL']
+            #self.features[word]['RELATEDNESS'] += self.features[word]['PR']
             self.features[word]['RELATEDNESS'] += (self.features[word]['WR'] +
                                                    self.features[word]['WL']) * \
                                                   (self.features[word]['TF'] / max_TF)
@@ -344,11 +356,38 @@ class YAKE(LoadFile):
                 lowercase_forms = [' '.join(t).lower() for t in v.surface_forms]
                 for i, candidate in enumerate(lowercase_forms):
                     TF = lowercase_forms.count(candidate)
-                    weights = [self.features[t.lower()]['weight'] for t
-                               in v.surface_forms[i]]
-                    self.weights[candidate] = numpy.prod(weights)
-                    self.weights[candidate] /= TF * (1 + sum(weights))
+
+                    # computing differentiated weights for words and stopwords
+                    # (vitordouzi change)
+                    tokens = [t.lower() for t in v.surface_forms[i]]
+                    prod_ = 1.
+                    sum_ = 0.
+                    for j, token in enumerate(tokens):
+                        if self.features[token]['isstop']:
+                            term_left = tokens[j-1]
+                            term_right = tokens[j+1]
+                            term_stop = token
+                            prob_t1 = self.contexts[term_left][1].count(
+                                term_stop) / self.features[term_left]['TF']
+                            prob_t2 = self.contexts[term_stop][0].count(
+                                term_right) / self.features[term_right]['TF']
+
+                            prob = prob_t1 * prob_t2
+                            prod_ *= (1 + (1 - prob))
+                            sum_ -= (1 - prob)
+                        else:
+                            prod_ *= self.features[token]['weight']
+                            sum_ += self.features[token]['weight']
+
+                    self.weights[candidate] = prod_
+                    self.weights[candidate] /= TF * (1 + sum_)
                     self.surface_to_lexical[candidate] = k
+
+                    # weights = [self.features[t.lower()]['weight'] for t
+                    #          in v.surface_forms[i]]
+                    # self.weights[candidate] = numpy.prod(weights)
+                    # self.weights[candidate] /= TF * (1 + sum(weights))
+                    # self.surface_to_lexical[candidate] = k
 
     def is_redundant(self, candidate, prev, threshold=0.8):
         """Test if one candidate is redundant with respect to a list of already
