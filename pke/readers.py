@@ -70,7 +70,7 @@ class RawTextReader(Reader):
         """
 
         max_length = kwargs.get('max_length', 10**6)
-        nlp = spacy.load(self.language,
+        nlp = spacy.load(kwargs.get('model_path', self.language),
                          max_length=max_length)
         spacy_doc = nlp(text)
 
@@ -89,4 +89,3 @@ class RawTextReader(Reader):
                                       **kwargs)
 
         return doc
-
