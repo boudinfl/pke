@@ -1,7 +1,12 @@
 import os
 import logging
 
-import sent2vec  # See https://github.com/epfml/sent2vec
+try:
+    import sent2vec  # See https://github.com/epfml/sent2vec
+except ModuleNotFoundError:
+    logging.warning('Module sent2vec was not found.')
+    logging.warning('Please install using `python -m pip install git+https://github.com/epfml/sent2vec` to use EmbedRank')
+
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -37,11 +42,18 @@ class EmbedRank(LoadFile):
     def __init__(self, embedding_path=None):
         super(EmbedRank, self).__init__()
         if embedding_path is None:
-            model_name = 'torontobooks_unigrams.bin'
-            # model_name = 'wiki_bigrams.bin'
+            model_name = 'wiki_bigrams.bin'
             self._embedding_path = os.path.join(self._models, model_name)
         else:
             self._embedding_path = embedding_path
+
+        if not os.path.exists(self._embedding_path):
+            logging.error('Could not find {}'.format(self._embedding_path))
+            logging.error('Please download "sent2vec_wiki_bigrams" model from '
+                            'https://github.com/epfml/sent2vec#downloading-sent2vec-pre-trained-models.')
+            logging.error('And place it in {}.'.format(self._models))
+            logging.error('Or provide an embedding path.')
+
         logging.info('Loading sent2vec model')
         self._embedding_model = sent2vec.Sent2vecModel()
         self._embedding_model.load_model(self._embedding_path)
