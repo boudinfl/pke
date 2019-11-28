@@ -199,7 +199,7 @@ def train_supervised_model(input_dir,
         logging.info('reading file {}'.format(input_file))
 
         # get the document id from file name
-        doc_id = '.'.join(input_file.split('/')[-1].split('.')[0:-1])
+        doc_id = '.'.join(os.path.basename(input_file).split('.')[0:-1])
 
         # initialize the input file
         model.__init__()
