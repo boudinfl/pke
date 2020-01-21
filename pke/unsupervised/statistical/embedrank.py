@@ -34,6 +34,9 @@ class EmbedRank(LoadFile):
         keyphrases = extractor.get_n_best(n=10)
     """
 
+    _embedding_path = None
+    _embedding_model = None
+
     def __init__(self, embedding_path=None):
         try:
             import sent2vec  # See https://github.com/epfml/sent2vec
@@ -43,6 +46,7 @@ class EmbedRank(LoadFile):
             return
 
         super(EmbedRank, self).__init__()
+
         if embedding_path is None:
             model_name = 'wiki_bigrams.bin'
             self._embedding_path = os.path.join(self._models, model_name)
@@ -56,11 +60,13 @@ class EmbedRank(LoadFile):
             logging.error('And place it in {}.'.format(self._models))
             logging.error('Or provide an embedding path.')
 
-        logging.info('Loading sent2vec model')
-        self._embedding_model = sent2vec.Sent2vecModel()
-        self._embedding_model.load_model(self._embedding_path)
-        logging.info('Done loading sent2vec model')
-        self._pos = None
+        if EmbedRank._embedding_path is None or EmbedRank._embedding_path != self._embedding_path:
+            logging.info('Loading sent2vec model')
+            EmbedRank._embedding_model = sent2vec.Sent2vecModel()
+            EmbedRank._embedding_model.load_model(self._embedding_path)
+            self._embedding_model = EmbedRank._embedding_model
+            EmbedRank._embedding_path = self._embedding_path
+            logging.info('Done loading sent2vec model')
 
     def candidate_selection(self, pos=None):
         """Candidate selection using longest sequences of PoS.
