@@ -1,14 +1,9 @@
 import os
 import logging
 
-try:
-    import sent2vec  # See https://github.com/epfml/sent2vec
-except ModuleNotFoundError:
-    logging.warning('Module sent2vec was not found.')
-    logging.warning('Please install using `python -m pip install git+https://github.com/epfml/sent2vec` to use EmbedRank')
-
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
+
 
 from pke import LoadFile
 
@@ -40,6 +35,13 @@ class EmbedRank(LoadFile):
     """
 
     def __init__(self, embedding_path=None):
+        try:
+            import sent2vec  # See https://github.com/epfml/sent2vec
+        except ModuleNotFoundError:
+            logging.warning('Module sent2vec was not found.')
+            logging.warning('Please install using `python -m pip install git+https://github.com/epfml/sent2vec` to use EmbedRank')
+            return
+
         super(EmbedRank, self).__init__()
         if embedding_path is None:
             model_name = 'wiki_bigrams.bin'
