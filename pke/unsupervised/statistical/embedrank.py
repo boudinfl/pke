@@ -115,7 +115,6 @@ class EmbedRank(LoadFile):
 
         sel = np.zeros(len(candidates), dtype=bool)
         ranks = [None] * len(candidates)
-
         # Compute first candidate, the second part of the calculation is 0
         # as there are no other chosen candidates to maximise distance to
         chosen_candidate = (sim_doc * l).argmax()
@@ -137,7 +136,7 @@ class EmbedRank(LoadFile):
 
         return ranks
 
-    def candidate_weighting(self, l=1):
+    def candidate_weighting(self, l=1, lower=False):
         """Candidate weighting function using distance to document.
 
         Args:
@@ -146,21 +145,18 @@ class EmbedRank(LoadFile):
             use the document, but only the most diverse set of candidates
             (defaults to 1).
         """
-
         # Flatten sentences and remove words with unvalid POS
-        doc = ' '.join(w for s in self.sentences
+        doc = ' '.join(w.lower() if lower else w for s in self.sentences
                        for i, w in enumerate(s.words)
                        if s.pos[i] in self._pos)
-        doc_embed = self._embedding_model.embed_sentence(doc)
 
+        doc_embed = self._embedding_model.embed_sentence(doc)
         cand_name = list(self.candidates.keys())
         cand = (self.candidates[k] for k in cand_name)
-        cand = [' '.join(k.surface_forms[0]).lower() for k in cand]
-
+        cand = [' '.join(k.surface_forms[0]) for k in cand]
+        cand = [k.lower() if lower else k for k in cand]
         cand_embed = self._embedding_model.embed_sentences(cand)
-
         rank = self.mmr_ranking(doc_embed, cand_embed, l)
-
         for candidate_id, r in enumerate(rank):
             if len(rank) > 1:
                 # Inverting ranks so the first ranked candidate has the biggest score
