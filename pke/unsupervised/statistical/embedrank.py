@@ -68,6 +68,9 @@ class EmbedRank(LoadFile):
             EmbedRank._embedding_path = self._embedding_path
             logging.info('Done loading sent2vec model')
 
+        # Initialize _pos here, if another selection function is used.
+        self._pos = {'NOUN', 'PROPN', 'ADJ'}
+
     def candidate_selection(self, pos=None):
         """Candidate selection using longest sequences of PoS.
 
@@ -76,12 +79,11 @@ class EmbedRank(LoadFile):
                 'ADJ').
         """
 
-        if pos is None:
-            pos = {'NOUN', 'PROPN', 'ADJ'}
-        self._pos = pos
+        if pos is not None:
+            self._pos = pos
 
         # select sequence of adjectives and nouns
-        self.longest_pos_sequence_selection(valid_pos=pos)
+        self.longest_pos_sequence_selection(valid_pos=self._pos)
 
     def mmr_ranking(self, document, candidates, l):
         """Rank candidates according to a query
@@ -104,10 +106,12 @@ class EmbedRank(LoadFile):
         sim_doc = cosine_similarity(document, candidates)
         sim_doc[np.isnan(sim_doc)] = 0.
         sim_doc = norm(sim_doc)
+        sim_doc[np.isnan(sim_doc)] = 0.
 
         sim_can = cosine_similarity(candidates)
         sim_can[np.isnan(sim_can)] = 0.
         sim_can = norm(sim_can, axis=1)
+        sim_can[np.isnan(sim_can)] = 0.
 
         sel = np.zeros(len(candidates), dtype=bool)
         ranks = [None] * len(candidates)
@@ -158,4 +162,9 @@ class EmbedRank(LoadFile):
         rank = self.mmr_ranking(doc_embed, cand_embed, l)
 
         for candidate_id, r in enumerate(rank):
-            self.weights[cand_name[candidate_id]] = ((len(rank)-1) - r) / (len(rank)-1)
+            if len(rank) > 1:
+                # Inverting ranks so the first ranked candidate has the biggest score
+                score = (len(rank) - 1 - r) / (len(rank) - 1)
+            else:
+                score = r
+            self.weights[cand_name[candidate_id]] = score
