@@ -10,6 +10,8 @@ from pke.unsupervised.graph_based.positionrank import PositionRank
 from pke.unsupervised.graph_based.single_tpr import TopicalPageRank
 from pke.unsupervised.graph_based.expandrank import ExpandRank
 from pke.unsupervised.graph_based.textrank import TextRank
+from pke.unsupervised.graph_based.collabrank import CollabRank
+
 
 from pke.unsupervised.statistical.tfidf import TfIdf
 from pke.unsupervised.statistical.kpminer import KPMiner
