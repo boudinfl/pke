@@ -67,12 +67,18 @@ class RawTextReader(Reader):
             text (str): raw text to pre-process.
             max_length (int): maximum number of characters in a single text for
                 spacy, default to 1,000,000 characters (1mb).
+            spacy_model (model): an already loaded spacy model.
         """
 
-        max_length = kwargs.get('max_length', 10**6)
-        nlp = spacy.load(self.language,
-                         max_length=max_length)
-        spacy_doc = nlp(text)
+        spacy_model = kwargs.get('spacy_model', None)
+
+        if spacy_model is not None:
+            spacy_doc = spacy_model(text)
+        else:
+            max_length = kwargs.get('max_length', 10**6)
+            nlp = spacy.load(self.language,
+                            max_length=max_length)
+            spacy_doc = nlp(text)
 
         sentences = []
         for sentence_id, sentence in enumerate(spacy_doc.sents):
