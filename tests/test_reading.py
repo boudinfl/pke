@@ -35,5 +35,10 @@ def test_reading():
            extr2.sentences == extr3.sentences == extr4.sentences
 
 
+def test_french_model():
+    extr = model()
+    extr.load_document('est-ce')
+    assert '' not in extr.sentences[0].pos
+
 if __name__ == '__main__':
     test_reading()
