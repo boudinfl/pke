@@ -1,4 +1,3 @@
-import six
 import os
 import logging
 
@@ -39,13 +38,13 @@ class EmbedRank(LoadFile):
     _embedding_model = None
 
     def __init__(self, embedding_path=None):
-        if six.PY2:
-            ModuleNotFoundError = ImportError
         try:
             import sent2vec  # See https://github.com/epfml/sent2vec
-        except ModuleNotFoundError:
+        except ImportError:
             logging.warning('Module sent2vec was not found.')
-            logging.warning('Please install using `python -m pip install git+https://github.com/epfml/sent2vec` to use EmbedRank')
+            logging.warning('Please install using `python -m pip install cython;'
+                            'python -m pip install git+https://github.com/epfml/sent2vec` '
+                            'to use EmbedRank')
             return
 
         super(EmbedRank, self).__init__()
