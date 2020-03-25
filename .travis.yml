@@ -8,5 +8,7 @@ install:
   - python -m nltk.downloader stopwords
   - python -m nltk.downloader universal_tagset
   - python -m spacy download en
+  - python -m pip install cython
+  - python -m pip install git+https://github.com/epfml/sent2vec
 script:
   - pytest
