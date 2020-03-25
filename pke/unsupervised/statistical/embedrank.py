@@ -1,3 +1,4 @@
+import six
 import os
 import logging
 
@@ -38,6 +39,8 @@ class EmbedRank(LoadFile):
     _embedding_model = None
 
     def __init__(self, embedding_path=None):
+        if six.PY2:
+            ModuleNotFoundError = ImportError
         try:
             import sent2vec  # See https://github.com/epfml/sent2vec
         except ModuleNotFoundError:
