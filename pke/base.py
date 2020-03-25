@@ -21,9 +21,9 @@ from six import string_types
 
 from builtins import str
 
-ISO_to_language = {'en': 'english',
-                   'pt': 'portuguese',
-                   'fr': 'french'}
+ISO_to_language = {'en': 'english', 'pt': 'portuguese', 'fr': 'french',
+                   'es': 'spanish', 'it': 'italian', 'nl': 'dutch',
+                   'de': 'german'}
 
 escaped_punctuation = {'-lrb-': '(', '-rrb-': ')', '-lsb-': '[', '-rsb-': ']',
                        '-lcb-': '{', '-rcb-': '}'}
@@ -82,7 +82,7 @@ class LoadFile(object):
             logging.warning(
                 "ISO 639 code {} is not supported, switching to 'en'.".format(
                     language))
-            kwargs['language'] = 'en'
+            language = 'en'
 
         # initialize document
         doc = Document()

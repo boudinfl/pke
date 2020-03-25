@@ -10,7 +10,7 @@ import six
 
 from pke.base import LoadFile
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.externals import joblib
+from joblib import load as load_model
 
 
 class SupervisedLoadFile(LoadFile):
@@ -58,7 +58,7 @@ class SupervisedLoadFile(LoadFile):
                                      instance + "-semeval2010.py3.pickle")
 
         # load the model
-        clf = joblib.load(model)
+        clf = load_model(model)
         # with open(model, 'rb') as f:
         #     clf = pickle.load(f)
 

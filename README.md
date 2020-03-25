@@ -25,6 +25,16 @@ To pip install `pke` from github:
 pip install git+https://github.com/boudinfl/pke.git
 ```
 
+`pke` also requires external resources that can be obtained using:
+
+```bash
+python -m nltk.downloader stopwords
+python -m nltk.downloader universal_tagset
+python -m spacy download en # download the english model
+```
+
+As of April 2019, `pke` only supports Python 3.6+.
+
 ## Minimal example
 
 `pke` provides a standardized API for extracting keyphrases from a document.
@@ -68,7 +78,7 @@ Tutorials and code documentation are available at
   * Statistical models
     * TfIdf [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#tfidf)]
     * KPMiner [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#kpminer), [article by (El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf)]
-    * YAKE [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#yake), [article by (Campos et al., 2018)](https://repositorio.inesctec.pt/bitstream/123456789/7623/1/P-00N-NF5.pdf)]
+    * YAKE [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#yake), [article by (Campos et al., 2020)](https://doi.org/10.1016/j.ins.2019.09.013)]
   * Graph-based models
     * TextRank [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#textrank), [article by (Mihalcea and Tarau, 2004)](http://www.aclweb.org/anthology/W04-3252.pdf)]
     * SingleRank  [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#singlerank), [article by (Wan and Xiao, 2008)](http://www.aclweb.org/anthology/C08-1122.pdf)]

@@ -69,7 +69,8 @@ def compute_document_frequency(input_dir,
                                normalization="stemming",
                                stoplist=None,
                                delimiter='\t',
-                               n=3):
+                               n=3,
+                               max_length=10**6):
     """Compute the n-gram document frequencies from a set of input documents. An
     extra row is added to the output file for specifying the number of
     documents from which the document frequencies were computed
@@ -107,7 +108,8 @@ def compute_document_frequency(input_dir,
         # read the input file
         doc.load_document(input=input_file,
                           language=language,
-                          normalization=normalization)
+                          normalization=normalization,
+                          max_length=max_length)
 
         # candidate selection
         doc.ngram_selection(n=n)
@@ -199,7 +201,7 @@ def train_supervised_model(input_dir,
         logging.info('reading file {}'.format(input_file))
 
         # get the document id from file name
-        doc_id = '.'.join(input_file.split('/')[-1].split('.')[0:-1])
+        doc_id = '.'.join(os.path.basename(input_file).split('.')[0:-1])
 
         # initialize the input file
         model.__init__()
@@ -211,6 +213,10 @@ def train_supervised_model(input_dir,
 
         # candidate selection
         model.candidate_selection()
+
+        # skipping documents without candidates
+        if not len(model.candidates):
+            continue
 
         # extract features
         model.feature_extraction(df=df, training=True)
@@ -318,7 +324,8 @@ def compute_lda_model(input_dir,
                       n_topics=500,
                       extension="xml",
                       language="en",
-                      normalization="stemming"):
+                      normalization="stemming",
+                      max_length=10**6):
     """Compute a LDA model from a collection of documents. Latent Dirichlet
     Allocation is computed using sklearn module.
 
@@ -348,7 +355,8 @@ def compute_lda_model(input_dir,
         # read the input file
         doc.load_document(input=input_file,
                           language=language,
-                          normalization=normalization)
+                          normalization=normalization,
+                          max_length=max_length)
 
         # container for current document
         text = []
