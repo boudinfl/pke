@@ -90,9 +90,9 @@ class CollabRank(SingleRank):
 
         # initialize document loader
         doc = LoadFile()
-
+        print(input_file)
         # read document
-        doc.load_document(input=input_file,
+        doc.load_document(input="/home/poulain/Documents/Stage_LS2N/Retrieval/ake-benchmarking/datasets/DUC-2001/test/" + input_file,
                           language=self.language,
                           normalization=self.normalization)
 
@@ -113,7 +113,7 @@ class CollabRank(SingleRank):
                         and node_1[0] != node_2[0]:
                     if not self.graph.has_edge(node_1[0], node_2[0]):
                         self.graph.add_edge(node_1[0], node_2[0], weight=0)
-                    self.graph[node_1[0]][node_2[0]]['weight'] += similarity
+                    self.graph[node_1[0]][node_2[0]]['weight'] += float(similarity)
 
     def candidate_weighting(self,
                             window=10,
