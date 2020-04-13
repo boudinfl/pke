@@ -94,7 +94,7 @@ class ExpandRank(SingleRank):
         doc = LoadFile()
 
         # read document
-        doc.load_document(input=input_file, , language=self.language, normalization=self.normalization)
+        doc.load_document(input=input_file, language=self.language, normalization=self.normalization)
         # flatten document and initialize nodes
         sequence = []
 
