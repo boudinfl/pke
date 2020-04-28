@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Author: Florian Boudin
+# Author: Florian Boudin & Timothée Poulain
 # Date: 10-02-2018
 
-"""ExpandRank keyphrase extraction model.
-
+"""CollabRank Towards a Collaborative Approach to Single-Document
+Keyphrase model
 Graph-based ranking approach to keyphrase extraction described in:
-
-* Xiaojun Wan and Jianguo Xiao.
-  Single Document Keyphrase Extraction Using Neighborhood Knowledge.
-  *In proceedings of AAAI*, pages 855-860, 2008.
-
+* Xiaojun Wan and Jianguo Xiao
+Proceedings of the 22nd International Conference on Computational Linguistics (Coling 2008), pages 969–976
 """
+
 
 from __future__ import print_function
 from __future__ import division
@@ -25,8 +23,8 @@ import networkx as nx
 import logging
 
 
-class ExpandRank(SingleRank):
-    """ExpandRank keyphrase extraction model.
+class CollabRank(SingleRank):
+    """CollabRank keyphrase extraction model.
 
     Parameterized example::
 
@@ -34,8 +32,8 @@ class ExpandRank(SingleRank):
         import string
         from nltk.corpus import stopwords
 
-        # 1. create an ExpandRank extractor.
-        extractor = pke.unsupervised.ExpandRank()
+        # 1. create an CollabRank extractor.
+        extractor = pke.unsupervised.CollabRank()
 
         # 2. load the content of the document.
         extractor.load_document(input='path/to/input.xml')
@@ -53,11 +51,11 @@ class ExpandRank(SingleRank):
         #    and adjectives only) that are connected if they occur in a window
         #    of 10 words. A set of extra documents should be provided to expand
         #    the graph.
-        expanded_documents = [('path/to/input1.xml', similarity1),
+        collab_documents = [('path/to/input1.xml', similarity1),
                               ('path/to/input2.xml', similarity2)]
         extractor.candidate_weighting(window=10,
                                       pos=pos,
-                                      expanded_documents=expanded_documents,
+                                      collab_documents=collab_documents,
                                       format='corenlp')
 
         # 5. get the 10-highest scored candidates as keyphrases
@@ -66,11 +64,11 @@ class ExpandRank(SingleRank):
     """
 
     def __init__(self):
-        """ Redefining initializer for ExpandRank. """
+        """ Redefining initializer for CollabRank. """
 
-        super(ExpandRank, self).__init__()
+        super(CollabRank, self).__init__()
 
-    def expand_word_graph(self,
+    def collab_word_graph(self,
                           input_file,
                           similarity,
                           window=10,
@@ -92,9 +90,12 @@ class ExpandRank(SingleRank):
 
         # initialize document loader
         doc = LoadFile()
-
+        print(input_file)
         # read document
-        doc.load_document(input=input_file, language=self.language, normalization=self.normalization)
+        doc.load_document(input="/home/poulain/Documents/Stage_LS2N/Retrieval/ake-benchmarking/datasets/DUC-2001/test/" + input_file,
+                          language=self.language,
+                          normalization=self.normalization)
+
         # flatten document and initialize nodes
         sequence = []
 
@@ -112,12 +113,12 @@ class ExpandRank(SingleRank):
                         and node_1[0] != node_2[0]:
                     if not self.graph.has_edge(node_1[0], node_2[0]):
                         self.graph.add_edge(node_1[0], node_2[0], weight=0)
-                    self.graph[node_1[0]][node_2[0]]['weight'] += similarity
+                    self.graph[node_1[0]][node_2[0]]['weight'] += float(similarity)
 
     def candidate_weighting(self,
                             window=10,
                             pos=None,
-                            expanded_documents=None,
+                            collab_documents=None,
                             normalized=False):
         """Candidate ranking using random walk.
 
@@ -126,7 +127,7 @@ class ExpandRank(SingleRank):
                 words in the graph, defaults to 10.
             pos (set): the set of valid pos for words to be considered as nodes
                 in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
-            expanded_documents (list): the set of documents to expand the graph,
+            collab_documents (list): the set of documents to expand the graph,
                 should be a list of tuples (input_path, similarity). Defaults to
                 empty list, i.e. no expansion.
             normalized (False): normalize keyphrase score by their length,
@@ -137,19 +138,20 @@ class ExpandRank(SingleRank):
         if pos is None:
             pos = {'NOUN', 'PROPN', 'ADJ'}
 
-        if expanded_documents is None:
-            expanded_documents = []
-            logging.warning('No neighbor documents provided for ExpandRank.')
+        if collab_documents is None:
+            collab_documents = []
+            logging.warning('No cluster documents provided for CollabRank.')
 
         # build the word graph
         self.build_word_graph(window=window, pos=pos)
 
         # expand the word graph
-        for input_file, similarity in expanded_documents:
-            self.expand_word_graph(input_file=input_file,
+        for input_file, similarity in collab_documents:
+            self.collab_word_graph(input_file=input_file,
                                    similarity=similarity,
                                    window=window,
                                    pos=pos)
+
         # compute the word scores using random walk
         w = nx.pagerank_scipy(self.graph, alpha=0.85, weight='weight')
 
