@@ -442,7 +442,9 @@ class YAKE(LoadFile):
             for candidate in best:
 
                 # test wether candidate is redundant
-                if self.is_redundant(candidate, non_redundant_best):
+                if self.is_redundant(candidate,
+                                     non_redundant_best,
+                                     threshold=threshold):
                     continue
 
                 # add the candidate otherwise
