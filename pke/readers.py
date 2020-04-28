@@ -106,7 +106,9 @@ class RawTextReader(Reader):
         else:
             max_length = kwargs.get('max_length', 10**6)
             nlp = spacy.load(self.language,
-                            max_length=max_length)
+                             max_length=max_length,
+                             disable=['ner', 'textcat', 'parser'])
+            nlp.add_pipe(nlp.create_pipe('sentencizer'))
             nlp = fix_spacy_for_french(nlp)
             spacy_doc = nlp(text)
 
