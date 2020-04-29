@@ -149,4 +149,8 @@ class KPMiner(LoadFile):
             # compute the idf score
             idf = math.log(N / candidate_df, 2)
 
-            self.weights[k] = len(v.surface_forms) * B * idf
+            if len(v.lexical_form) == 1:
+                # If single word candidate do not apply boosting factor
+                self.weights[k] = len(v.surface_forms) * idf
+            else:
+                 self.weights[k] = len(v.surface_forms) * B * idf
