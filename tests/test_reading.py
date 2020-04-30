@@ -1,13 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import pke
 import codecs
 
 model = pke.unsupervised.TopicRank
 
-xml_test_file = 'tests/data/1939.xml'
-raw_test_file = 'tests/data/1939.txt'
+data_path = os.path.join('tests', 'data')
+xml_test_file = data_path + os.sep + '1939.xml'
+raw_test_file = data_path + os.sep + '1939.txt'
 
 
 def test_reading():

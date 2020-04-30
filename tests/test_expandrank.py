@@ -3,12 +3,13 @@
 
 from __future__ import unicode_literals
 
+import os
 import pke
 from collections import defaultdict
 import gzip
 import bisect
 
-input_file = 'data/FT923-5089.xml'
+input_file = os.path.join('test', 'data', 'FT923-5089.xml')
 pos = {'NOUN', 'PROPN', 'ADJ'}
 
 
@@ -65,8 +66,8 @@ if __name__ == '__main__':
 
     # hyperparameters neighbor numbers
     n_expanded = 1
-    pairwise = load_pairwise_similarities("data/Output.gz")
+    pairwise = load_pairwise_similarities(os.path.join('test', 'data', 'Output.gz'))
     test_expandrank_candidate_selection()
-    expanded_documents = [(v, u) for u, v in pairwise[input_file.split("/")[-1]][-n_expanded:]]
+    expanded_documents = [(v, u) for u, v in pairwise[os.path.basename(input_file)][-n_expanded:]]
     test_expandrank_candidate_weighting(expanded_documents)
     test_singlerank_candidate_weighting()

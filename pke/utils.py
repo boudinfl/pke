@@ -98,7 +98,7 @@ def compute_document_frequency(input_dir,
     nb_documents = 0
 
     # loop through the documents
-    for input_file in glob.iglob(input_dir + '/*.' + extension):
+    for input_file in glob.iglob(input_dir + os.sep + '*.' + extension):
 
         #logging.info('reading file {}'.format(input_file))
 
@@ -196,7 +196,7 @@ def train_supervised_model(input_dir,
     sizes = []
 
     # get the input files from the input directory
-    for input_file in glob.iglob(input_dir + '/*.' + extension):
+    for input_file in glob.iglob(input_dir + os.sep + '*.' + extension):
 
         logging.info('reading file {}'.format(input_file))
 
@@ -345,7 +345,7 @@ def compute_lda_model(input_dir,
     texts = []
 
     # loop throught the documents
-    for input_file in glob.iglob(input_dir + '/*.' + extension):
+    for input_file in glob.iglob(input_dir + os.sep + '*.' + extension):
 
         logging.info('reading file {}'.format(input_file))
 
@@ -491,8 +491,8 @@ def compute_pairwise_similarity_matrix(input_dir,
     if collection_dir is not None:
 
         # loop throught the documents in the collection
-        for input_file in glob.iglob(collection_dir + '/*.' + extension):
-
+        for input_file in glob.iglob(
+                collection_dir + os.sep + '*.' + extension):
             logging.info('Reading file from {}'.format(input_file))
 
             # initialize document vector
@@ -509,7 +509,7 @@ def compute_pairwise_similarity_matrix(input_dir,
         N += 1
 
     # loop throught the documents in the input directory
-    for input_file in glob.iglob(input_dir + '/*.' + extension):
+    for input_file in glob.iglob(input_dir + os.sep + '*.' + extension):
 
         logging.info('Reading file from {}'.format(input_file))
 
