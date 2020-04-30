@@ -210,6 +210,8 @@ class MultipartiteRank(TopicRank):
                 alpha (float): hyper-parameter that controls the strength of the
                     weight adjustment, defaults to 1.1.
         """
+        if not self.candidates:
+            return
 
         # cluster the candidates
         self.topic_clustering(threshold=threshold, method=method)

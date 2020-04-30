@@ -332,6 +332,8 @@ class YAKE(LoadFile):
             window (int): the size in words of the window used for computing
                 co-occurrence counts, defaults to 2.
         """
+        if not self.candidates:
+            return
 
         # build the vocabulary
         self._vocabulary_building(use_stems=use_stems)

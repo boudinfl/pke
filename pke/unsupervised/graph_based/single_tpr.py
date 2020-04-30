@@ -121,6 +121,8 @@ class TopicalPageRank(SingleRank):
             normalized (False): normalize keyphrase score by their length,
                 defaults to False.
         """
+        if not self.candidates:
+            return
 
         if pos is None:
             pos = {'NOUN', 'PROPN', 'ADJ'}
