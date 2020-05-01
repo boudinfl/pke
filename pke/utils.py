@@ -14,6 +14,7 @@ import glob
 import pickle
 import gzip
 import json
+import bisect
 import codecs
 import logging
 
@@ -49,8 +50,8 @@ def load_document_frequency_file(input_file,
     frequencies = {}
 
     # open the input file
-    with gzip.open(input_file, 'rt') if input_file.endswith('.gz') else \
-            codecs.open(input_file, 'rt') as f:
+    with gzip.open(input_file, 'rt', encoding='utf-8') if input_file.endswith('.gz') else \
+            codecs.open(input_file, 'rt', encoding='utf-8') as f:
         # read the csv file
         df_reader = csv.reader(f, delimiter=delimiter)
 
@@ -70,7 +71,8 @@ def compute_document_frequency(input_dir,
                                stoplist=None,
                                delimiter='\t',
                                n=3,
-                               max_length=10**6):
+                               max_length=10**6,
+                               encoding=None):
     """Compute the n-gram document frequencies from a set of input documents. An
     extra row is added to the output file for specifying the number of
     documents from which the document frequencies were computed
@@ -89,6 +91,7 @@ def compute_document_frequency(input_dir,
         delimiter (str): the delimiter between n-grams and document frequencies,
             defaults to tabulation (\t).
         n (int): the size of the n-grams, defaults to 3.
+        encoding (str): encoding of files in input_dir, default to None.
     """
 
     # document frequency container
@@ -109,7 +112,8 @@ def compute_document_frequency(input_dir,
         doc.load_document(input=input_file,
                           language=language,
                           normalization=normalization,
-                          max_length=max_length)
+                          max_length=max_length,
+                          encoding=encoding)
 
         # candidate selection
         doc.ngram_selection(n=n)
@@ -134,15 +138,15 @@ def compute_document_frequency(input_dir,
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
     # dump the df container
-    with gzip.open(output_file, 'wb') as f:
+    with gzip.open(output_file, 'wt', encoding='utf-8') as f:
 
         # add the number of documents as special token
         first_line = '--NB_DOC--' + delimiter + str(nb_documents)
-        f.write(first_line.encode('utf-8') + b'\n')
+        f.write(first_line + '\n')
 
         for ngram in frequencies:
             line = ngram + delimiter + str(frequencies[ngram])
-            f.write(line.encode('utf-8') + b'\n')
+            f.write(line + '\n')
 
 
 def train_supervised_model(input_dir,
@@ -156,7 +160,8 @@ def train_supervised_model(input_dir,
                            sep_doc_id=':',
                            sep_ref_keyphrases=',',
                            normalize_reference=False,
-                           leave_one_out=False):
+                           leave_one_out=False,
+                           encoding=None):
     """Build a supervised keyphrase extraction model from a set of documents and
     a reference file.
 
@@ -180,6 +185,8 @@ def train_supervised_model(input_dir,
             keyphrases, default to False.
         leave_one_out (bool): whether to use a leave-one-out procedure for
             training, creating one model per input, defaults to False.
+        encoding (str): encoding of `reference_file` and files in `input_dir`,
+            default to None.
     """
 
     logging.info('building model {} from {}'.format(model, input_dir))
@@ -188,7 +195,8 @@ def train_supervised_model(input_dir,
                                  sep_doc_id=sep_doc_id,
                                  sep_ref_keyphrases=sep_ref_keyphrases,
                                  normalize_reference=normalize_reference,
-                                 language=language)
+                                 language=language,
+                                 encoding=encoding)
     training_instances = []
     training_classes = []
     masks = {}
@@ -209,7 +217,8 @@ def train_supervised_model(input_dir,
         # load the document
         model.load_document(input=input_file,
                             language=language,
-                            normalization=normalization)
+                            normalization=normalization,
+                            encoding=encoding)
 
         # candidate selection
         model.candidate_selection()
@@ -258,7 +267,7 @@ def load_references(input_file,
                     sep_ref_keyphrases=',',
                     normalize_reference=False,
                     language="en",
-                    encoding='utf-8'):
+                    encoding=None):
     """Load a reference file. Reference file can be either in json format or in
     the SemEval-2010 official format.
 
@@ -272,7 +281,7 @@ def load_references(input_file,
             keyphrases using stemming, default to False.
         language (str): language of the input documents (used for computing the
             stems), defaults to 'en' (english).
-        encoding (str): file encoding, default to utf-8.
+        encoding (str): file encoding, default to None.
     """
 
     logging.info('loading reference keyphrases from {}'.format(input_file))
@@ -319,13 +328,33 @@ def load_references(input_file,
     return references
 
 
+def load_lda_model(input_file):
+    """Load a gzip file containing lda model.
+
+    Args:
+        input_file (str): the gzip input file containing lda model.
+
+    Returns:
+        dictionnary: a dictionary of the form {term_1: freq}, freq being an integer.
+        model: an initialized sklearn.decomposition.LatentDirichletAllocation model.
+    """
+    model = LatentDirichletAllocation()
+    with gzip.open(input_file, 'rb') as f:
+            (dictionary,
+             model.components_,
+             model.exp_dirichlet_component_,
+             model.doc_topic_prior_) = pickle.load(f)
+    return dictionary, model
+
+
 def compute_lda_model(input_dir,
                       output_file,
                       n_topics=500,
                       extension="xml",
                       language="en",
                       normalization="stemming",
-                      max_length=10**6):
+                      max_length=10**6,
+                      encoding=None):
     """Compute a LDA model from a collection of documents. Latent Dirichlet
     Allocation is computed using sklearn module.
 
@@ -339,6 +368,7 @@ def compute_lda_model(input_dir,
         normalization (str): word normalization method, defaults to 'stemming'.
             Other possible values are 'lemmatization' or 'None' for using word
             surface forms instead of stems/lemmas.
+        encoding (str): encoding of files in `input_dir`, default to None.
     """
 
     # texts container
@@ -356,7 +386,8 @@ def compute_lda_model(input_dir,
         doc.load_document(input=input_file,
                           language=language,
                           normalization=normalization,
-                          max_length=max_length)
+                          max_length=max_length,
+                          encoding=encoding)
 
         # container for current document
         text = []
@@ -409,7 +440,8 @@ def compute_lda_model(input_dir,
 def load_document_as_bos(input_file,
                          language="en",
                          normalization="stemming",
-                         stoplist=None):
+                         stoplist=None,
+                         encoding=None):
     """Load a document as a bag of words/stems/lemmas.
 
     Args:
@@ -420,6 +452,7 @@ def load_document_as_bos(input_file,
             Other possible values are 'lemmatization' or 'None' for using word
             surface forms instead of stems/lemmas.
         stoplist (list): the stop words for filtering tokens, default to [].
+        encoding (str): encoding of `input_file`, default to None.
     """
 
     # initialize empty stoplist is None provided
@@ -432,7 +465,8 @@ def load_document_as_bos(input_file,
     # read the input file
     doc.load_document(input=input_file,
                       language=language,
-                      normalization=normalization)
+                      normalization=normalization,
+                      encoding=encoding)
 
     # initialize document vector
     vector = defaultdict(int)
@@ -447,6 +481,23 @@ def load_document_as_bos(input_file,
     return vector
 
 
+def load_pairwise_similarities(path):
+    """Load the pairwise similarities for ExpandRank."""
+
+    pairwise_sim = defaultdict(list)
+    with gzip.open(path, 'rt', encoding='utf-8') as f:
+        lines = f.readlines()
+        for line in lines:
+            cols = line.strip().split()
+            cols[0] = os.path.basename(cols[0])
+            cols[1] = os.path.basename(cols[1])
+            # Add (score, file1) to pairwise_sim[file0]
+            # while ensuring that duplicate element are next to eahch other ?
+            bisect.insort(pairwise_sim[cols[0]], (float(cols[2]), cols[1]))
+            bisect.insort(pairwise_sim[cols[1]], (float(cols[2]), cols[0]))
+    return pairwise_sim
+
+
 def compute_pairwise_similarity_matrix(input_dir,
                                        output_file,
                                        collection_dir=None,
@@ -454,7 +505,8 @@ def compute_pairwise_similarity_matrix(input_dir,
                                        extension="xml",
                                        language="en",
                                        normalization="stemming",
-                                       stoplist=None):
+                                       stoplist=None,
+                                       encoding=None):
     """Compute the pairwise similarity between documents in `input_dir` and
     documents in `collection_dir`. Similarity scores are computed using a cosine
     similarity over TF x IDF term weights. If there is no collection to compute
@@ -474,6 +526,7 @@ def compute_pairwise_similarity_matrix(input_dir,
             Other possible values are 'lemmatization' or 'None' for using word
             surface forms instead of stems/lemmas.
         stoplist (list): the stop words for filtering tokens, default to [].
+        encoding (str): encoding of files in `input_dir`, default to None.
     """
 
     # containers
@@ -496,10 +549,10 @@ def compute_pairwise_similarity_matrix(input_dir,
             logging.info('Reading file from {}'.format(input_file))
 
             # initialize document vector
-            collection[input_file] = load_document_as_bos(input_file=input_file,
-                                                          language=language,
-                                                          normalization=normalization,
-                                                          stoplist=stoplist)
+            collection[input_file] = load_document_as_bos(
+                input_file=input_file, language=language,
+                normalization=normalization, stoplist=stoplist,
+                encoding=encoding)
 
             # compute TF*IDF weights
             for stem in collection[input_file]:
@@ -514,10 +567,10 @@ def compute_pairwise_similarity_matrix(input_dir,
         logging.info('Reading file from {}'.format(input_file))
 
         # initialize document vector
-        documents[input_file] = load_document_as_bos(input_file=input_file,
-                                                     language=language,
-                                                     normalization=normalization,
-                                                     stoplist=stoplist)
+        documents[input_file] = load_document_as_bos(
+            input_file=input_file, language=language,
+            normalization=normalization, stoplist=stoplist,
+            encoding=encoding)
 
         # compute TF*IDF weights
         for stem in documents[input_file]:
@@ -533,7 +586,7 @@ def compute_pairwise_similarity_matrix(input_dir,
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
     # open the output file in gzip mode
-    with gzip.open(output_file, 'wb') as f:
+    with gzip.open(output_file, 'wt', encoding='utf-8') as f:
 
         # compute pairwise similarity scores
         for doc_i in documents:
@@ -557,6 +610,6 @@ def compute_pairwise_similarity_matrix(input_dir,
                 # compute cosine
                 cosine = inner / (norm_i * norm_j)
 
-                # encode line and write to output file
+                # write line to output file
                 line = doc_i + '\t' + doc_j + '\t' + str(cosine) + '\n'
-                f.write(line.encode('utf-8'))
+                f.write(line)

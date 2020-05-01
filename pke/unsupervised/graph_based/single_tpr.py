@@ -17,18 +17,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import gzip
 import os
-import pickle
 import logging
 
 import networkx as nx
 import numpy as np
 import six
 from scipy.spatial.distance import cosine
-from sklearn.decomposition import LatentDirichletAllocation
 from sklearn.feature_extraction.text import CountVectorizer
 
+import pke.utils
 from pke.unsupervised import SingleRank
 
 
@@ -137,9 +135,6 @@ class TopicalPageRank(SingleRank):
         self.build_word_graph(window=window,
                               pos=pos)
 
-        # create a blank model
-        model = LatentDirichletAllocation()
-
         # set the default LDA model if none provided
         if lda_model is None:
             if six.PY2:
@@ -151,11 +146,7 @@ class TopicalPageRank(SingleRank):
             logging.warning('LDA model is hard coded to {}'.format(lda_model))
 
         # load parameters from file
-        with gzip.open(lda_model, 'rb') as f:
-            (dictionary,
-             model.components_,
-             model.exp_dirichlet_component_,
-             model.doc_topic_prior_) = pickle.load(f)
+        dictionary, model = pke.utils.load_lda_model(lda_model)
 
         # build the document representation
         doc = []

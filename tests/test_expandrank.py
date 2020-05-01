@@ -41,18 +41,6 @@ def test_singlerank_candidate_weighting():
     keyphrases = [k for k, s in extractor.get_n_best(n=10)]
     print(keyphrases)
 
-def load_pairwise_similarities(path):
-    """Load the pairwise similarities for ExpandRank."""
-
-    pairwise_sim = defaultdict(list)
-    with gzip.open(path, 'rb') as f:
-        lines = f.readlines()
-        for line in lines:
-            cols = line.decode('utf-8').strip().split()
-            bisect.insort(pairwise_sim[cols[0].split("/")[-1]], (float(cols[2]), cols[1].split("/")[-1]))
-            bisect.insort(pairwise_sim[cols[1].split("/")[-1]], (float(cols[2]), cols[0].split("/")[-1]))
-    return pairwise_sim
-
 
 if __name__ == '__main__':
     """ You will first need to perform the function compute_document_frequency(input_dir=input_dir, ...)
@@ -66,7 +54,7 @@ if __name__ == '__main__':
 
     # hyperparameters neighbor numbers
     n_expanded = 1
-    pairwise = load_pairwise_similarities(os.path.join('test', 'data', 'Output.gz'))
+    pairwise = pke.utils.load_pairwise_similarities(os.path.join('test', 'data', 'Output.gz'))
     test_expandrank_candidate_selection()
     expanded_documents = [(v, u) for u, v in pairwise[os.path.basename(input_file)][-n_expanded:]]
     test_expandrank_candidate_weighting(expanded_documents)
