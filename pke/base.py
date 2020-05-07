@@ -7,10 +7,12 @@ from collections import defaultdict
 from pke.data_structures import Candidate, Document
 from pke.readers import MinimalCoreNLPReader, RawTextReader
 
-from nltk.stem.snowball import SnowballStemmer
 from nltk import RegexpParser
 from nltk.corpus import stopwords
 from nltk.tag.mapping import map_tag
+from nltk.stem.snowball import SnowballStemmer, PorterStemmer
+
+import langcodes
 
 from string import punctuation
 import os
@@ -21,9 +23,77 @@ from six import string_types
 
 from builtins import str
 
-ISO_to_language = {'en': 'english', 'pt': 'portuguese', 'fr': 'french',
-                   'es': 'spanish', 'it': 'italian', 'nl': 'dutch',
-                   'de': 'german'}
+
+# The language management should be in `pke.utils` but it would create a circular import.
+# Manually created from https://spacy.io/models the 04/05/2020
+lang_spacy = {
+    'en': 'english',
+    'pt': 'portuguese',
+    'fr': 'french',
+    'es': 'spanish',
+    'it': 'italian',
+    'nl': 'dutch',
+    'de': 'german',
+    'el': 'greek'
+}
+get_alpha_2 = lambda l: langcodes.find(l).language
+
+lang_stopwords = {get_alpha_2(l): l for l in stopwords._fileids}
+
+lang_stem = {get_alpha_2(l): l for l in set(SnowballStemmer.languages) - set(['porter'])}
+lang_stem.update({'en': 'porter'})
+
+PRINT_NO_STEM_WARNING = defaultdict(lambda: True)
+PRINT_NO_STWO_WARNING = defaultdict(lambda: True)
+
+
+def get_stopwords(lang):
+    """Provide stopwords for the given language, or default value.
+
+    If stopwords are not available for a given language, a default value is
+    returned and a warning is displayed
+    :param lang: Alpha-2 language code.
+    :type lang: str
+    :returns: A list of stop words or an empty list.
+    :rtype: {List}
+    """
+    global PRINT_NO_STWO_WARNING
+    try:
+        lang = lang_stopwords[lang]
+        return stopwords.words(lang)
+    except KeyError:
+        if PRINT_NO_STWO_WARNING[lang]:
+            logging.warning('No default stopwords for \'{}\' language.'.format(lang))
+            logging.warning('Please provide stoplist if willing to use stopwords.')
+            logging.warning('Check for nltk\'s `stopwords` corpora update using '
+                            '`python -m nltk.downloader`')
+            PRINT_NO_STWO_WARNING[lang] = False
+        return []
+
+
+def get_stemmer_func(lang):
+    """Provide steming function for the given language, or identity function.
+
+    If stemming is not available for a given language, a default value is
+    returned and a warning is displayed
+    :param lang: Alpha-2 language code.
+    :type lang: str
+    :returns: A function to stem a word (or the identity function).
+    :rtype: {Callable[[str], str]}
+    """
+    global PRINT_NO_STEM_WARNING
+    try:
+        lang = lang_stem[lang]
+        ignore_sw = lang != 'porter'  # PorterStemmer do not use stop_words
+        stemmer = SnowballStemmer(lang, ignore_stopwords=ignore_sw)
+        return stemmer.stem
+    except KeyError:
+        if PRINT_NO_STEM_WARNING[lang]:
+            logging.warning('No stemmer for \'{}\' language.'.format(lang))
+            logging.warning('Stemming will not be applied.')
+            PRINT_NO_STEM_WARNING[lang] = False
+        return lambda x: x
+
 
 escaped_punctuation = {'-lrb-': '(', '-rrb-': ')', '-lsb-': '[', '-rsb-': ']',
                        '-lcb-': '{', '-rcb-': '}'}
@@ -77,13 +147,6 @@ class LoadFile(object):
         # get the language parameter
         language = kwargs.get('language', 'en')
 
-        # test whether the language is known, otherwise fall back to english
-        if language not in ISO_to_language:
-            logging.warning(
-                "ISO 639 code {} is not supported, switching to 'en'.".format(
-                    language))
-            language = 'en'
-
         # initialize document
         doc = Document()
 
@@ -135,39 +198,25 @@ class LoadFile(object):
         self.sentences = doc.sentences
 
         # initialize the stoplist
-        self.stoplist = stopwords.words(ISO_to_language[self.language])
+        self.stoplist = get_stopwords(self.language)
 
         # word normalization
         self.normalization = kwargs.get('normalization', 'stemming')
-        if self.normalization == 'stemming':
-            self.apply_stemming()
-        elif self.normalization is None:
-            for i, sentence in enumerate(self.sentences):
-                self.sentences[i].stems = sentence.words
 
-        # lowercase the normalized words
+        if self.normalization == 'stemming':
+            stem = get_stemmer_func(self.language)
+            get_stem = lambda s: [stem(w).lower() for w in s.words]
+        else:
+            get_stem = lambda s: [w.lower() for w in s.words]
+
+        # Populate Sentence.stems according to normalization
         for i, sentence in enumerate(self.sentences):
-            self.sentences[i].stems = [w.lower() for w in sentence.stems]
+            self.sentences[i].stems = get_stem(sentence)
 
         # POS normalization
         if getattr(doc, 'is_corenlp_file', False):
             self.normalize_pos_tags()
             self.unescape_punctuation_marks()
-
-    def apply_stemming(self):
-        """Populates the stem containers of sentences."""
-
-        if self.language == 'en':
-            # create a new instance of a porter stemmer
-            stemmer = SnowballStemmer("porter")
-        else:
-            # create a new instance of a porter stemmer
-            stemmer = SnowballStemmer(ISO_to_language[self.language],
-                                      ignore_stopwords=True)
-
-        # iterate throughout the sentences
-        for i, sentence in enumerate(self.sentences):
-            self.sentences[i].stems = [stemmer.stem(w) for w in sentence.words]
 
     def normalize_pos_tags(self):
         """Normalizes the PoS tags from udp-penn to UD."""
