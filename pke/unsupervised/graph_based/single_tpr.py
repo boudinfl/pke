@@ -33,7 +33,7 @@ from pke.unsupervised import SingleRank
 
 
 class TopicalPageRank(SingleRank):
-    """Single TopicalPageRank keyphrase extraction model. 
+    """Single TopicalPageRank keyphrase extraction model.
 
     Parameterized example::
 
@@ -90,7 +90,7 @@ class TopicalPageRank(SingleRank):
             corresponding scores are summed and ranked. ...
 
         Args:
-            grammar (str): grammar defining POS patterns of NPs, defaults to 
+            grammar (str): grammar defining POS patterns of NPs, defaults to
                 "NP: {<ADJ>*<NOUN|PROPN>+}".
         """
 
@@ -191,9 +191,10 @@ class TopicalPageRank(SingleRank):
 
         # get the default probability for OOV words
         default_similarity = min(W.values())
+        # set the default probability for OOV words
         for word in self.graph.nodes():
             if word not in W:
-                W[word] = 0.0
+                W[word] = default_similarity
 
         # Normalize the topical word importance of words
         norm = sum(W.values())
