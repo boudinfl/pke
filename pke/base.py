@@ -25,17 +25,7 @@ from builtins import str
 
 
 # The language management should be in `pke.utils` but it would create a circular import.
-# Manually created from https://spacy.io/models the 04/05/2020
-lang_spacy = {
-    'en': 'english',
-    'pt': 'portuguese',
-    'fr': 'french',
-    'es': 'spanish',
-    'it': 'italian',
-    'nl': 'dutch',
-    'de': 'german',
-    'el': 'greek'
-}
+
 get_alpha_2 = lambda l: langcodes.find(l).language
 
 lang_stopwords = {get_alpha_2(l): l for l in stopwords._fileids}
