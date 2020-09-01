@@ -53,10 +53,10 @@ def get_stopwords(lang):
         return stopwords.words(lang)
     except KeyError:
         if PRINT_NO_STWO_WARNING[lang]:
-            logging.warning('No default stopwords for \'{}\' language.'.format(lang))
-            logging.warning('Please provide stoplist if willing to use stopwords.')
-            logging.warning('Check for nltk\'s `stopwords` corpora update using '
-                            '`python -m nltk.downloader`')
+            logging.warning('No stopwords for \'{}\' language.'.format(lang))
+            logging.warning(
+                'Please provide custom stoplist if willing to use stopwords. Or '
+                'update nltk\'s `stopwords` corpora using `nltk.download(\'stopwords\')`')
             PRINT_NO_STWO_WARNING[lang] = False
         return []
 
