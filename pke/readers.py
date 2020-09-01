@@ -3,6 +3,10 @@
 
 """Readers for the pke module."""
 
+import os
+import sys
+import json
+import logging
 import xml.etree.ElementTree as etree
 import spacy
 
@@ -73,6 +77,50 @@ def fix_spacy_for_french(nlp):
     return nlp
 
 
+def list_linked_spacy_models():
+    """ Read SPACY/data and return a list of link_name """
+    spacy_data = os.path.join(spacy.info(silent=True)['Location'], 'data')
+    linked = [d for d in os.listdir(spacy_data) if os.path.islink(os.path.join(spacy_data, d))]
+    # linked = [os.path.join(spacy_data, d) for d in os.listdir(spacy_data)]
+    # linked = {os.readlink(d): os.path.basename(d) for d in linked if os.path.islink(d)}
+    return linked
+
+
+def list_downloaded_spacy_models():
+    """ Scan PYTHONPATH to find spacy models """
+    models = []
+    # For each directory in PYTHONPATH
+    paths = [p for p in sys.path if os.path.isdir(p)]
+    for site_package_dir in paths:
+        # For each module
+        modules = [os.path.join(site_package_dir, m) for m in os.listdir(site_package_dir)]
+        modules = [m for m in modules if os.path.isdir(m)]
+        for module_dir in modules:
+            if 'meta.json' in os.listdir(module_dir):
+                # Ensure the package we're in is a spacy model
+                meta_path = os.path.join(module_dir, 'meta.json')
+                with open(meta_path) as f:
+                    meta = json.load(f)
+                if meta.get('parent_package', '') == 'spacy':
+                    models.append(module_dir)
+    return models
+
+
+def str2spacy(model):
+    downloaded_models = [os.path.basename(m) for m in list_downloaded_spacy_models()]
+    links = list_linked_spacy_models()
+    filtered_downloaded = [m for m in downloaded_models if m[:2] == model]
+    if model in downloaded_models + links:
+        # Check whether `model` is the name of a model/link
+        return model
+    elif filtered_downloaded:
+        # Check whether `model` is a lang code and corresponds to a downloaded model
+        return filtered_downloaded[0]
+    else:
+        # Return asked model to have an informative error.
+        return model
+
+
 class RawTextReader(Reader):
     """Reader for raw text."""
 
@@ -91,6 +139,14 @@ class RawTextReader(Reader):
     def read(self, text, **kwargs):
         """Read the input file and use spacy to pre-process.
 
+        Spacy model selection: By default this function will load the spacy
+        model that is closest to the `language` parameter ('fr' language will
+        load the spacy model linked to 'fr' or any 'fr_core_web_*' available
+        model). In order to select the model that will be used please provide a
+        preloaded model via the `spacy_model` parameter, or link the model you
+        wish to use to the corresponding language code
+        `python3 -m spacy link spacy_model lang_code`.
+
         Args:
             text (str): raw text to pre-process.
             max_length (int): maximum number of characters in a single text for
@@ -105,9 +161,19 @@ class RawTextReader(Reader):
             spacy_doc = spacy_model(text)
         else:
             max_length = kwargs.get('max_length', 10**6)
-            nlp = spacy.load(self.language,
-                             max_length=max_length,
-                             disable=['ner', 'textcat', 'parser'])
+            try:
+                nlp = spacy.load(str2spacy(self.language),
+                                 max_length=max_length,
+                                 disable=['ner', 'textcat', 'parser'])
+            except OSError:
+                logging.warning('No spacy model for \'{}\' language.'.format(self.language))
+                logging.warning('Falling back to using english model. There might '
+                    'be tokenization and postagging errors. A list of available '
+                    'spacy model is available at https://spacy.io/models.'.format(
+                        self.language))
+                nlp = spacy.load(str2spacy('en'),
+                                 max_length=max_length,
+                                 disable=['ner', 'textcat', 'parser'])
             nlp.add_pipe(nlp.create_pipe('sentencizer'))
             nlp = fix_spacy_for_french(nlp)
             spacy_doc = nlp(text)
