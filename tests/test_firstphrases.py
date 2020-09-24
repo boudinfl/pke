@@ -3,10 +3,11 @@
 
 from __future__ import unicode_literals
 
+import os
 import pke
 
 valid_pos = {'NOUN', 'PROPN', 'ADJ'}
-test_file = 'tests/data/1939.xml'
+test_file = os.path.join('tests', 'data', '1939.xml')
 
 
 def test_firstphrases_candidate_selection():

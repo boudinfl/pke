@@ -154,6 +154,8 @@ class Kea(SupervisedLoadFile):
             df (dict): document frequencies, the number of documents should
                     be specified using the "--NB_DOC--" key.
         """
+        if not self.candidates:
+            return
 
         self.feature_extraction(df=df)
         self.classify_candidates(model=model_file)

@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 import pke
 
 valid_pos = {'NOUN', 'PROPN', 'ADJ'}
-test_file = 'tests/data/1939.xml'
+test_file = os.path.join('tests', 'data', '1939.xml')
 
 
 def test_topicrank_candidate_selection():

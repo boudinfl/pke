@@ -3,9 +3,10 @@
 
 from __future__ import unicode_literals
 
+import os
 import pke
 
-test_file = 'tests/data/1939.xml'
+test_file = os.path.join('tests', 'data', '1939.xml')
 
 grammar = "NP: {<ADJ>*<NOUN|PROPN>+}"
 pos = {'NOUN', 'PROPN', 'ADJ'}

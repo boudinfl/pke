@@ -8,7 +8,7 @@ import pke
 logging.basicConfig(level=logging.INFO)
 
 # path to the collection of documents
-input_dir = 'train/'
+input_dir = 'train' + os.sep
 
 # path to the reference file
 reference_file = "gold-annotation.txt"
