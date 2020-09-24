@@ -89,6 +89,21 @@ escaped_punctuation = {'-lrb-': '(', '-rrb-': ')', '-lsb-': '[', '-rsb-': ']',
                        '-lcb-': '{', '-rcb-': '}'}
 
 
+def is_file_path(input):
+    try:
+        return os.path.isfile(input)
+    except Exception:
+        # On some windows version the maximum path length is 255. When calling
+        #  `os.path.isfile` on long string it will raise a ValueError.
+        # We return false as even is the string is a file_path we won't be able
+        #  to open it
+        return False
+
+
+def is_corenlp(input):
+    return is_file_path(input) and input.endswith('.xml')
+
+
 class LoadFile(object):
     """The LoadFile class that provides base functions."""
 
@@ -140,43 +155,24 @@ class LoadFile(object):
         # initialize document
         doc = Document()
 
-        if isinstance(input, string_types):
-
-            # if input is an input file
-            if os.path.isfile(input):
-
-                # an xml file is considered as a CoreNLP document
-                if input.endswith('xml'):
-                    parser = MinimalCoreNLPReader()
-                    doc = parser.read(path=input, **kwargs)
-                    doc.is_corenlp_file = True
-
-                # other extensions are considered as raw text
-                else:
-                    parser = RawTextReader(language=language)
-                    encoding = kwargs.get('encoding', 'utf-8')
-                    with codecs.open(input, 'r', encoding=encoding) as file:
-                        text = file.read()
-                    doc = parser.read(text=text, path=input, **kwargs)
-
-            # if input is a string
-            else:
-                parser = RawTextReader(language=language)
-                doc = parser.read(text=input, **kwargs)
-
-        elif getattr(input, 'read', None):
-            # check whether it is a compressed CoreNLP document
-            name = getattr(input, 'name', None)
-            if name and name.endswith('xml'):
-                parser = MinimalCoreNLPReader()
-                doc = parser.read(path=input, **kwargs)
-                doc.is_corenlp_file = True
-            else:
-                parser = RawTextReader(language=language)
-                doc = parser.read(text=input.read(), **kwargs)
-
+        if is_corenlp(input):
+            path = input
+            parser = MinimalCoreNLPReader()
+            doc = parser.read(path=input, **kwargs)
+            doc.is_corenlp_file = True
+        elif is_file_path(input):
+            path = input
+            with open(path, encoding=kwargs.get('encoding', 'utf-8')) as f:
+                input = f.read()
+            parser = RawTextReader(language=language)
+            doc = parser.read(text=input, path=path, **kwargs)
+        elif isinstance(input, str):
+            parser = RawTextReader(language=language)
+            doc = parser.read(text=input, **kwargs)
         else:
-            logging.error('Cannot process {}'.format(type(input)))
+            logging.error('Cannot process input. It is neither a file path '
+                          'or a string: {}'.format(type(input)))
+            return
 
         # set the input file
         self.input_file = doc.input_file
@@ -301,11 +297,6 @@ class LoadFile(object):
         if not stemming:
             n_best = [(' '.join(self.candidates[u].surface_forms[0]).lower(),
                        self.weights[u]) for u in best[:min(n, len(best))]]
-
-        if len(n_best) < n:
-            logging.warning(
-                'Not enough candidates to choose from '
-                '({} requested, {} given)'.format(n, len(n_best)))
 
         # return the list of best candidates
         return n_best

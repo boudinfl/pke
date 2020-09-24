@@ -92,7 +92,7 @@ class CollabRank(SingleRank):
         doc = LoadFile()
         print(input_file)
         # read document
-        doc.load_document(input="/home/poulain/Documents/Stage_LS2N/Retrieval/ake-benchmarking/datasets/DUC-2001/test/" + input_file,
+        doc.load_document(input=input_file,
                           language=self.language,
                           normalization=self.normalization)
 
