@@ -298,11 +298,6 @@ class LoadFile(object):
             n_best = [(' '.join(self.candidates[u].surface_forms[0]).lower(),
                        self.weights[u]) for u in best[:min(n, len(best))]]
 
-        if len(n_best) < n:
-            logging.warning(
-                'Not enough candidates to choose from '
-                '({} requested, {} given)'.format(n, len(n_best)))
-
         # return the list of best candidates
         return n_best
 
