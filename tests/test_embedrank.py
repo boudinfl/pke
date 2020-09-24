@@ -3,9 +3,10 @@
 
 from __future__ import unicode_literals
 
-import mock
+import os
 import sys
 
+import mock
 import pke
 
 text = u"Compatibility of systems of linear constraints over the set of natural\
@@ -23,7 +24,7 @@ pos = {'NOUN', 'PROPN', 'ADJ'}
 def test_embedrank_candidate_weighting():
     """Test SingleRank candidate weighting method."""
     extractor = pke.unsupervised.EmbedRank(
-        embedding_path='tests/data/inspec_sent2vec.bin')
+        embedding_path=os.path.join('tests', 'data', 'inspec_sent2vec.bin'))
     extractor.load_document(input=text)
     extractor.candidate_selection()
     extractor.candidate_weighting(l=1)

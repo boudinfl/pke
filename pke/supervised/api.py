@@ -74,6 +74,8 @@ class SupervisedLoadFile(LoadFile):
 
     def candidate_weighting(self):
         """ Extract features and classify candidates with default parameters."""
+        if not self.candidates:
+            return
 
         self.feature_extraction()
         self.classify_candidates()

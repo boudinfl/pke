@@ -198,6 +198,8 @@ class TopicRank(LoadFile):
                 ties).
 
         """
+        if not self.candidates:
+            return
 
         # cluster the candidates
         self.topic_clustering(threshold=threshold, method=method)

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 from pke.unsupervised import (
     TopicRank, SingleRank,
     MultipartiteRank, PositionRank,
@@ -10,8 +11,7 @@ from pke.unsupervised import (
 )
 from pke.supervised import Kea, WINGNUS
 
-test_file = 'tests/data/1939.xml'
-
+test_file = os.path.join('tests', 'data', '1939.xml')
 
 def test_unsupervised_run():
     def test(model, file):
