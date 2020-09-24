@@ -28,13 +28,7 @@ def test_reading():
         text = f.read()
     extr3.load_document(text)
 
-    # loading from stream
-    extr4 = model()
-    with codecs.open(raw_test_file, 'r', 'utf-8') as f:
-        extr4.load_document(f)
-
-    assert len(extr1.sentences) == 4 and \
-           extr2.sentences == extr3.sentences == extr4.sentences
+    assert len(extr1.sentences) == 4 and extr2.sentences == extr3.sentences
 
 
 def test_french_model():
