@@ -157,7 +157,8 @@ def train_supervised_model(input_dir,
                            sep_ref_keyphrases=',',
                            normalize_reference=False,
                            leave_one_out=False,
-                           encoding=None):
+                           encoding=None,
+                           ref_encoding=None):
     """Build a supervised keyphrase extraction model from a set of documents and
     a reference file.
 
@@ -181,8 +182,8 @@ def train_supervised_model(input_dir,
             keyphrases, default to False.
         leave_one_out (bool): whether to use a leave-one-out procedure for
             training, creating one model per input, defaults to False.
-        encoding (str): encoding of `reference_file` and files in `input_dir`,
-            default to None.
+        encoding (str): encoding of files in `input_dir`, default to None.
+        ref_encoding (str): encoding of `reference_file`, default to None.
     """
 
     logging.info('building model {} from {}'.format(model, input_dir))
@@ -192,7 +193,7 @@ def train_supervised_model(input_dir,
                                  sep_ref_keyphrases=sep_ref_keyphrases,
                                  normalize_reference=normalize_reference,
                                  language=language,
-                                 encoding=encoding)
+                                 encoding=ref_encoding)
     training_instances = []
     training_classes = []
     masks = {}
