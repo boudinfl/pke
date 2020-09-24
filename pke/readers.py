@@ -156,27 +156,25 @@ class RawTextReader(Reader):
 
         spacy_model = kwargs.get('spacy_model', None)
 
-        if spacy_model is not None:
-            spacy_model = fix_spacy_for_french(spacy_model)
-            spacy_doc = spacy_model(text)
-        else:
+        if spacy_model is None:
             max_length = kwargs.get('max_length', 10**6)
             try:
-                nlp = spacy.load(str2spacy(self.language),
-                                 max_length=max_length,
-                                 disable=['ner', 'textcat', 'parser'])
+                spacy_model = spacy.load(
+                    str2spacy(self.language), max_length=max_length,
+                    disable=['ner', 'textcat', 'parser'])
             except OSError:
                 logging.warning('No spacy model for \'{}\' language.'.format(self.language))
                 logging.warning('Falling back to using english model. There might '
                     'be tokenization and postagging errors. A list of available '
                     'spacy model is available at https://spacy.io/models.'.format(
                         self.language))
-                nlp = spacy.load(str2spacy('en'),
-                                 max_length=max_length,
-                                 disable=['ner', 'textcat', 'parser'])
-            nlp.add_pipe(nlp.create_pipe('sentencizer'))
-            nlp = fix_spacy_for_french(nlp)
-            spacy_doc = nlp(text)
+                spacy_model = spacy.load(
+                    str2spacy('en'), max_length=max_length,
+                    disable=['ner', 'textcat', 'parser'])
+            spacy_model.add_pipe(spacy_model.create_pipe('sentencizer'))
+
+        spacy_model = fix_spacy_for_french(spacy_model)
+        spacy_doc = spacy_model(text)
 
         sentences = []
         for sentence_id, sentence in enumerate(spacy_doc.sents):
