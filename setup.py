@@ -20,7 +20,8 @@ setup(name='pke',
           'sklearn',
           'unidecode',
           'future',
-          'joblib'
+          'joblib',
+          'langcodes'
       ],
       package_data={'pke': ['models/*.pickle', 'models/*.gz']}
       )
