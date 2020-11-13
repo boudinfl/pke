@@ -21,7 +21,7 @@ import logging
 from itertools import combinations, product
 from collections import defaultdict
 
-from pke.base import LoadFile, get_stopwords, get_stemmer_func
+from pke.base import LoadFile, get_stopwords, get_stemmer_func, is_file_path
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
@@ -60,7 +60,7 @@ def load_document_frequency_file(input_file,
     return frequencies
 
 
-def compute_document_frequency(input_dir,
+def compute_document_frequency(input,
                                output_file,
                                extension='xml',
                                language='en',
@@ -76,9 +76,10 @@ def compute_document_frequency(input_dir,
     (--NB_DOC-- tab XXX). The output file is compressed using gzip.
 
     Args:
-        input_dir (str): the input directory.
+        input (str): the input directory. It can either be the dir containing the files with the passed extension or
+            a path to text file containing all the text input
         output_file (str): the output file.
-        extension (str): file extension for input documents, defaults to xml.
+        extension (str): file extension for input documents, defaults to xml. Only valid when input is a dir not a file path.
         language (str): language of the input documents (used for computing the
             n-stem or n-lemma forms), defaults to 'en' (english).
         normalization (str): word normalization method, defaults to 'stemming'.
@@ -97,8 +98,15 @@ def compute_document_frequency(input_dir,
     # initialize number of documents
     nb_documents = 0
 
+    # check if input is a dir or a file path
+    if is_file_path(input) and input.endswith('.txt'):
+        docouments = open(input, 'r').read().splitlines()
+    else:
+        docouments = glob.iglob(input + os.sep + '*.' + extension)
+
+
     # loop through the documents
-    for input_file in glob.iglob(input_dir + os.sep + '*.' + extension):
+    for docoument in docouments:
 
         #logging.info('reading file {}'.format(input_file))
 
@@ -106,7 +114,7 @@ def compute_document_frequency(input_dir,
         doc = LoadFile()
 
         # read the input file
-        doc.load_document(input=input_file,
+        doc.load_document(input=docoument,
                           language=language,
                           normalization=normalization,
                           max_length=max_length,

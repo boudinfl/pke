@@ -3,17 +3,31 @@
 
 import os
 import pke
+from typing import List
+import shutil
 
 data_path = os.path.join('tests', 'data')
 
 
 def create_corpus(values, tmp_path, name='corpus.gz'):
     corpus_dir = tmp_path / name
+    if os.path.exists(corpus_dir):
+        shutil.rmtree(corpus_dir)
     corpus_dir.mkdir()
     for k, v in values.items():
         (corpus_dir / k).write_text(v)
     return corpus_dir
 
+def create_single_corpus(values: List, tmp_path, name='corpus.gz'):
+    corpus_dir = tmp_path / name
+    if os.path.exists(corpus_dir):
+        shutil.rmtree(corpus_dir)
+    corpus_dir.mkdir()
+    text = ''
+    for doc in values:
+        text += doc + '\n'
+    (corpus_dir / 'a_b.txt').write_text(text)
+    return corpus_dir
 
 def create_df(corpus_dir, tmp_path, name='corpus_df.gz'):
     corpus_df_file = tmp_path / name
@@ -92,6 +106,14 @@ def test_compute_document_frequency(tmp_path):
         str(tmp_corpus), str(tmp_freq), extension='txt', n=1)
 
     # Asserting
+    df = pke.utils.load_document_frequency_file(str(tmp_freq))
+    assert df == expected
+
+    tmp_corpus = create_single_corpus(list(corpus.values()), tmp_path)
+    tmp_path = str(tmp_corpus) + '/a_b.txt'
+    pke.utils.compute_document_frequency(
+        tmp_path, str(tmp_freq), extension='txt', n=1)
+
     df = pke.utils.load_document_frequency_file(str(tmp_freq))
     assert df == expected
 
