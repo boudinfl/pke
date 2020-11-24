@@ -12,7 +12,7 @@ from nltk.corpus import stopwords
 from nltk.tag.mapping import map_tag
 from nltk.stem.snowball import SnowballStemmer, PorterStemmer
 
-import langcodes
+from .langcodes import LANGUAGE_CODE_BY_NAME
 
 from string import punctuation
 import os
@@ -26,7 +26,7 @@ from builtins import str
 
 # The language management should be in `pke.utils` but it would create a circular import.
 
-get_alpha_2 = lambda l: langcodes.find(l).language
+get_alpha_2 = lambda l: LANGUAGE_CODE_BY_NAME[l]
 
 lang_stopwords = {get_alpha_2(l): l for l in stopwords._fileids}
 
