@@ -126,7 +126,7 @@ LANGUAGES = [
     {'code':'nr', 'name':'South Ndebele'},
     {'code':'nv', 'name':'Navaho'},
     {'code':'ny', 'name':'Chichewa'},
-    {'code':'oc', 'name':'Occitan (post 1500)'},
+    {'code':'oc', 'name':'Occitan'},
     {'code':'oj', 'name':'Ojibwa'},
     {'code':'om', 'name':'Oromo'},
     {'code':'or', 'name':'Odia'},
