@@ -156,28 +156,33 @@ class RawTextReader(Reader):
         Args:
             text (str): raw text to pre-process.
             max_length (int): maximum number of characters in a single text for
-                spacy, default to 1,000,000 characters (1mb).
+                spacy (for spacy<3 compatibility, as of spacy v3 long texts
+                should be splitted in smaller portions), default to
+                1,000,000 characters (1mb).
             spacy_model (model): an already loaded spacy model.
         """
 
         spacy_model = kwargs.get('spacy_model', None)
 
         if spacy_model is None:
-            max_length = kwargs.get('max_length', 10**6)
+            spacy_kwargs = {'disable': ['ner', 'textcat', 'parser']}
+            if 'max_length' in kwargs and kwargs['max_length']:
+                spacy_kwargs['max_length'] = kwargs['max_length']
+
             try:
-                spacy_model = spacy.load(
-                    str2spacy(self.language), max_length=max_length,
-                    disable=['ner', 'textcat', 'parser'])
+                spacy_model = spacy.load(str2spacy(self.language), **spacy_kwargs)
             except OSError:
                 logging.warning('No spacy model for \'{}\' language.'.format(self.language))
                 logging.warning('Falling back to using english model. There might '
                     'be tokenization and postagging errors. A list of available '
                     'spacy model is available at https://spacy.io/models.'.format(
                         self.language))
-                spacy_model = spacy.load(
-                    str2spacy('en'), max_length=max_length,
-                    disable=['ner', 'textcat', 'parser'])
-            spacy_model.add_pipe(spacy_model.create_pipe('sentencizer'))
+                spacy_model = spacy.load(str2spacy('en'), **spacy_kwargs)
+            if int(spacy.__version__.split('.')[0]) < 3:
+                sentencizer = spacy_model.create_pipe('sentencizer')
+            else:
+                sentencizer = 'sentencizer'
+            spacy_model.add_pipe(sentencizer)
 
         spacy_model = fix_spacy_for_french(spacy_model)
         spacy_doc = spacy_model(text)

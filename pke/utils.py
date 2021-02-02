@@ -68,7 +68,7 @@ def compute_document_frequency(input_dir,
                                stoplist=None,
                                delimiter='\t',
                                n=3,
-                               max_length=10**6,
+                               max_length=None,
                                encoding=None):
     """Compute the n-gram document frequencies from a set of input documents. An
     extra row is added to the output file for specifying the number of
@@ -348,7 +348,7 @@ def compute_lda_model(input_dir,
                       extension="xml",
                       language="en",
                       normalization="stemming",
-                      max_length=10**6,
+                      max_length=None,
                       encoding=None):
     """Compute a LDA model from a collection of documents. Latent Dirichlet
     Allocation is computed using sklearn module.
