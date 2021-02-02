@@ -107,8 +107,14 @@ def list_downloaded_spacy_models():
 
 
 def str2spacy(model):
-    downloaded_models = [os.path.basename(m) for m in list_downloaded_spacy_models()]
-    links = list_linked_spacy_models()
+    if int(spacy.__version__.split('.')[0]) < 3:
+        downloaded_models = [os.path.basename(m) for m in list_downloaded_spacy_models()]
+        links = list_linked_spacy_models()
+    else:
+        # As of spacy v3, links do not exist anymore and it is simpler to get a list of
+        # downloaded models
+        downloaded_models = list(spacy.info()['pipelines'])
+        links = []
     filtered_downloaded = [m for m in downloaded_models if m[:2] == model]
     if model in downloaded_models + links:
         # Check whether `model` is the name of a model/link
