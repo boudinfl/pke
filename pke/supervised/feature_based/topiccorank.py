@@ -250,7 +250,7 @@ class TopicCoRank(TopicRank):
                         r_out += w[j] / outer_norms[j]
 
                 # compute the new weight
-                if self.graph.node[i]["src"] == "topic":
+                if self.graph.nodes[i]["src"] == "topic":
                     weights[i] = (1 - lambda_t) * r_out
                     weights[i] += lambda_t * r_in
                 else:
@@ -267,7 +267,7 @@ class TopicCoRank(TopicRank):
         for i in self.graph.nodes():
 
             # if it is a topic candidate
-            if self.graph.node[i]["src"] == "topic":
+            if self.graph.nodes[i]["src"] == "topic":
 
                 # get the candidates from the topic
                 topic = self.topics[i]
@@ -281,17 +281,17 @@ class TopicCoRank(TopicRank):
             # otherwise it is a keyphrase from the domain
             else:
 
-                gold = self.graph.node[i]["candidate"]
+                gold = self.graph.nodes[i]["candidate"]
 
                 # check if it is acceptable, i.e. if it is directly or
                 # transitively connected to a topic
                 connected = False
                 for j in self.graph.neighbors(i):
-                    if self.graph.node[j]["src"] == "topic":
+                    if self.graph.nodes[j]["src"] == "topic":
                         connected = True
                         break
                     for k in self.graph.neighbors(j):
-                        if self.graph.node[k]["src"] == "topic":
+                        if self.graph.nodes[k]["src"] == "topic":
                             connected = True
                             break
                     if connected:
