@@ -165,24 +165,24 @@ class RawTextReader(Reader):
         spacy_model = kwargs.get('spacy_model', None)
 
         if spacy_model is None:
-            spacy_kwargs = {'disable': ['ner', 'textcat', 'parser']}
-            if 'max_length' in kwargs and kwargs['max_length']:
-                spacy_kwargs['max_length'] = kwargs['max_length']
-
             try:
-                spacy_model = spacy.load(str2spacy(self.language), **spacy_kwargs)
+                spacy_model = spacy.load(str2spacy(self.language),
+                                         disable=['ner', 'textcat', 'parser'])
             except OSError:
                 logging.warning('No spacy model for \'{}\' language.'.format(self.language))
                 logging.warning('Falling back to using english model. There might '
                     'be tokenization and postagging errors. A list of available '
                     'spacy model is available at https://spacy.io/models.'.format(
                         self.language))
-                spacy_model = spacy.load(str2spacy('en'), **spacy_kwargs)
+                spacy_model = spacy.load(str2spacy('en'),
+                                         disable=['ner', 'textcat', 'parser'])
             if int(spacy.__version__.split('.')[0]) < 3:
                 sentencizer = spacy_model.create_pipe('sentencizer')
             else:
                 sentencizer = 'sentencizer'
             spacy_model.add_pipe(sentencizer)
+            if 'max_length' in kwargs and kwargs['max_length']:
+                spacy_model.max_length = kwargs['max_length']
 
         spacy_model = fix_spacy_for_french(spacy_model)
         spacy_doc = spacy_model(text)
@@ -195,12 +195,10 @@ class RawTextReader(Reader):
                 # FIX : This is a fallback if `fix_spacy_for_french` does not work
                 "POS": [token.pos_ or token.tag_ for token in sentence],
                 "char_offsets": [(token.idx, token.idx + len(token.text))
-                                     for token in sentence]
+                                 for token in sentence]
             })
 
-        doc = Document.from_sentences(sentences,
-                                      input_file=kwargs.get('input_file', None),
-                                      **kwargs)
+        doc = Document.from_sentences(
+            sentences, input_file=kwargs.get('input_file', None), **kwargs)
 
         return doc
-
