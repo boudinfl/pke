@@ -79,8 +79,12 @@ def fix_spacy_for_french(nlp):
 
 def list_linked_spacy_models():
     """ Read SPACY/data and return a list of link_name """
-    spacy_data = os.path.join(spacy.info(silent=True)['Location'], 'data')
-    linked = [d for d in os.listdir(spacy_data) if os.path.islink(os.path.join(spacy_data, d))]
+    if spacy.__version__ > "3":
+        spacy_data = os.path.join(spacy.info(silent=True)['location'], 'data')
+    else:
+        spacy_data = os.path.join(spacy.info(silent=True)['Location'], 'data')
+    linked = [d for d in os.listdir(spacy_data) if os.path.islink(
+        os.path.join(spacy_data, d))]
     # linked = [os.path.join(spacy_data, d) for d in os.listdir(spacy_data)]
     # linked = {os.readlink(d): os.path.basename(d) for d in linked if os.path.islink(d)}
     return linked
