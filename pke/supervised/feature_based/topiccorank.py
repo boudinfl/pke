@@ -12,7 +12,7 @@ associated with each other in the training data. The model is described in:
 
 * Adrien Bougouin, Florian Boudin, and Beatrice Daille.
   Keyphrase annotation with graph co-ranking
-  *Proceedings of the COLINGs*, pages 2945–2955, 2016.
+  *Proceedings of the COLING*, pages 2945–2955, 2016.
 """
 
 from __future__ import absolute_import
@@ -42,7 +42,7 @@ class TopicCoRank(TopicRank):
         extractor = pke.unsupervised.TopicCoRank()
 
         # 2. load the content of the document.
-       extractor.load_document(input='path/to/input.xml')
+        extractor.load_document(input='path/to/input.xml')
 
         # 3. select the longest sequences of nouns and adjectives, that do
         #    not contain punctuation marks or stopwords as candidates.
@@ -75,7 +75,7 @@ class TopicCoRank(TopicRank):
 
         Build the topic graph by connecting topics if their candidates
         co-occur in the same sentence. Edges are weighted by the number of
-        oc-occurrences.
+        co-occurrences.
         """
 
         # adding the nodes to the graph
@@ -99,7 +99,10 @@ class TopicCoRank(TopicRank):
                             self.graph.add_edge(i, j, weight=0, type="in")
                         self.graph[i][j]['weight'] += weight
 
-    def unify_with_domain_graph(self, input_file, excluded_file=None):
+    def unify_with_domain_graph(self,
+                                input_file,
+                                excluded_file=None,
+                                prune_unreachable_nodes=True):
         """Unify the domain graph, built from a reference file, with the topic
         graph, built from a document.
 
@@ -107,22 +110,18 @@ class TopicCoRank(TopicRank):
             input_file (str): path to the reference file.
             excluded_file (str): file to exclude (for leave-one-out
                 cross-validation), defaults to None.
+            prune_unreachable_nodes (bool): prune nodes from the domain graph
+                that are not reachable from the document nodes, defaults to
+                True.
         """
 
         if input_file.endswith('.json'):
             references = load_references(input_file=input_file,
-                                         language=self.language)
+                                         language=self.language,
+                                         excluded_file=excluded_file)
         else:
             logging.warning("{} is not a reference file".format(input_file))
             pass
-
-        # remove excluded file if needed
-        if excluded_file is not None:
-            if excluded_file not in references:
-                logging.warning("{} is not in reference".format(excluded_file))
-            else:
-                logging.info("{} removed from reference".format(excluded_file))
-                del references[excluded_file]
 
         # initialize the topic_to_integer map
         for i, topic in enumerate(self.topics):
@@ -146,7 +145,7 @@ class TopicCoRank(TopicRank):
                     if gold_1 in self.topic_to_integer:
                         self.graph.add_edge(self.domain_to_integer[gold_1],
                                             self.topic_to_integer[gold_1],
-                                            weight=0, type="out")
+                                            weight=1, type="out")
 
                     offset += 1
 
@@ -158,7 +157,7 @@ class TopicCoRank(TopicRank):
                     if gold_2 in self.topic_to_integer:
                         self.graph.add_edge(self.domain_to_integer[gold_2],
                                             self.topic_to_integer[gold_2],
-                                            weight=0, type="out")
+                                            weight=1, type="out")
 
                     offset += 1
 
@@ -169,6 +168,17 @@ class TopicCoRank(TopicRank):
                 if not self.graph.has_edge(node_1, node_2):
                     self.graph.add_edge(node_1, node_2, weight=0, type="in")
                 self.graph[node_1][node_2]['weight'] += 1
+
+        # prune not reachable domain nodes
+        if prune_unreachable_nodes:
+
+            # find all descendants
+            descendants = set()
+            for i in range(len(self.topics)):
+                descendants.update(nx.algorithms.descendants(self.graph, i))
+
+            # remove unreachable nodes
+            self.graph.remove_nodes_from(set(self.graph.nodes) - descendants)
 
     def candidate_weighting(self,
                             input_file=None,

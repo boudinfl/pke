@@ -265,7 +265,8 @@ def load_references(input_file,
                     sep_ref_keyphrases=',',
                     normalize_reference=False,
                     language="en",
-                    encoding=None):
+                    encoding=None,
+                    excluded_file=None):
     """Load a reference file. Reference file can be either in json format or in
     the SemEval-2010 official format.
 
@@ -280,6 +281,8 @@ def load_references(input_file,
         language (str): language of the input documents (used for computing the
             stems), defaults to 'en' (english).
         encoding (str): file encoding, default to None.
+        excluded_file (str): file to exclude (for leave-one-out
+            cross-validation), defaults to None.
     """
 
     logging.info('loading reference keyphrases from {}'.format(input_file))
@@ -319,6 +322,14 @@ def load_references(input_file,
                 for i, keyphrase in enumerate(references[doc_id]):
                     stems = [stem(w) for w in keyphrase.split()]
                     references[doc_id][i] = ' '.join(stems)
+
+    # remove excluded file if needed
+    if excluded_file is not None:
+        if excluded_file not in references:
+            logging.warning("{} is not in references".format(excluded_file))
+        else:
+            logging.info("{} removed from references".format(excluded_file))
+            del references[excluded_file]
 
     return references
 
