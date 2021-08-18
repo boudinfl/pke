@@ -183,6 +183,7 @@ class TopicCoRank(TopicRank):
     def candidate_weighting(self,
                             input_file=None,
                             excluded_file=None,
+                            prune_unreachable_nodes=True,
                             lambda_t=0.1,
                             lambda_k=0.5,
                             nb_iter=100,
@@ -210,7 +211,8 @@ class TopicCoRank(TopicRank):
 
         # unify with domain graph
         self.unify_with_domain_graph(input_file=input_file,
-                                     excluded_file=excluded_file)
+                                     excluded_file=excluded_file,
+                                     prune_unreachable_nodes=prune_unreachable_nodes)
 
         logging.info("resulting graph is {} nodes".format(
                                                     len(self.graph.nodes())))
