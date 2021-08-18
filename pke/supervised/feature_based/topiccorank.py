@@ -121,6 +121,7 @@ class TopicCoRank(TopicRank):
                                          excluded_file=excluded_file)
         else:
             logging.warning("{} is not a reference file".format(input_file))
+            references = {}
             pass
 
         # initialize the topic_to_integer map
@@ -214,14 +215,18 @@ class TopicCoRank(TopicRank):
                                      excluded_file=excluded_file,
                                      prune_unreachable_nodes=prune_unreachable_nodes)
 
-        logging.info("resulting graph is {} nodes".format(
-                                                    len(self.graph.nodes())))
+        nb_nodes = len(self.graph.nodes)
 
-        weights = [1.0] * len(self.graph.nodes)
+        logging.info("resulting graph is {} nodes".format(nb_nodes))
+
+        # weights = [1.0] * nb_nodes
+        weights = defaultdict(lambda:1.0)
 
         # pre-compute the inner/outer normalizations
-        inner_norms = [0.0] * len(self.graph.nodes())
-        outer_norms = [0.0] * len(self.graph.nodes())
+        # inner_norms = [0.0] * nb_nodes
+        # outer_norms = [0.0] * nb_nodes
+        inner_norms = defaultdict(lambda:0.0)
+        outer_norms = defaultdict(lambda:0.0)
 
         for j in self.graph.nodes():
             inner_norm = 0
