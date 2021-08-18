@@ -220,8 +220,8 @@ class TopicCoRank(TopicRank):
         weights = [1.0] * len(self.graph.nodes)
 
         # pre-compute the inner/outer normalizations
-        inner_norms = [0.0] * len(self.graph.nodes)
-        outer_norms = [0.0] * len(self.graph.nodes)
+        inner_norms = [0.0] * len(self.graph.nodes())
+        outer_norms = [0.0] * len(self.graph.nodes())
 
         for j in self.graph.nodes():
             inner_norm = 0
