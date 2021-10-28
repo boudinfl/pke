@@ -107,8 +107,14 @@ def list_downloaded_spacy_models():
 
 
 def str2spacy(model):
-    downloaded_models = [os.path.basename(m) for m in list_downloaded_spacy_models()]
-    links = list_linked_spacy_models()
+    if int(spacy.__version__.split('.')[0]) < 3:
+        downloaded_models = [os.path.basename(m) for m in list_downloaded_spacy_models()]
+        links = list_linked_spacy_models()
+    else:
+        # As of spacy v3, links do not exist anymore and it is simpler to get a list of
+        # downloaded models
+        downloaded_models = list(spacy.info()['pipelines'])
+        links = []
     filtered_downloaded = [m for m in downloaded_models if m[:2] == model]
     if model in downloaded_models + links:
         # Check whether `model` is the name of a model/link
@@ -150,33 +156,36 @@ class RawTextReader(Reader):
         Args:
             text (str): raw text to pre-process.
             max_length (int): maximum number of characters in a single text for
-                spacy, default to 1,000,000 characters (1mb).
+                spacy (for spacy<3 compatibility, as of spacy v3 long texts
+                should be splitted in smaller portions), default to
+                1,000,000 characters (1mb).
             spacy_model (model): an already loaded spacy model.
         """
 
         spacy_model = kwargs.get('spacy_model', None)
 
-        if spacy_model is not None:
-            spacy_model = fix_spacy_for_french(spacy_model)
-            spacy_doc = spacy_model(text)
-        else:
-            max_length = kwargs.get('max_length', 10**6)
+        if spacy_model is None:
             try:
-                nlp = spacy.load(str2spacy(self.language),
-                                 max_length=max_length,
-                                 disable=['ner', 'textcat', 'parser'])
+                spacy_model = spacy.load(str2spacy(self.language),
+                                         disable=['ner', 'textcat', 'parser'])
             except OSError:
                 logging.warning('No spacy model for \'{}\' language.'.format(self.language))
                 logging.warning('Falling back to using english model. There might '
                     'be tokenization and postagging errors. A list of available '
                     'spacy model is available at https://spacy.io/models.'.format(
                         self.language))
-                nlp = spacy.load(str2spacy('en'),
-                                 max_length=max_length,
-                                 disable=['ner', 'textcat', 'parser'])
-            nlp.add_pipe(nlp.create_pipe('sentencizer'))
-            nlp = fix_spacy_for_french(nlp)
-            spacy_doc = nlp(text)
+                spacy_model = spacy.load(str2spacy('en'),
+                                         disable=['ner', 'textcat', 'parser'])
+            if int(spacy.__version__.split('.')[0]) < 3:
+                sentencizer = spacy_model.create_pipe('sentencizer')
+            else:
+                sentencizer = 'sentencizer'
+            spacy_model.add_pipe(sentencizer)
+            if 'max_length' in kwargs and kwargs['max_length']:
+                spacy_model.max_length = kwargs['max_length']
+
+        spacy_model = fix_spacy_for_french(spacy_model)
+        spacy_doc = spacy_model(text)
 
         sentences = []
         for sentence_id, sentence in enumerate(spacy_doc.sents):
@@ -186,12 +195,10 @@ class RawTextReader(Reader):
                 # FIX : This is a fallback if `fix_spacy_for_french` does not work
                 "POS": [token.pos_ or token.tag_ for token in sentence],
                 "char_offsets": [(token.idx, token.idx + len(token.text))
-                                     for token in sentence]
+                                 for token in sentence]
             })
 
-        doc = Document.from_sentences(sentences,
-                                      input_file=kwargs.get('input_file', None),
-                                      **kwargs)
+        doc = Document.from_sentences(
+            sentences, input_file=kwargs.get('input_file', None), **kwargs)
 
         return doc
-

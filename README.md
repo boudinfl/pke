@@ -30,7 +30,7 @@ pip install git+https://github.com/boudinfl/pke.git
 ```bash
 python -m nltk.downloader stopwords
 python -m nltk.downloader universal_tagset
-python -m spacy download en # download the english model
+python -m spacy download en_core_web_sm # download the english model
 ```
 
 As of April 2019, `pke` only supports Python 3.6+.

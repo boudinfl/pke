@@ -18,6 +18,7 @@ import bisect
 import codecs
 import logging
 
+from itertools import combinations, product
 from collections import defaultdict
 
 from pke.base import LoadFile, get_stopwords, get_stemmer_func
@@ -67,7 +68,7 @@ def compute_document_frequency(input_dir,
                                stoplist=None,
                                delimiter='\t',
                                n=3,
-                               max_length=10**6,
+                               max_length=None,
                                encoding=None):
     """Compute the n-gram document frequencies from a set of input documents. An
     extra row is added to the output file for specifying the number of
@@ -264,7 +265,8 @@ def load_references(input_file,
                     sep_ref_keyphrases=',',
                     normalize_reference=False,
                     language="en",
-                    encoding=None):
+                    encoding=None,
+                    excluded_file=None):
     """Load a reference file. Reference file can be either in json format or in
     the SemEval-2010 official format.
 
@@ -279,6 +281,8 @@ def load_references(input_file,
         language (str): language of the input documents (used for computing the
             stems), defaults to 'en' (english).
         encoding (str): file encoding, default to None.
+        excluded_file (str): file to exclude (for leave-one-out
+            cross-validation), defaults to None.
     """
 
     logging.info('loading reference keyphrases from {}'.format(input_file))
@@ -319,6 +323,14 @@ def load_references(input_file,
                     stems = [stem(w) for w in keyphrase.split()]
                     references[doc_id][i] = ' '.join(stems)
 
+    # remove excluded file if needed
+    if excluded_file is not None:
+        if excluded_file not in references:
+            logging.warning("{} is not in references".format(excluded_file))
+        else:
+            logging.info("{} removed from references".format(excluded_file))
+            del references[excluded_file]
+
     return references
 
 
@@ -347,7 +359,7 @@ def compute_lda_model(input_dir,
                       extension="xml",
                       language="en",
                       normalization="stemming",
-                      max_length=10**6,
+                      max_length=None,
                       encoding=None):
     """Compute a LDA model from a collection of documents. Latent Dirichlet
     Allocation is computed using sklearn module.
@@ -568,12 +580,14 @@ def compute_pairwise_similarity_matrix(input_dir,
 
         # compute TF*IDF weights
         for stem in documents[input_file]:
-            documents[input_file][stem] *= math.log(N / (1+df.get(stem, 1)), 2)
+            documents[input_file][stem] *= math.log(N / df.get(stem, 1), 2)
 
     # consider input documents as collection if None provided
     if not collection:
         collection = documents
-
+        iterator = combinations(documents, 2)
+    else:
+        iterator = product(documents, collection)
 
     # create directories from path if not exists
     if os.path.dirname(output_file):
@@ -583,27 +597,23 @@ def compute_pairwise_similarity_matrix(input_dir,
     with gzip.open(output_file, 'wt', encoding='utf-8') as f:
 
         # compute pairwise similarity scores
-        for doc_i in documents:
-            for doc_j in collection:
-                if doc_i == doc_j:
-                    continue
+        for doc_i, doc_j in iterator:
+            # inner product
+            inner = 0.0
+            for stem in set(documents[doc_i]) & set(collection[doc_j]):
+                inner += documents[doc_i][stem] * collection[doc_j][stem]
 
-                # inner product
-                inner = 0.0
-                for stem in set(documents[doc_i]) & set(collection[doc_j]):
-                    inner += documents[doc_i][stem] * collection[doc_j][stem]
+            # norms
+            norm_i = sum([math.pow(documents[doc_i][t], 2) for t in
+                          documents[doc_i]])
+            norm_i = math.sqrt(norm_i)
+            norm_j = sum([math.pow(collection[doc_j][t], 2) for t in
+                          collection[doc_j]])
+            norm_j = math.sqrt(norm_j)
 
-                # norms
-                norm_i = sum([math.pow(documents[doc_i][t], 2) for t in
-                              documents[doc_i]])
-                norm_i = math.sqrt(norm_i)
-                norm_j = sum([math.pow(collection[doc_j][t], 2) for t in
-                              collection[doc_j]])
-                norm_j = math.sqrt(norm_j)
+            # compute cosine
+            cosine = inner / (norm_i * norm_j)
 
-                # compute cosine
-                cosine = inner / (norm_i * norm_j)
-
-                # write line to output file
-                line = doc_i + '\t' + doc_j + '\t' + str(cosine) + '\n'
-                f.write(line)
+            # write line to output file
+            line = doc_i + '\t' + doc_j + '\t' + str(cosine) + '\n'
+            f.write(line)
