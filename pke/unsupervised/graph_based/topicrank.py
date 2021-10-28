@@ -97,9 +97,11 @@ class TopicRank(LoadFile):
             stoplist = self.stoplist
 
         # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=list(string.punctuation) +
-                                          ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-'] +
-                                          stoplist)
+        self.candidate_filtering(stoplist=(
+            list(string.punctuation)
+            + ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
+            + stoplist
+        ))
 
     def vectorize_candidates(self):
         """Vectorize the keyphrase candidates.
@@ -206,9 +208,9 @@ class TopicRank(LoadFile):
                 to 0.74.
             method (str): the linkage method, defaults to average.
             heuristic (str): the heuristic for selecting the best candidate for
-                each topic, defaults to first occurring candidate. Other options
-                are 'frequent' (most frequent candidate, position is used for
-                ties).
+                each topic, defaults to first occurring candidate. Other
+                options are 'frequent' (most frequent candidate, position is
+                used for ties).
 
         """
         if not self.candidates:
