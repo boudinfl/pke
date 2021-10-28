@@ -50,9 +50,9 @@ class MultipartiteRank(TopicRank):
         stoplist += stopwords.words('english')
         extractor.candidate_selection(pos=pos, stoplist=stoplist)
 
-        # 4. build the Multipartite graph and rank candidates using random walk,
-        #    alpha controls the weight adjustment mechanism, see TopicRank for
-        #    threshold/method parameters.
+        # 4. build the Multipartite graph and rank candidates using random
+        #    walk, alpha controls the weight adjustment mechanism, see
+        #    TopicRank for threshold/method parameters.
         extractor.candidate_weighting(alpha=1.1,
                                       threshold=0.74,
                                       method='average')
@@ -82,7 +82,7 @@ class MultipartiteRank(TopicRank):
             Args:
                 threshold (float): the minimum similarity for clustering,
                     defaults to 0.74, i.e. more than 1/4 of stem overlap
-                    similarity. 
+                    similarity.
                 method (str): the linkage method, defaults to average.
         """
 
@@ -125,7 +125,8 @@ class MultipartiteRank(TopicRank):
         for node_i, node_j in combinations(self.candidates.keys(), 2):
 
             # discard intra-topic edges
-            if self.topic_identifiers[node_i] == self.topic_identifiers[node_j]:
+            if self.topic_identifiers[node_i] \
+               == self.topic_identifiers[node_j]:
                 continue
 
             weights = []
@@ -136,14 +137,23 @@ class MultipartiteRank(TopicRank):
                     gap = abs(p_i - p_j)
 
                     # alter gap according to candidate length
+                    # if candidates overlap gap is 1
                     if p_i < p_j:
-                        gap -= len(self.candidates[node_i].lexical_form) - 1
+                        len_i = len(self.candidates[node_i].lexical_form)
+                        if gap < len_i:
+                            gap = 1
+                        else:
+                            gap -= len_i - 1
                     if p_j < p_i:
-                        gap -= len(self.candidates[node_j].lexical_form) - 1
+                        len_j = len(self.candidates[node_j].lexical_form)
+                        if gap < len_j:
+                            gap = 1
+                        else:
+                            gap -= len_j - 1
 
                     weights.append(1.0 / gap)
 
-            # add weighted edges 
+            # add weighted edges
             if weights:
                 # node_i -> node_j
                 self.graph.add_edge(node_i, node_j, weight=sum(weights))
@@ -154,8 +164,8 @@ class MultipartiteRank(TopicRank):
         """ Adjust edge weights for boosting some candidates.
 
             Args:
-                alpha (float): hyper-parameter that controls the strength of the
-                    weight adjustment, defaults to 1.1.
+                alpha (float): hyper-parameter that controls the strength of
+                    the weight adjustment, defaults to 1.1.
         """
 
         # weighted_edges = defaultdict(list)
@@ -195,7 +205,8 @@ class MultipartiteRank(TopicRank):
             node_i, node_j = nodes
             position_i = 1.0 / (1 + self.candidates[node_i].offsets[0])
             position_i = math.exp(position_i)
-            self.graph[node_j][node_i]['weight'] += (boosters * alpha * position_i)
+            self.graph[node_j][node_i]['weight'] += (
+                boosters * alpha * position_i)
 
     def candidate_weighting(self,
                             threshold=0.74,
@@ -207,8 +218,8 @@ class MultipartiteRank(TopicRank):
                 threshold (float): the minimum similarity for clustering,
                     defaults to 0.25.
                 method (str): the linkage method, defaults to average.
-                alpha (float): hyper-parameter that controls the strength of the
-                    weight adjustment, defaults to 1.1.
+                alpha (float): hyper-parameter that controls the strength of
+                    the weight adjustment, defaults to 1.1.
         """
         if not self.candidates:
             return

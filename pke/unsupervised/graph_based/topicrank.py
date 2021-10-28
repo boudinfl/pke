@@ -97,9 +97,11 @@ class TopicRank(LoadFile):
             stoplist = self.stoplist
 
         # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=list(string.punctuation) +
-                                          ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-'] +
-                                          stoplist)
+        self.candidate_filtering(stoplist=(
+            list(string.punctuation)
+            + ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
+            + stoplist
+        ))
 
     def vectorize_candidates(self):
         """Vectorize the keyphrase candidates.
@@ -175,11 +177,24 @@ class TopicRank(LoadFile):
                 for c_j in self.topics[j]:
                     for p_i in self.candidates[c_i].offsets:
                         for p_j in self.candidates[c_j].offsets:
+                            # compute gap
                             gap = abs(p_i - p_j)
+
+                            # alter gap according to candidate length
+                            # if candidates overlap gap is 1
                             if p_i < p_j:
-                                gap -= len(self.candidates[c_i].lexical_form) - 1
+                                len_i = len(self.candidates[c_i].lexical_form)
+                                if gap < len_i:
+                                    gap = 1
+                                else:
+                                    gap -= len_i - 1
                             if p_j < p_i:
-                                gap -= len(self.candidates[c_j].lexical_form) - 1
+                                len_j = len(self.candidates[c_j].lexical_form)
+                                if gap < len_j:
+                                    gap = 1
+                                else:
+                                    gap -= len_j - 1
+
                             self.graph[i][j]['weight'] += 1.0 / gap
 
     def candidate_weighting(self,
@@ -193,9 +208,9 @@ class TopicRank(LoadFile):
                 to 0.74.
             method (str): the linkage method, defaults to average.
             heuristic (str): the heuristic for selecting the best candidate for
-                each topic, defaults to first occurring candidate. Other options
-                are 'frequent' (most frequent candidate, position is used for
-                ties).
+                each topic, defaults to first occurring candidate. Other
+                options are 'frequent' (most frequent candidate, position is
+                used for ties).
 
         """
         if not self.candidates:
