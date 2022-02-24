@@ -58,6 +58,7 @@ class FirstPhrases(LoadFile):
         """Candidate weighting function using position."""
 
         # rank candidates using inverse position
+        self.weights = {}
         for k in self.candidates.keys():
             # the '-' ensures that the first item will have the higher weight
             self.weights[k] = -min(self.candidates[k].offsets)

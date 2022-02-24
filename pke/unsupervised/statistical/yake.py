@@ -335,6 +335,11 @@ class YAKE(LoadFile):
         if not self.candidates:
             return
 
+        self.words = defaultdict(set)
+        self.contexts = defaultdict(lambda: ([], []))
+        self.features = defaultdict(dict)
+        self.surface_to_lexical = {}
+
         # build the vocabulary
         self._vocabulary_building(use_stems=use_stems)
 
@@ -345,6 +350,7 @@ class YAKE(LoadFile):
         self._feature_extraction(stoplist=stoplist)
 
         # compute candidate weights
+        self.weights = {}
         for k, v in self.candidates.items():
 
             # use stems

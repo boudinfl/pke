@@ -159,6 +159,8 @@ class EmbedRank(LoadFile):
         cand = [k.lower() if lower else k for k in cand]
         cand_embed = self._embedding_model.embed_sentences(cand)
         rank = self.mmr_ranking(doc_embed, cand_embed, l)
+
+        self.weights = {}
         for candidate_id, r in enumerate(rank):
             if len(rank) > 1:
                 # Inverting ranks so the first ranked candidate has the biggest score

@@ -74,6 +74,30 @@ class Candidate(object):
         self.lexical_form = []
         """ the lexical form of the candidate. """
 
+    def __eq__(self, other):
+        """Compares two candidates for equality."""
+
+        if type(self) != type(other):
+            return False
+
+        if self.surface_forms != other.surface_forms:
+            return False
+
+        if self.offsets != other.offsets:
+            return False
+
+        if self.sentence_ids != other.sentence_ids:
+            return False
+
+        if self.pos_patterns != other.pos_patterns:
+            return False
+
+        if self.lexical_form != other.lexical_form:
+            return False
+
+        return True
+
+
 
 class Document(object):
     """The Document data structure."""

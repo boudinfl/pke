@@ -83,6 +83,7 @@ class TfIdf(LoadFile):
         N = 1 + df.get('--NB_DOC--', 0)
 
         # loop throught the candidates
+        self.weights = {}
         for k, v in self.candidates.items():
 
             # get candidate document frequency

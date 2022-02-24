@@ -148,6 +148,8 @@ class LoadFile(object):
                 'stemming'. Other possible values are 'lemmatization' or 'None'
                 for using word surface forms instead of stems/lemmas.
         """
+        # Reset object for new document
+        self.__init__()
 
         # get the language parameter
         language = kwargs.get('language', 'en')
@@ -336,7 +338,7 @@ class LoadFile(object):
         Args:
             n (int): the n-gram length, defaults to 3.
         """
-
+        self.candidates = defaultdict(Candidate)
         # loop through the sentences
         for i, sentence in enumerate(self.sentences):
 
@@ -357,10 +359,12 @@ class LoadFile(object):
                                        sentence_id=i)
 
     def longest_pos_sequence_selection(self, valid_pos=None):
+        self.candidates = defaultdict(Candidate)
         self.longest_sequence_selection(
             key=lambda s: s.pos, valid_values=valid_pos)
 
     def longest_keyword_sequence_selection(self, keywords):
+        self.candidates = defaultdict(Candidate)
         self.longest_sequence_selection(
             key=lambda s: s.stems, valid_values=keywords)
 
@@ -410,7 +414,7 @@ class LoadFile(object):
         Args:
             grammar (str): grammar defining POS patterns of NPs.
         """
-
+        self.candidates = defaultdict(Candidate)
         # initialize default grammar if none provided
         if grammar is None:
             grammar = r"""
@@ -540,4 +544,27 @@ class LoadFile(object):
                 if not all([self._is_alphanum(w, valid_punctuation_marks)
                             for w in words]):
                     del self.candidates[k]
+
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        if self.input_file != other.input_file:
+            return False
+        if self.language != other.language:
+            return False
+        if self.normalization != other.normalization:
+            return False
+        if self.sentences != other.sentences:
+            return False
+        if self.candidates != other.candidates:
+            return False
+        if self.weights != other.weights:
+            return False
+        if self._models != other._models:
+            return False
+        if self._df_counts != other._df_counts:
+            return False
+        if self.stoplist != other.stoplist:
+            return False
+        return True
 

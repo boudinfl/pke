@@ -87,6 +87,7 @@ class SingleRank(TextRank):
         text = [(word, sentence.pos[i] in pos) for sentence in self.sentences
                 for i, word in enumerate(sentence.stems)]
 
+        self.graph = nx.Graph()
         # add nodes to the graph
         self.graph.add_nodes_from([word for word, valid in text if valid])
 
@@ -131,6 +132,7 @@ class SingleRank(TextRank):
                               weight='weight')
 
         # loop through the candidates
+        self.weight = {}
         for k in self.candidates.keys():
             tokens = self.candidates[k].lexical_form
             self.weights[k] = sum([w[t] for t in tokens])

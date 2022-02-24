@@ -137,6 +137,7 @@ class KPMiner(LoadFile):
         B = min(N_d / (P_d * alpha), sigma)
 
         # loop throught the candidates
+        self.weights = {}
         for k, v in self.candidates.items():
 
             # get candidate document frequency

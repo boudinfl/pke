@@ -69,6 +69,7 @@ class SupervisedLoadFile(LoadFile):
         # classify candidates
         y = clf.predict_proba(X)
 
+        self.weights = {}
         for i, candidate in enumerate(candidates):
             self.weights[candidate] = y[i][1]
 

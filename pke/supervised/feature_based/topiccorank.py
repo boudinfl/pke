@@ -79,6 +79,7 @@ class TopicCoRank(TopicRank):
         """
 
         # adding the nodes to the graph
+        self.graph = nx.Graph()
         self.graph.add_nodes_from(range(len(self.topics)), src="topic")
 
         # loop through the topics to connect the nodes
@@ -125,6 +126,7 @@ class TopicCoRank(TopicRank):
             pass
 
         # initialize the topic_to_integer map
+        self.topic_to_integer = {}
         for i, topic in enumerate(self.topics):
             for candidate in topic:
                 self.topic_to_integer[candidate] = i
@@ -132,6 +134,7 @@ class TopicCoRank(TopicRank):
         offset = len(self.topics)
 
         # loop through the doc_ids
+        self.domain_to_integer = {}
         for doc_id in references:
 
             # for each pair of gold keyphrases

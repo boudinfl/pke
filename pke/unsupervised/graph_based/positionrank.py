@@ -127,6 +127,7 @@ class PositionRank(SingleRank):
                     text.append((word, shift+j))
 
         # add nodes to the graph
+        self.graph = nx.Graph()
         self.graph.add_nodes_from([word for (word, position) in text])
 
         # add edges to the graph
@@ -141,6 +142,7 @@ class PositionRank(SingleRank):
                 j = j + 1
 
         # compute the sums of the word's inverse positions
+        self.positions = defaultdict(float)
         for word, position in text:
             self.positions[word] += 1 / (position + 1)
 
@@ -176,6 +178,7 @@ class PositionRank(SingleRank):
                         weight='weight')
 
         # loop through the candidates
+        self.weights = {}
         for k in self.candidates.keys():
             tokens = self.candidates[k].lexical_form
             self.weights[k] = sum([w.get(t, 0.0) for t in tokens])

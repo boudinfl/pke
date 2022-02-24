@@ -156,6 +156,7 @@ class CollabRank(SingleRank):
         w = nx.pagerank_scipy(self.graph, alpha=0.85, weight='weight')
 
         # loop through the candidates
+        self.weights = {}
         for k in self.candidates.keys():
             tokens = self.candidates[k].lexical_form
             self.weights[k] = sum([w[t] for t in tokens])

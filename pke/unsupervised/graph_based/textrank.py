@@ -104,6 +104,7 @@ class TextRank(LoadFile):
             pos (set): the set of valid pos for words to be considered as nodes
                 in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
         """
+        self.graph = nx.Graph()
 
         if pos is None:
             pos = {'NOUN', 'PROPN', 'ADJ'}
@@ -174,6 +175,7 @@ class TextRank(LoadFile):
             # creating keyphrases from the T-top words
             self.longest_keyword_sequence_selection(top_words[:int(to_keep)])
 
+        self.weights = {}
         # weight candidates using the sum of their word scores
         for k in self.candidates.keys():
             tokens = self.candidates[k].lexical_form
