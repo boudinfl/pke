@@ -37,7 +37,7 @@ class EmbedRank(LoadFile):
     _embedding_path = None
     _embedding_model = None
 
-    def __init__(self, embedding_path=None):
+    def __init__(self):
         try:
             import sent2vec  # See https://github.com/epfml/sent2vec
         except ImportError:
@@ -45,33 +45,47 @@ class EmbedRank(LoadFile):
             logging.warning('Please install using `python -m pip install cython;'
                             'python -m pip install git+https://github.com/epfml/sent2vec` '
                             'to use EmbedRank')
-            return
 
         super(EmbedRank, self).__init__()
 
+        # Initialize _pos here, if another selection function is used.
+        self._pos = {'NOUN', 'PROPN', 'ADJ'}
+
+    def load_sent2vec_model(self, embedding_path=None):
+        import sent2vec
+
+        # By default load 'wiki_bigrams.bin'
         if embedding_path is None:
             model_name = 'wiki_bigrams.bin'
             self._embedding_path = os.path.join(self._models, model_name)
         else:
             self._embedding_path = embedding_path
 
+        # `self._embedding_path` is already in the cache
+        if EmbedRank._embedding_path == self._embedding_path and EmbedRank._embedding_model is not None:
+            self._embedding_model = EmbedRank._embedding_model
+            return True
+
+        # Ensure that `self._embedding_path` exists
         if not os.path.exists(self._embedding_path):
             logging.error('Could not find {}'.format(self._embedding_path))
             logging.error('Please download "sent2vec_wiki_bigrams" model from '
                             'https://github.com/epfml/sent2vec#downloading-sent2vec-pre-trained-models.')
             logging.error('And place it in {}.'.format(self._models))
             logging.error('Or provide an embedding path.')
+            return False
 
-        if EmbedRank._embedding_path is None or EmbedRank._embedding_path != self._embedding_path:
+        # If the needed model is not in the cache or there's nothing in the cache
+        if EmbedRank._embedding_path != self._embedding_path or EmbedRank._embedding_path is None:
             logging.info('Loading sent2vec model')
             EmbedRank._embedding_model = sent2vec.Sent2vecModel()
             EmbedRank._embedding_model.load_model(self._embedding_path)
             self._embedding_model = EmbedRank._embedding_model
             EmbedRank._embedding_path = self._embedding_path
             logging.info('Done loading sent2vec model')
+            return True
 
-        # Initialize _pos here, if another selection function is used.
-        self._pos = {'NOUN', 'PROPN', 'ADJ'}
+        return False
 
     def candidate_selection(self, pos=None):
         """Candidate selection using longest sequences of PoS.
@@ -138,7 +152,7 @@ class EmbedRank(LoadFile):
 
         return ranks
 
-    def candidate_weighting(self, l=1, lower=False):
+    def candidate_weighting(self, l=1, lower=False, embedding_path=None):
         """Candidate weighting function using distance to document.
 
         Args:
@@ -147,6 +161,10 @@ class EmbedRank(LoadFile):
             use the document, but only the most diverse set of candidates
             (defaults to 1).
         """
+
+        if not self.load_sent2vec_model(embedding_path=embedding_path):
+            return
+
         # Flatten sentences and remove words with unvalid POS
         doc = ' '.join(w.lower() if lower else w for s in self.sentences
                        for i, w in enumerate(s.words)

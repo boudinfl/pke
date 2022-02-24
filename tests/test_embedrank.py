@@ -23,11 +23,12 @@ pos = {'NOUN', 'PROPN', 'ADJ'}
 
 def test_embedrank_candidate_weighting():
     """Test SingleRank candidate weighting method."""
-    extractor = pke.unsupervised.EmbedRank(
-        embedding_path=os.path.join('tests', 'data', 'inspec_sent2vec.bin'))
+    extractor = pke.unsupervised.EmbedRank()
     extractor.load_document(input=text)
     extractor.candidate_selection()
-    extractor.candidate_weighting(l=1)
+    extractor.candidate_weighting(
+        l=1,
+        embedding_path=os.path.join('tests', 'data', 'inspec_sent2vec.bin'))
     keyphrases = [k for k, s in extractor.get_n_best(n=3)]
     assert keyphrases == ['systems', 'types systems', 'algorithms']
 
