@@ -1,4 +1,3 @@
-six
 spacy
 nltk
 networkx

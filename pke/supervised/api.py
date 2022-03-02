@@ -6,7 +6,6 @@ from __future__ import division
 from __future__ import absolute_import
 
 import os
-import six
 
 from pke.base import LoadFile
 from sklearn.preprocessing import MinMaxScaler
@@ -49,13 +48,7 @@ class SupervisedLoadFile(LoadFile):
         # set the default model if none provided
         if model is None:
             instance = self.__class__.__name__
-            # model = os.path.join(self._models, instance+"-semeval2010.pickle")
-            if six.PY2:
-                model = os.path.join(self._models,
-                                     instance + "-semeval2010.py2.pickle")
-            else:
-                model = os.path.join(self._models,
-                                     instance + "-semeval2010.py3.pickle")
+            model = os.path.join(self._models, instance + "-semeval2010.py3.pickle")
 
         # load the model
         clf = load_model(model)
