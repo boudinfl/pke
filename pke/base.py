@@ -8,18 +8,17 @@ from pke.data_structures import Candidate, Document
 from pke.readers import MinimalCoreNLPReader, RawTextReader
 
 from nltk import RegexpParser
-from nltk.corpus import stopwords
+#from nltk.corpus import stopwords
 from nltk.tag.mapping import map_tag
-from nltk.stem.snowball import SnowballStemmer, PorterStemmer
+from nltk.stem.snowball import SnowballStemmer
 
+from .stopwords import stopwords
 from .langcodes import LANGUAGE_CODE_BY_NAME
 
 from string import punctuation
 import os
 import logging
-import codecs
 
-from six import string_types
 
 from builtins import str
 
@@ -28,37 +27,10 @@ from builtins import str
 
 get_alpha_2 = lambda l: LANGUAGE_CODE_BY_NAME[l]
 
-lang_stopwords = {get_alpha_2(l): l for l in stopwords._fileids}
-
 lang_stem = {get_alpha_2(l): l for l in set(SnowballStemmer.languages) - set(['porter'])}
 lang_stem.update({'en': 'porter'})
 
 PRINT_NO_STEM_WARNING = defaultdict(lambda: True)
-PRINT_NO_STWO_WARNING = defaultdict(lambda: True)
-
-
-def get_stopwords(lang):
-    """Provide stopwords for the given language, or default value.
-
-    If stopwords are not available for a given language, a default value is
-    returned and a warning is displayed
-    :param lang: Alpha-2 language code.
-    :type lang: str
-    :returns: A list of stop words or an empty list.
-    :rtype: {List}
-    """
-    global PRINT_NO_STWO_WARNING
-    try:
-        lang = lang_stopwords[lang]
-        return stopwords.words(lang)
-    except KeyError:
-        if PRINT_NO_STWO_WARNING[lang]:
-            logging.warning('No stopwords for \'{}\' language.'.format(lang))
-            logging.warning(
-                'Please provide custom stoplist if willing to use stopwords. Or '
-                'update nltk\'s `stopwords` corpora using `nltk.download(\'stopwords\')`')
-            PRINT_NO_STWO_WARNING[lang] = False
-        return []
 
 
 def get_stemmer_func(lang):
@@ -184,7 +156,10 @@ class LoadFile(object):
         self.sentences = doc.sentences
 
         # initialize the stoplist
-        self.stoplist = get_stopwords(self.language)
+        if self.language in stopwords:
+            self.stoplist = stopwords[self.language]
+        else:
+            logging.warning('No stopwords for \'{}\' language.'.format(self.language))
 
         # word normalization
         self.normalization = kwargs.get('normalization', 'stemming')
