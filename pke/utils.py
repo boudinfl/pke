@@ -71,8 +71,7 @@ def compute_document_frequency(input_dir,
                                normalization="stemming",
                                delimiter='\t',
                                n=3,
-                               max_length=None,
-                               encoding=None):
+                               max_length=None):
     """Compute the n-gram document frequencies from a set of input documents. An
     extra row is added to the output file for specifying the number of
     documents from which the document frequencies were computed
@@ -92,7 +91,6 @@ def compute_document_frequency(input_dir,
         delimiter (str): the delimiter between n-grams and document frequencies,
             defaults to tabulation (\t).
         n (int): the size of the n-grams, defaults to 3.
-        encoding (str): encoding of files in input_dir, default to None.
     """
 
     # document frequency container
@@ -114,8 +112,7 @@ def compute_document_frequency(input_dir,
                           language=language,
                           stoplist=stoplist,
                           normalization=normalization,
-                          max_length=max_length,
-                          encoding=encoding)
+                          max_length=max_length)
 
         # candidate selection
         doc.ngram_selection(n=n)
@@ -164,7 +161,6 @@ def train_supervised_model(input_dir,
                            sep_ref_keyphrases=',',
                            normalize_reference=False,
                            leave_one_out=False,
-                           encoding=None,
                            ref_encoding=None):
     """Build a supervised keyphrase extraction model from a set of documents and
     a reference file.
@@ -191,7 +187,6 @@ def train_supervised_model(input_dir,
             keyphrases, default to False.
         leave_one_out (bool): whether to use a leave-one-out procedure for
             training, creating one model per input, defaults to False.
-        encoding (str): encoding of files in `input_dir`, default to None.
         ref_encoding (str): encoding of `reference_file`, default to None.
     """
 
@@ -224,8 +219,7 @@ def train_supervised_model(input_dir,
         model.load_document(input=input_file,
                             language=language,
                             stoplist=stoplist,
-                            normalization=normalization,
-                            encoding=encoding)
+                            normalization=normalization)
 
         # candidate selection
         model.candidate_selection()
@@ -370,8 +364,7 @@ def compute_lda_model(input_dir,
                       language="en",
                       stoplist=None,
                       normalization="stemming",
-                      max_length=None,
-                      encoding=None):
+                      max_length=None):
     """Compute a LDA model from a collection of documents. Latent Dirichlet
     Allocation is computed using sklearn module.
 
@@ -387,7 +380,6 @@ def compute_lda_model(input_dir,
         normalization (str): word normalization method, defaults to 'stemming'.
             Other possible values are 'lemmatization' or 'None' for using word
             surface forms instead of stems/lemmas.
-        encoding (str): encoding of files in `input_dir`, default to None.
     """
 
     # texts container
@@ -405,8 +397,7 @@ def compute_lda_model(input_dir,
         doc.load_document(input=input_file,
                           language=language,
                           normalization=normalization,
-                          max_length=max_length,
-                          encoding=encoding)
+                          max_length=max_length)
 
         # container for current document
         text = []
@@ -461,8 +452,7 @@ def compute_lda_model(input_dir,
 def load_document_as_bos(input_file,
                          language="en",
                          stoplist=None,
-                         normalization="stemming",
-                         encoding=None):
+                         normalization="stemming"):
     """Load a document as a bag of words/stems/lemmas.
 
     Args:
@@ -474,7 +464,6 @@ def load_document_as_bos(input_file,
         normalization (str): word normalization method, defaults to 'stemming'.
             Other possible values are 'lemmatization' or 'None' for using word
             surface forms instead of stems/lemmas.
-        encoding (str): encoding of `input_file`, default to None.
     """
 
     # initialize empty stoplist is None provided
@@ -487,8 +476,7 @@ def load_document_as_bos(input_file,
     # read the input file
     doc.load_document(input=input_file,
                       language=language,
-                      normalization=normalization,
-                      encoding=encoding)
+                      normalization=normalization)
 
     # initialize document vector
     vector = defaultdict(int)
@@ -527,8 +515,7 @@ def compute_pairwise_similarity_matrix(input_dir,
                                        extension="xml",
                                        language="en",
                                        stoplist=None,
-                                       normalization="stemming",
-                                       encoding=None):
+                                       normalization="stemming"):
     """Compute the pairwise similarity between documents in `input_dir` and
     documents in `collection_dir`. Similarity scores are computed using a cosine
     similarity over TF x IDF term weights. If there is no collection to compute
@@ -549,7 +536,6 @@ def compute_pairwise_similarity_matrix(input_dir,
         normalization (str): word normalization method, defaults to 'stemming'.
             Other possible values are 'lemmatization' or 'None' for using word
             surface forms instead of stems/lemmas.
-        encoding (str): encoding of files in `input_dir`, default to None.
     """
 
     # containers
@@ -574,8 +560,7 @@ def compute_pairwise_similarity_matrix(input_dir,
             # initialize document vector
             collection[input_file] = load_document_as_bos(
                 input_file=input_file, language=language,
-                stoplist=stoplist, normalization=normalization,
-                encoding=encoding)
+                stoplist=stoplist, normalization=normalization)
 
             # compute TF*IDF weights
             for stem in collection[input_file]:
@@ -592,8 +577,7 @@ def compute_pairwise_similarity_matrix(input_dir,
         # initialize document vector
         documents[input_file] = load_document_as_bos(
             input_file=input_file, language=language,
-            stoplist=stoplist, normalization=normalization,
-            encoding=encoding)
+            stoplist=stoplist, normalization=normalization)
 
         # compute TF*IDF weights
         for stem in documents[input_file]:

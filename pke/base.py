@@ -60,7 +60,6 @@ class LoadFile(object):
             language (str): language of the input, defaults to 'en'.
             stoplist (list): custom list of stopwords, defaults to
                 pke.lang.stopwords[language].
-            encoding (str): encoding of the raw file.
             normalization (str): word normalization method, defaults to
                 'stemming'. Other possible values are 'lemmatization' or 'None'
                 for using word surface forms instead of stems/lemmas.
