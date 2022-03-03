@@ -6,11 +6,12 @@
 import logging
 import spacy
 
-from pke.data_structures import Document
+from pke.data_structures import Sentence
 
 
 class Reader(object):
     """Reader default class."""
+
     def read(self, path):
         raise NotImplementedError
 
@@ -71,13 +72,16 @@ class RawTextReader(Reader):
 
         sentences = []
         for sentence_id, sentence in enumerate(spacy_doc.sents):
-            sentences.append({
-                "words": [token.text for token in sentence],
-                "lemmas": [token.lemma_ for token in sentence],
-                "POS": [token.pos_ or token.tag_ for token in sentence],
-                "char_offsets": [(token.idx, token.idx + len(token.text)) for token in sentence]
-            })
-        return Document.from_sentences(sentences)
+            sentences.append(Sentence(
+                words=[token.text for token in sentence],
+                pos=[token.pos_ or token.tag_ for token in sentence],
+                meta={
+                    "lemmas": [token.lemma_ for token in sentence],
+                    "char_offsets": [(token.idx, token.idx + len(token.text))
+                                     for token in sentence]
+                }
+            ))
+        return sentences
 
 
 class SpacyDocReader(Reader):
@@ -86,13 +90,16 @@ class SpacyDocReader(Reader):
     def read(self, spacy_doc):
         sentences = []
         for sentence_id, sentence in enumerate(spacy_doc.sents):
-            sentences.append({
-                "words": [token.text for token in sentence],
-                "lemmas": [token.lemma_ for token in sentence],
-                "POS": [token.pos_ or token.tag_ for token in sentence],
-                "char_offsets": [(token.idx, token.idx + len(token.text)) for token in sentence]
-            })
-        return Document.from_sentences(sentences)
+            sentences.append(Sentence(
+                words=[token.text for token in sentence],
+                pos=[token.pos_ or token.tag_ for token in sentence],
+                meta={
+                    "lemmas": [token.lemma_ for token in sentence],
+                    "char_offsets": [(token.idx, token.idx + len(token.text))
+                                     for token in sentence]
+                }
+            ))
+        return sentences
 
 
 class PreprocessedReader(Reader):
@@ -104,10 +111,9 @@ class PreprocessedReader(Reader):
             words = [word for word, pos_tag in sentence]
             pos_tags = [pos_tag for word, pos_tag in sentence]
             shift = 0
-            sentences.append({
-                "words": words,
-                "lemmas": words,
-                "POS": pos_tags
-            })
+            sentences.append(Sentence(
+                words=words,
+                pos=pos_tags
+            ))
             shift += len(' '.join(words))
-        return Document.from_sentences(sentences)
+        return sentences

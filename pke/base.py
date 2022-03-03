@@ -24,9 +24,6 @@ class LoadFile(object):
     def __init__(self):
         """Initializer for LoadFile class."""
 
-        self.input_file = None
-        """Path to the input file."""
-
         self.language = None
         """Language of the input file."""
 
@@ -52,7 +49,7 @@ class LoadFile(object):
         """List of stopwords."""
 
     def load_document(self, input, language=None, stoplist=None,
-                      normalization=None, spacy_model=None):
+                      normalization='stemming', spacy_model=None):
         """Loads the content of a document/string/stream in a given language.
 
         Args:
@@ -74,28 +71,25 @@ class LoadFile(object):
         # check whether input is a spacy doc object instance
         if isinstance(input, spacy.tokens.doc.Doc):
             parser = SpacyDocReader()
-            doc = parser.read(spacy_doc=input)
+            sents = parser.read(spacy_doc=input)
         # check whether input is a string
         elif isinstance(input, str):
             parser = RawTextReader(language=language)
-            doc = parser.read(text=input, spacy_model=spacy_model)
+            sents = parser.read(text=input, spacy_model=spacy_model)
         # check whether input is processed text
         elif isinstance(input, list) and all(isinstance(item, list) for item in input):
             parser = PreprocessedReader()
-            doc = parser.read(list_of_sentence_tuples=input)
+            sents = parser.read(list_of_sentence_tuples=input)
         else:
             logging.error('Cannot process input. It is neither a spacy doc or a string: {}'.format(type(input)))
             # TODO raise TypeError('Cannot process input. It is neither a spacy doc, a string or a list of tuple: {}'.format(type(input)))) ?
             return
 
-        # set the input file
-        self.input_file = doc.input_file
-
         # set the language of the document
         self.language = language
 
         # set the sentences
-        self.sentences = doc.sentences
+        self.sentences = sents
 
         # initialize the stoplist
         if stoplist:
@@ -103,9 +97,11 @@ class LoadFile(object):
         else:
             self.stoplist = stopwords.get(self.language)
 
-        # word normalization
-        self.normalization = normalization if normalization is not None else 'stemming'
 
+        # word normalization (filling self.sentences[].stems)
+        # TODO: normalization=None should result in 'stemming' not in nothing
+        # normalization='none' should result in no normalization IMO
+        # TODO: this code could go into Reader.normalize ?
         if self.normalization == 'stemming':
             # fall back to porter if english language is used
             langcode = langcodes.get(self.language.replace('en', 'xx'), 'porter')
@@ -115,12 +111,21 @@ class LoadFile(object):
             for i, sentence in enumerate(self.sentences):
                 self.sentences[i].stems = [stemmer.stem(w).lower() for w in sentence.words]
 
-        elif self.normalization is None:
-            # TODO: this code is not accessible (cf. l.104)
-            # What the possible values for normalization ?
-            # stemming, lemmatizing, lowering and defaulting to lowering ?
+        elif self.normalization == 'lemmatization':
+            # populate Sentence.stems
+            for i, sentence in enumerate(self.sentences):
+                # TODO: change by a warning and fallback to stemming ?
+                if 'lemmas' not in sentence.meta:
+                    logging.error('Lemmas are not available.'
+                        'Use `normalization=\'stemming\' or preprocess '
+                        'document with a spacy model that computes lemma.')
+                    return
+                self.sentences[i].stems = [w for w in sentence.meta['lemmas']]
+
+        else:
             for i, sentence in enumerate(self.sentences):
                 self.sentences[i].stems = [w.lower() for w in sentence.words]
+
 
     def is_redundant(self, candidate, prev, minimum_length=1):
         """Test if one candidate is redundant with respect to a list of already

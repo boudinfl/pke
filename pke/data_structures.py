@@ -9,12 +9,12 @@ from dataclasses import dataclass
 class Sentence:
     """The sentence data structure."""
 
-    def __init__(self, words):
+    def __init__(self, words, pos=[], meta={}):
 
         self.words = words
         """list of words (tokens) in the sentence."""
 
-        self.pos = []
+        self.pos = pos
         """list of Part-Of-Speeches."""
 
         self.stems = []
@@ -23,7 +23,7 @@ class Sentence:
         self.length = len(words)
         """length (number of tokens) of the sentence."""
 
-        self.meta = {}
+        self.meta = meta
         """meta-information of the sentence."""
 
 
@@ -47,49 +47,3 @@ class Candidate:
 
         self.lexical_form = []
         """ the lexical form of the candidate. """
-
-
-@dataclass
-class Document:
-    """The Document data structure."""
-
-    def __init__(self):
-
-        self.input_file = None
-        """ The path of the input file. """
-
-        self.sentences = []
-        """ The sentence container (list of Sentence). """
-
-    @staticmethod
-    def from_sentences(sentences):
-        """Populate the sentence list.
-
-        Args:
-            sentences (Sentence list): content to create the document.
-        """
-
-        # initialize document
-        doc = Document()
-
-        # loop through the parsed sentences
-        for i, sentence in enumerate(sentences):
-
-            # add the sentence to the container
-            s = Sentence(words=sentence['words'])
-
-            # add the POS
-            s.pos = sentence['POS']
-
-            # add the lemmas
-            s.stems = sentence['lemmas']
-
-            # add the meta-information
-            for (k, info) in sentence.items():
-                if k not in {'POS', 'lemmas', 'words'}:
-                    s.meta[k] = info
-
-            # add the sentence to the document
-            doc.sentences.append(s)
-
-        return doc
