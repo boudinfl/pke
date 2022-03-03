@@ -4,76 +4,18 @@
 
 from collections import defaultdict
 
-from pke.data_structures import Candidate, Document
-from pke.readers import MinimalCoreNLPReader, RawTextReader
+from pke.data_structures import Candidate
+from pke.readers import RawTextReader, SpacyDocReader, PreprocessedReader
 
 from nltk import RegexpParser
-#from nltk.corpus import stopwords
-from nltk.tag.mapping import map_tag
 from nltk.stem.snowball import SnowballStemmer
 
-from .stopwords import stopwords
-from .langcodes import LANGUAGE_CODE_BY_NAME
+from pke.lang import stopwords, langcodes
 
 from string import punctuation
 import os
 import logging
-
-
-from builtins import str
-
-
-# The language management should be in `pke.utils` but it would create a circular import.
-
-get_alpha_2 = lambda l: LANGUAGE_CODE_BY_NAME[l]
-
-lang_stem = {get_alpha_2(l): l for l in set(SnowballStemmer.languages) - set(['porter'])}
-lang_stem.update({'en': 'porter'})
-
-PRINT_NO_STEM_WARNING = defaultdict(lambda: True)
-
-
-def get_stemmer_func(lang):
-    """Provide steming function for the given language, or identity function.
-
-    If stemming is not available for a given language, a default value is
-    returned and a warning is displayed
-    :param lang: Alpha-2 language code.
-    :type lang: str
-    :returns: A function to stem a word (or the identity function).
-    :rtype: {Callable[[str], str]}
-    """
-    global PRINT_NO_STEM_WARNING
-    try:
-        lang = lang_stem[lang]
-        ignore_sw = lang != 'porter'  # PorterStemmer do not use stop_words
-        stemmer = SnowballStemmer(lang, ignore_stopwords=ignore_sw)
-        return stemmer.stem
-    except KeyError:
-        if PRINT_NO_STEM_WARNING[lang]:
-            logging.warning('No stemmer for \'{}\' language.'.format(lang))
-            logging.warning('Stemming will not be applied.')
-            PRINT_NO_STEM_WARNING[lang] = False
-        return lambda x: x
-
-
-escaped_punctuation = {'-lrb-': '(', '-rrb-': ')', '-lsb-': '[', '-rsb-': ']',
-                       '-lcb-': '{', '-rcb-': '}'}
-
-
-def is_file_path(input):
-    try:
-        return os.path.isfile(input)
-    except Exception:
-        # On some windows version the maximum path length is 255. When calling
-        #  `os.path.isfile` on long string it will raise a ValueError.
-        # We return false as even is the string is a file_path we won't be able
-        #  to open it
-        return False
-
-
-def is_corenlp(input):
-    return is_file_path(input) and input.endswith('.xml')
+import spacy
 
 
 class LoadFile(object):
@@ -124,26 +66,20 @@ class LoadFile(object):
         # get the language parameter
         language = kwargs.get('language', 'en')
 
-        # initialize document
-        doc = Document()
-
-        if is_corenlp(input):
-            path = input
-            parser = MinimalCoreNLPReader()
-            doc = parser.read(path=input, **kwargs)
-            doc.is_corenlp_file = True
-        elif is_file_path(input):
-            path = input
-            with open(path, encoding=kwargs.get('encoding', 'utf-8')) as f:
-                input = f.read()
-            parser = RawTextReader(language=language)
-            doc = parser.read(text=input, path=path, **kwargs)
+        # check whether input is a spacy doc object instance
+        if isinstance(input, spacy.tokens.doc.Doc):
+            parser = SpacyDocReader()
+            doc = parser.read(spacy_doc=input, **kwargs)
+        # check whether input is a string
         elif isinstance(input, str):
             parser = RawTextReader(language=language)
             doc = parser.read(text=input, **kwargs)
+        # check whether input is processed text
+        elif isinstance(input, list) and all(isinstance(item, list) for item in input):
+            parser = PreprocessedReader()
+            doc = parser.read(list_of_sentence_tuples=input, **kwargs)
         else:
-            logging.error('Cannot process input. It is neither a file path '
-                          'or a string: {}'.format(type(input)))
+            logging.error('Cannot process input. It is neither a spacy doc or a string: {}'.format(type(input)))
             return
 
         # set the input file
@@ -156,46 +92,23 @@ class LoadFile(object):
         self.sentences = doc.sentences
 
         # initialize the stoplist
-        if self.language in stopwords:
-            self.stoplist = stopwords[self.language]
-        else:
-            logging.warning('No stopwords for \'{}\' language.'.format(self.language))
+        self.stoplist = stopwords.get(self.language)
 
         # word normalization
         self.normalization = kwargs.get('normalization', 'stemming')
 
         if self.normalization == 'stemming':
-            stem = get_stemmer_func(self.language)
-            get_stem = lambda s: [stem(w).lower() for w in s.words]
-        else:
-            get_stem = lambda s: [w.lower() for w in s.words]
+            # fall back to porter if english language is used
+            langcode = langcodes.get(self.language.replace('en', 'xx'), 'porter')
+            stemmer = SnowballStemmer(langcode)
 
-        # Populate Sentence.stems according to normalization
-        for i, sentence in enumerate(self.sentences):
-            self.sentences[i].stems = get_stem(sentence)
-
-        # POS normalization
-        if getattr(doc, 'is_corenlp_file', False):
-            self.normalize_pos_tags()
-            self.unescape_punctuation_marks()
-
-    def normalize_pos_tags(self):
-        """Normalizes the PoS tags from udp-penn to UD."""
-
-        if self.language == 'en':
-            # iterate throughout the sentences
+            # populate Sentence.stems
             for i, sentence in enumerate(self.sentences):
-                self.sentences[i].pos = [map_tag('en-ptb', 'universal', tag)
-                                         for tag in sentence.pos]
+                self.sentences[i].stems = [stemmer.stem(w).lower() for w in sentence.words]
 
-    def unescape_punctuation_marks(self):
-        """Replaces the special punctuation marks produced by CoreNLP."""
-
-        for i, sentence in enumerate(self.sentences):
-            for j, word in enumerate(sentence.words):
-                l_word = word.lower()
-                self.sentences[i].words[j] = escaped_punctuation.get(l_word,
-                                                                     word)
+        elif self.normalization is None:
+            for i, sentence in enumerate(self.sentences):
+                self.sentences[i].stems = [w.lower() for w in sentence.words]
 
     def is_redundant(self, candidate, prev, minimum_length=1):
         """Test if one candidate is redundant with respect to a list of already

@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
-"""Stopwords
+"""Language resources of pke.
+
+Lists of stopwords in different languages.
 
 These lists were obtained from nltk's stopwords corpus data.
 https://github.com/nltk/nltk_data/blob/gh-pages/packages/corpora/stopwords.zip
+
+Langcodes.
 
 """
 
@@ -55,4 +59,22 @@ stopwords = {
            'weil', 'weiter', 'welche', 'welchem', 'welchen', 'welcher', 'welches', 'wenn', 'werde', 'werden', 'wie',
            'wieder', 'will', 'wir', 'wird', 'wirst', 'wo', 'wollen', 'wollte', 'würde', 'würden', 'zu', 'zum', 'zur',
            'zwar', 'zwischen']
+}
+
+langcodes = {
+       "ar": "arabic",
+       "da": "danish",
+       "du": "dutch",
+       "en": "english",
+       "fi": "finnish",
+       "fr": "french",
+       "ge": "german",
+       "hu": "hungarian",
+       "it": "italian",
+       "no": "norwegian",
+       "po": "portuguese",
+       "ro": "romanian",
+       "ru": "russian",
+       "sp": "spanish",
+       "sw": "swedish",
 }

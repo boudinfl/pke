@@ -21,10 +21,13 @@ import logging
 from itertools import combinations, product
 from collections import defaultdict
 
-from pke.base import LoadFile, get_stopwords, get_stemmer_func
+from pke.base import LoadFile
+from pke.lang import stopwords, langcodes
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.decomposition import LatentDirichletAllocation
+
+from nltk.stem.snowball import SnowballStemmer
 
 
 def load_document_frequency_file(input_file,
@@ -316,11 +319,12 @@ def load_references(input_file,
         if normalize_reference:
 
             # initialize stemmer
-            stem = get_stemmer_func(language)
+            langcode = langcodes.get(language.replace('en', 'xx'), 'porter')
+            stemmer = SnowballStemmer(langcode)
 
             for doc_id in references:
                 for i, keyphrase in enumerate(references[doc_id]):
-                    stems = [stem(w) for w in keyphrase.split()]
+                    stems = [stemmer.stem(w) for w in keyphrase.split()]
                     references[doc_id][i] = ' '.join(stems)
 
     # remove excluded file if needed
@@ -413,7 +417,7 @@ def compute_lda_model(input_dir,
     # get the stoplist from nltk because CountVectorizer only contains english
     # stopwords atm
     tf_vectorizer = CountVectorizer(
-        stop_words=get_stopwords(language))
+        stop_words=stopwords.get(language))
     tf = tf_vectorizer.fit_transform(texts)
 
     # extract vocabulary
