@@ -70,7 +70,7 @@ class TopicalPageRank(SingleRank):
 
         super(TopicalPageRank, self).__init__()
 
-    def candidate_selection(self, grammar=None, **kwargs):
+    def candidate_selection(self, grammar=None):
         """Candidate selection heuristic.
 
         Here we select noun phrases that match the regular expression

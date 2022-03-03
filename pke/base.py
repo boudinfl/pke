@@ -51,7 +51,8 @@ class LoadFile(object):
         self.stoplist = None
         """List of stopwords."""
 
-    def load_document(self, input, stoplist=None, **kwargs):
+    def load_document(self, input, language=None, stoplist=None,
+                      normalization=None, spacy_model=None):
         """Loads the content of a document/string/stream in a given language.
 
         Args:
@@ -63,25 +64,29 @@ class LoadFile(object):
             normalization (str): word normalization method, defaults to
                 'stemming'. Other possible values are 'lemmatization' or 'None'
                 for using word surface forms instead of stems/lemmas.
+            spacy_model (spacy.lang): preloaded spacy model when input is a
+                string.
         """
 
         # get the language parameter
-        language = kwargs.get('language', 'en')
+        if language is None:
+            language = 'en'
 
         # check whether input is a spacy doc object instance
         if isinstance(input, spacy.tokens.doc.Doc):
             parser = SpacyDocReader()
-            doc = parser.read(spacy_doc=input, **kwargs)
+            doc = parser.read(spacy_doc=input)
         # check whether input is a string
         elif isinstance(input, str):
             parser = RawTextReader(language=language)
-            doc = parser.read(text=input, **kwargs)
+            doc = parser.read(text=input, spacy_model=spacy_model)
         # check whether input is processed text
         elif isinstance(input, list) and all(isinstance(item, list) for item in input):
             parser = PreprocessedReader()
-            doc = parser.read(list_of_sentence_tuples=input, **kwargs)
+            doc = parser.read(list_of_sentence_tuples=input)
         else:
             logging.error('Cannot process input. It is neither a spacy doc or a string: {}'.format(type(input)))
+            # TODO raise TypeError('Cannot process input. It is neither a spacy doc, a string or a list of tuple: {}'.format(type(input)))) ?
             return
 
         # set the input file
@@ -100,7 +105,7 @@ class LoadFile(object):
             self.stoplist = stopwords.get(self.language)
 
         # word normalization
-        self.normalization = kwargs.get('normalization', 'stemming')
+        self.normalization = normalization if normalization is not None else 'stemming'
 
         if self.normalization == 'stemming':
             # fall back to porter if english language is used
@@ -112,6 +117,9 @@ class LoadFile(object):
                 self.sentences[i].stems = [stemmer.stem(w).lower() for w in sentence.words]
 
         elif self.normalization is None:
+            # TODO: this code is not accessible (cf. l.104)
+            # What the possible values for normalization ?
+            # stemming, lemmatizing, lowering and defaulting to lowering ?
             for i, sentence in enumerate(self.sentences):
                 self.sentences[i].stems = [w.lower() for w in sentence.words]
 

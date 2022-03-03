@@ -82,7 +82,7 @@ class YAKE(LoadFile):
         self.surface_to_lexical = {}
         """ Mapping from surface form to lexical form. """
 
-    def candidate_selection(self, n=3, **kwargs):
+    def candidate_selection(self, n=3):
         """Select 1-3 grams as keyphrase candidates. Candidates beginning or
         ending with a stopword are filtered out. Words that do not contain
         at least one alpha-numeric character are not allowed.

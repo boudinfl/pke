@@ -30,7 +30,7 @@ class RawTextReader(Reader):
         if language is None:
             self.language = 'en'
 
-    def read(self, text, **kwargs):
+    def read(self, text, spacy_model=None):
         """Read the input file and use spacy to pre-process.
 
         Spacy model selection: By default this function will load the spacy
@@ -46,7 +46,7 @@ class RawTextReader(Reader):
             spacy_model (model): an already loaded spacy model.
         """
 
-        nlp = kwargs.get('spacy_model', None)
+        nlp = spacy_model
 
         if nlp is None:
 
@@ -77,13 +77,13 @@ class RawTextReader(Reader):
                 "POS": [token.pos_ or token.tag_ for token in sentence],
                 "char_offsets": [(token.idx, token.idx + len(token.text)) for token in sentence]
             })
-        return Document.from_sentences(sentences, input_file=kwargs.get('input_file', None), **kwargs)
+        return Document.from_sentences(sentences)
 
 
 class SpacyDocReader(Reader):
     """Minimal Spacy Doc Reader."""
 
-    def read(self, spacy_doc, **kwargs):
+    def read(self, spacy_doc):
         sentences = []
         for sentence_id, sentence in enumerate(spacy_doc.sents):
             sentences.append({
@@ -92,13 +92,13 @@ class SpacyDocReader(Reader):
                 "POS": [token.pos_ or token.tag_ for token in sentence],
                 "char_offsets": [(token.idx, token.idx + len(token.text)) for token in sentence]
             })
-        return Document.from_sentences(sentences, **kwargs)
+        return Document.from_sentences(sentences)
 
 
 class PreprocessedReader(Reader):
     """Reader for preprocessed text."""
 
-    def read(self, list_of_sentence_tuples, **kwargs):
+    def read(self, list_of_sentence_tuples):
         sentences = []
         for sentence_id, sentence in enumerate(list_of_sentence_tuples):
             words = [word for word, pos_tag in sentence]
@@ -110,4 +110,4 @@ class PreprocessedReader(Reader):
                 "POS": pos_tags
             })
             shift += len(' '.join(words))
-        return Document.from_sentences(sentences, **kwargs)
+        return Document.from_sentences(sentences)

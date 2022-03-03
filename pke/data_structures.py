@@ -62,7 +62,7 @@ class Document:
         """ The sentence container (list of Sentence). """
 
     @staticmethod
-    def from_sentences(sentences, **kwargs):
+    def from_sentences(sentences):
         """Populate the sentence list.
 
         Args:
