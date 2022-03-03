@@ -17,7 +17,6 @@ output_file = sys.argv[2]
 
 # stoplist are punctuation marks
 stoplist = list(punctuation)
-stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
 
 # compute idf weights
 compute_document_frequency(input_dir=input_dir,

@@ -28,7 +28,6 @@ pip install git+https://github.com/boudinfl/pke.git
 `pke` also requires external resources that can be obtained using:
 
 ```bash
-python -m nltk.downloader universal_tagset
 python -m spacy download en_core_web_sm # download the english model
 ```
 
