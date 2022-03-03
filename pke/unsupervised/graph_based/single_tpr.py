@@ -22,7 +22,6 @@ import logging
 
 import networkx as nx
 import numpy as np
-import six
 from scipy.spatial.distance import cosine
 from sklearn.feature_extraction.text import CountVectorizer
 
@@ -137,12 +136,8 @@ class TopicalPageRank(SingleRank):
 
         # set the default LDA model if none provided
         if lda_model is None:
-            if six.PY2:
-                lda_model = os.path.join(self._models,
-                                         "lda-1000-semeval2010.py2.pickle.gz")
-            else:
-                lda_model = os.path.join(self._models,
-                                         "lda-1000-semeval2010.py3.pickle.gz")
+            lda_model = os.path.join(self._models,
+                                     "lda-1000-semeval2010.py3.pickle.gz")
             logging.warning('LDA model is hard coded to {}'.format(lda_model))
 
         # load parameters from file
