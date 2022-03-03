@@ -10,9 +10,8 @@ import sys
 import string
 import logging
 
-from nltk.corpus import stopwords
-
 from pke import load_document_frequency_file, compute_pairwise_similarity_matrix
+from pke.lang import stopwords
 
 # setting info in terminal
 logging.basicConfig(level=logging.INFO)
@@ -34,8 +33,7 @@ df_counts = load_document_frequency_file(input_file=df_file)
 
 # stoplist for terms in document vectors
 stoplist = list(string.punctuation)
-stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
-stoplist += stopwords.words('english')
+stoplist += stopwords.get('en')
 
 # compute the pairwise similarity measures and write output
 compute_pairwise_similarity_matrix(input_dir=input_dir,
@@ -46,11 +44,3 @@ compute_pairwise_similarity_matrix(input_dir=input_dir,
                                    language="en",
                                    normalization="stemming",
                                    stoplist=stoplist)
-
-
-
-
-
-
-
-

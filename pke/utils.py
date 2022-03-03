@@ -67,8 +67,8 @@ def compute_document_frequency(input_dir,
                                output_file,
                                extension='xml',
                                language='en',
-                               normalization="stemming",
                                stoplist=None,
+                               normalization="stemming",
                                delimiter='\t',
                                n=3,
                                max_length=None,
@@ -84,10 +84,11 @@ def compute_document_frequency(input_dir,
         extension (str): file extension for input documents, defaults to xml.
         language (str): language of the input documents (used for computing the
             n-stem or n-lemma forms), defaults to 'en' (english).
+        stoplist (list): the stop words for filtering n-grams, default to
+            pke.lang.stopwords[language].
         normalization (str): word normalization method, defaults to 'stemming'.
             Other possible values are 'lemmatization' or 'None' for using word
             surface forms instead of stems/lemmas.
-        stoplist (list): the stop words for filtering n-grams, default to None.
         delimiter (str): the delimiter between n-grams and document frequencies,
             defaults to tabulation (\t).
         n (int): the size of the n-grams, defaults to 3.
@@ -111,6 +112,7 @@ def compute_document_frequency(input_dir,
         # read the input file
         doc.load_document(input=input_file,
                           language=language,
+                          stoplist=stoplist,
                           normalization=normalization,
                           max_length=max_length,
                           encoding=encoding)
@@ -119,7 +121,7 @@ def compute_document_frequency(input_dir,
         doc.ngram_selection(n=n)
 
         # filter candidates containing punctuation marks
-        doc.candidate_filtering(stoplist=stoplist)
+        doc.candidate_filtering()
 
         # loop through candidates
         for lexical_form in doc.candidates:
@@ -152,8 +154,9 @@ def compute_document_frequency(input_dir,
 def train_supervised_model(input_dir,
                            reference_file,
                            model_file,
-                           extension='xml',
+                           extension='xml',  # TODO: still necessary?
                            language='en',
+                           stoplist=None,
                            normalization="stemming",
                            df=None,
                            model=None,
@@ -173,6 +176,8 @@ def train_supervised_model(input_dir,
         extension (str): file extension for input documents, defaults to xml.
         language (str): language of the input documents (used for computing the
             n-stem or n-lemma forms), defaults to 'en' (english).
+        stoplist (list): the stop words for filtering n-grams, default to
+            pke.lang.stopwords[language].
         normalization (str): word normalization method, defaults to 'stemming'.
             Other possible values are 'lemmatization' or 'None' for using word
             surface forms instead of stems/lemmas.
@@ -218,6 +223,7 @@ def train_supervised_model(input_dir,
         # load the document
         model.load_document(input=input_file,
                             language=language,
+                            stoplist=stoplist,
                             normalization=normalization,
                             encoding=encoding)
 
@@ -362,6 +368,7 @@ def compute_lda_model(input_dir,
                       n_topics=500,
                       extension="xml",
                       language="en",
+                      stoplist=None,
                       normalization="stemming",
                       max_length=None,
                       encoding=None):
@@ -375,6 +382,8 @@ def compute_lda_model(input_dir,
         extension (str): file extension for input documents, defaults to xml.
         language (str): language of the input documents, used for stop_words
             in sklearn CountVectorizer, defaults to 'en'.
+        stoplist (list): the stop words for filtering words, default to
+            pke.lang.stopwords[language].
         normalization (str): word normalization method, defaults to 'stemming'.
             Other possible values are 'lemmatization' or 'None' for using word
             surface forms instead of stems/lemmas.
@@ -416,8 +425,10 @@ def compute_lda_model(input_dir,
     # vectorize dataset
     # get the stoplist from nltk because CountVectorizer only contains english
     # stopwords atm
+    if stoplist is None:
+        stoplist = stopwords.get(language)
     tf_vectorizer = CountVectorizer(
-        stop_words=stopwords.get(language))
+        stop_words=stoplist)
     tf = tf_vectorizer.fit_transform(texts)
 
     # extract vocabulary
@@ -449,8 +460,8 @@ def compute_lda_model(input_dir,
 
 def load_document_as_bos(input_file,
                          language="en",
-                         normalization="stemming",
                          stoplist=None,
+                         normalization="stemming",
                          encoding=None):
     """Load a document as a bag of words/stems/lemmas.
 
@@ -458,16 +469,17 @@ def load_document_as_bos(input_file,
         input_file (str): path to input file.
         language (str): language of the input documents, used for stop_words
             in sklearn CountVectorizer, defaults to 'en'.
+        stoplist (list): the stop words for filtering tokens, default to
+            pke.lang.stopwords[language].
         normalization (str): word normalization method, defaults to 'stemming'.
             Other possible values are 'lemmatization' or 'None' for using word
             surface forms instead of stems/lemmas.
-        stoplist (list): the stop words for filtering tokens, default to [].
         encoding (str): encoding of `input_file`, default to None.
     """
 
     # initialize empty stoplist is None provided
     if stoplist is None:
-        stoplist = []
+        stoplist = stopwords.get('language')
 
     # initialize load file object
     doc = LoadFile()
@@ -514,8 +526,8 @@ def compute_pairwise_similarity_matrix(input_dir,
                                        df=None,
                                        extension="xml",
                                        language="en",
-                                       normalization="stemming",
                                        stoplist=None,
+                                       normalization="stemming",
                                        encoding=None):
     """Compute the pairwise similarity between documents in `input_dir` and
     documents in `collection_dir`. Similarity scores are computed using a cosine
@@ -532,10 +544,11 @@ def compute_pairwise_similarity_matrix(input_dir,
         extension (str): file extension for input documents, defaults to xml.
         language (str): language of the input documents, used for stop_words
             in sklearn CountVectorizer, defaults to 'en'.
+        stoplist (list): the stop words for filtering tokens, default to
+            pke.lang.stopwords[language].
         normalization (str): word normalization method, defaults to 'stemming'.
             Other possible values are 'lemmatization' or 'None' for using word
             surface forms instead of stems/lemmas.
-        stoplist (list): the stop words for filtering tokens, default to [].
         encoding (str): encoding of files in `input_dir`, default to None.
     """
 
@@ -548,7 +561,7 @@ def compute_pairwise_similarity_matrix(input_dir,
 
     # initialize stoplist as empty if None provided
     if stoplist is None:
-        stoplist = []
+        stoplist = stopwords.get(language)
 
     # build collection tf*idf vectors
     if collection_dir is not None:
@@ -561,7 +574,7 @@ def compute_pairwise_similarity_matrix(input_dir,
             # initialize document vector
             collection[input_file] = load_document_as_bos(
                 input_file=input_file, language=language,
-                normalization=normalization, stoplist=stoplist,
+                stoplist=stoplist, normalization=normalization,
                 encoding=encoding)
 
             # compute TF*IDF weights
@@ -579,7 +592,7 @@ def compute_pairwise_similarity_matrix(input_dir,
         # initialize document vector
         documents[input_file] = load_document_as_bos(
             input_file=input_file, language=language,
-            normalization=normalization, stoplist=stoplist,
+            stoplist=stoplist, normalization=normalization,
             encoding=encoding)
 
         # compute TF*IDF weights

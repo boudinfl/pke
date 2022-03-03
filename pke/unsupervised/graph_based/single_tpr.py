@@ -35,7 +35,6 @@ class TopicalPageRank(SingleRank):
     Parameterized example::
 
         import pke
-        from nltk.corpus import stopwords
 
         # define the valid Part-of-Speeches to occur in the graph
         pos = {'NOUN', 'PROPN', 'ADJ'}
@@ -101,7 +100,6 @@ class TopicalPageRank(SingleRank):
                             window=10,
                             pos=None,
                             lda_model=None,
-                            stoplist=None,
                             normalized=False):
         """Candidate weight calculation using a biased PageRank towards LDA
         topic distributions.
@@ -113,8 +111,6 @@ class TopicalPageRank(SingleRank):
                 nodes in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
             lda_model (pickle.gz): an LDA model produced by sklearn in
                 pickle compressed (.gz) format
-            stoplist (list): the stoplist for filtering words in LDA, defaults
-                to the nltk stoplist.
             normalized (False): normalize keyphrase score by their length,
                 defaults to False.
         """
@@ -123,10 +119,6 @@ class TopicalPageRank(SingleRank):
 
         if pos is None:
             pos = {'NOUN', 'PROPN', 'ADJ'}
-
-        # initialize stoplist list if not provided
-        if stoplist is None:
-            stoplist = self.stoplist
 
         # build the word graph
         # ``Since keyphrases are usually noun phrases, we only add adjectives
@@ -149,7 +141,7 @@ class TopicalPageRank(SingleRank):
             doc.extend([s.stems[i] for i in range(s.length)])
 
         # vectorize document
-        tf_vectorizer = CountVectorizer(stop_words=stoplist,
+        tf_vectorizer = CountVectorizer(stop_words=self.stoplist,
                                         vocabulary=dictionary)
 
         tf = tf_vectorizer.fit_transform([' '.join(doc)])

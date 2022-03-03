@@ -135,7 +135,6 @@ class WINGNUS(SupervisedLoadFile):
 
             # [F3] -> term frequency of substrings
             tf_of_substrings = 0
-            stoplist = self.stoplist
             for i in range(len(v.lexical_form)):
                 for j in range(i, min(len(v.lexical_form), i + 3)):
                     sub_words = v.lexical_form[i:j + 1]
@@ -146,7 +145,7 @@ class WINGNUS(SupervisedLoadFile):
                         continue
 
                     # skip if substring contains a stopword
-                    if set(sub_words).intersection(stoplist):
+                    if set(sub_words).intersection(self.stoplist):
                         continue
 
                     # check whether the substring occurs "as it"

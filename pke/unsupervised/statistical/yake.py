@@ -19,7 +19,6 @@ from __future__ import print_function
 
 import math
 import re
-import string
 from collections import defaultdict
 
 import numpy
@@ -34,28 +33,28 @@ class YAKE(LoadFile):
     Parameterized example::
 
         import pke
-        from nltk.corpus import stopwords
+        from pke.lang import stopwords
 
         # 1. create a YAKE extractor.
         extractor = pke.unsupervised.YAKE()
 
         # 2. load the content of the document.
+        stoplist = stopwords.get('english')
         extractor.load_document(input='path/to/input',
                                 language='en',
+                                stoplist=stoplist,
                                 normalization=None)
 
 
         # 3. select {1-3}-grams not containing punctuation marks and not
         #    beginning/ending with a stopword as candidates.
-        stoplist = stopwords.words('english')
-        extractor.candidate_selection(n=3, stoplist=stoplist)
+        extractor.candidate_selection(n=3)
 
         # 4. weight the candidates using YAKE weighting scheme, a window (in
         #    words) for computing left/right contexts can be specified.
         window = 2
         use_stems = False # use stems instead of words for weighting
         extractor.candidate_weighting(window=window,
-                                      stoplist=stoplist,
                                       use_stems=use_stems)
 
         # 5. get the 10-highest scored candidates as keyphrases.
@@ -83,26 +82,22 @@ class YAKE(LoadFile):
         self.surface_to_lexical = {}
         """ Mapping from surface form to lexical form. """
 
-    def candidate_selection(self, n=3, stoplist=None, **kwargs):
+    def candidate_selection(self, n=3, **kwargs):
         """Select 1-3 grams as keyphrase candidates. Candidates beginning or
         ending with a stopword are filtered out. Words that do not contain
         at least one alpha-numeric character are not allowed.
 
         Args:
             n (int): the n-gram length, defaults to 3.
-            stoplist (list): the stoplist for filtering candidates, defaults to
-                the nltk stoplist.
         """
 
         # select ngrams from 1 to 3 grams
         self.ngram_selection(n=n)
 
         # filter candidates containing punctuation marks
-        self.candidate_filtering(stoplist=list(string.punctuation))
-
-        # initialize empty list if stoplist is not provided
-        if stoplist is None:
-            stoplist = self.stoplist
+        self.candidate_filtering()
+        # TODO: is filtering only candidate with punctuation mandatory ?
+        #self.candidate_filtering(list(string.punctuation))
 
         # further filter candidates
         for k in list(self.candidates):
@@ -112,8 +107,8 @@ class YAKE(LoadFile):
 
             # filter candidates starting/ending with a stopword or containing
             # a first/last word with less than 3 characters
-            if v.surface_forms[0][0].lower() in stoplist or v.surface_forms[0][
-                -1].lower() in stoplist or len(
+            if v.surface_forms[0][0].lower() in self.stoplist or v.surface_forms[0][
+                -1].lower() in self.stoplist or len(
                     v.surface_forms[0][0]) < 3 or len(
                     v.surface_forms[0][-1]) < 3:
                 del self.candidates[k]
@@ -194,7 +189,7 @@ class YAKE(LoadFile):
                 # add word to the current block
                 block.append(word)
 
-    def _feature_extraction(self, stoplist=None):
+    def _feature_extraction(self):
         """Compute the weight of individual words using the following five
         features:
 
@@ -233,21 +228,13 @@ class YAKE(LoadFile):
                DIFFERENT(w) = SF(w) / # sentences
 
                with SF(w) being the sentence frequency of word w.
-
-        Args:
-            stoplist (list): the stoplist for filtering candidates, defaults to
-                the nltk stoplist.
         """
-
-        # initialize stoplist list if not provided
-        if stoplist is None:
-            stoplist = self.stoplist
 
         # get the Term Frequency of each word
         TF = [len(self.words[w]) for w in self.words]
 
         # get the Term Frequency of non-stop words
-        TF_nsw = [len(self.words[w]) for w in self.words if w not in stoplist]
+        TF_nsw = [len(self.words[w]) for w in self.words if w not in self.stoplist]
 
         # compute statistics
         mean_TF = numpy.mean(TF_nsw)
@@ -258,7 +245,7 @@ class YAKE(LoadFile):
         for word in self.words:
 
             # Indicating whether the word is a stopword (vitordouzi change)
-            self.features[word]['isstop'] = word in stoplist or len(word) < 3
+            self.features[word]['isstop'] = word in self.stoplist or len(word) < 3
 
             # Term Frequency
             self.features[word]['TF'] = len(self.words[word])
@@ -321,12 +308,10 @@ class YAKE(LoadFile):
             E = self.features[word]['DIFFERENT']
             self.features[word]['weight'] = (D * B) / (A + (C / D) + (E / D))
 
-    def candidate_weighting(self, window=2, stoplist=None, use_stems=False):
+    def candidate_weighting(self, window=2, use_stems=False):
         """Candidate weight calculation as described in the YAKE paper.
 
         Args:
-            stoplist (list): the stoplist for filtering candidates, defaults to
-                the nltk stoplist.
             use_stems (bool): whether to use stems instead of lowercase words
                 for weighting, defaults to False.
             window (int): the size in words of the window used for computing
@@ -342,7 +327,7 @@ class YAKE(LoadFile):
         self._contexts_building(use_stems=use_stems, window=window)
 
         # compute the word features
-        self._feature_extraction(stoplist=stoplist)
+        self._feature_extraction()
 
         # compute candidate weights
         for k, v in self.candidates.items():

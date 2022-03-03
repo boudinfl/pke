@@ -51,12 +51,14 @@ class LoadFile(object):
         self.stoplist = None
         """List of stopwords."""
 
-    def load_document(self, input, **kwargs):
+    def load_document(self, input, stoplist=None, **kwargs):
         """Loads the content of a document/string/stream in a given language.
 
         Args:
             input (str): input.
             language (str): language of the input, defaults to 'en'.
+            stoplist (list): custom list of stopwords, defaults to
+                pke.lang.stopwords[language].
             encoding (str): encoding of the raw file.
             normalization (str): word normalization method, defaults to
                 'stemming'. Other possible values are 'lemmatization' or 'None'
@@ -92,7 +94,10 @@ class LoadFile(object):
         self.sentences = doc.sentences
 
         # initialize the stoplist
-        self.stoplist = stopwords.get(self.language)
+        if stoplist:
+            self.stoplist = stoplist
+        else:
+            self.stoplist = stopwords.get(self.language)
 
         # word normalization
         self.normalization = kwargs.get('normalization', 'stemming')
@@ -356,7 +361,6 @@ class LoadFile(object):
         return word.isalnum()
 
     def candidate_filtering(self,
-                            stoplist=None,
                             minimum_length=3,
                             minimum_word_size=2,
                             valid_punctuation_marks='-',
@@ -367,9 +371,8 @@ class LoadFile(object):
         keep the candidates containing alpha-numeric characters (if the
         non_latin_filter is set to True) and those length exceeds a given
         number of characters.
-            
+
         Args:
-            stoplist (list): list of strings, defaults to None.
             minimum_length (int): minimum number of characters for a
                 candidate, defaults to 3.
             minimum_word_size (int): minimum number of characters for a
@@ -384,9 +387,6 @@ class LoadFile(object):
                 candidates, defaults to [].
         """
 
-        if stoplist is None:
-            stoplist = []
-
         if pos_blacklist is None:
             pos_blacklist = []
 
@@ -400,7 +400,8 @@ class LoadFile(object):
             words = [u.lower() for u in v.surface_forms[0]]
 
             # discard if words are in the stoplist
-            if set(words).intersection(stoplist):
+            # TODO: shouldn't it be the stems ?
+            if set(words).intersection(self.stoplist):
                 del self.candidates[k]
 
             # discard if tags are in the pos_blacklist
