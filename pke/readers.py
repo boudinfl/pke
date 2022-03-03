@@ -3,7 +3,6 @@
 
 """Readers for the pke module."""
 
-import sys
 import logging
 import spacy
 

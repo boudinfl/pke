@@ -234,4 +234,4 @@ class MultipartiteRank(TopicRank):
             self.weight_adjustment(alpha)
 
         # compute the word scores using random walk
-        self.weights = nx.pagerank_scipy(self.graph)
+        self.weights = nx.pagerank(self.graph)
