@@ -468,7 +468,7 @@ def load_document_as_bos(input_file,
 
     # initialize empty stoplist is None provided
     if stoplist is None:
-        stoplist = stopwords.get('language')
+        stoplist = stopwords.get(language)
 
     # initialize load file object
     doc = LoadFile()
