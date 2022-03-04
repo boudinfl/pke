@@ -3,10 +3,12 @@
 
 """Readers for the pke module."""
 
+import re
 import logging
 import spacy
 
 from pke.data_structures import Sentence
+from spacy.tokenizer import _get_regex_pattern
 
 
 class Reader(object):
@@ -66,6 +68,16 @@ class RawTextReader(Reader):
 
         # add the sentence splitter
         nlp.add_pipe('sentencizer')
+
+        # Fix for non splitting words with hyphens with spacy taken from
+        # https://stackoverflow.com/questions/43388476/how-could-spacy-tokenize-hashtag-as-a-whole
+
+        # get default pattern for tokens that don't get split
+        re_token_match = _get_regex_pattern(nlp.Defaults.token_match)
+        # add your patterns (here: in-word hyphens)
+        re_token_match = f"({re_token_match}|\w+-\w+)"
+        # overwrite token_match function of the tokenizer
+        nlp.tokenizer.token_match = re.compile(re_token_match).match
 
         # process the document
         spacy_doc = nlp(text)
