@@ -70,7 +70,7 @@ class TopicRank(LoadFile):
         self.topics = []
         """ The topic container. """
 
-        self.w = {}
+        self._w = {}
         """ Weights computed for each topic. """
 
     def candidate_selection(self, pos=None):
@@ -214,7 +214,7 @@ class TopicRank(LoadFile):
         self.build_topic_graph()
 
         # compute the word scores using random walk
-        self.w = nx.pagerank(self.graph, alpha=0.85, weight='weight')
+        self._w = nx.pagerank(self.graph, alpha=0.85, weight='weight')
 
         # loop through the topics
         for i, topic in enumerate(self.topics):
@@ -235,8 +235,8 @@ class TopicRank(LoadFile):
                 indexes_offsets = [offsets[j] for j in indexes]
                 # Choosing the first occuring most frequent candidate
                 most_frequent = offsets.index(min(indexes_offsets))
-                self.weights[topic[most_frequent]] = self.w[i]
+                self.weights[topic[most_frequent]] = self._w[i]
 
             else:
                 first = offsets.index(min(offsets))
-                self.weights[topic[first]] = self.w[i]
+                self.weights[topic[first]] = self._w[i]
