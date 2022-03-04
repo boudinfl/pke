@@ -4,15 +4,19 @@
 # this example uses TopicRank
 from pke.unsupervised import TopicRank
 
+
 # create a TopicRank extractor
 extractor = TopicRank()
 
 # load the content of the document, here in CoreNLP XML format
 # the input language is set to English (used for the stoplist)
 # normalization is set to stemming (computed with Porter's stemming algorithm)
-extractor.load_document(input='C-1.xml',
-                        language="en",
-                        normalization='stemming')
+with open('2.txt') as f:
+    doc = f.read()
+extractor.load_document(
+    doc,
+    language='en',
+    normalization='stemming')
 
 # select the keyphrase candidates, for TopicRank the longest sequences of 
 # nouns and adjectives
