@@ -64,6 +64,9 @@ class LoadFile(object):
                 string.
         """
 
+        # Reset object for new document
+        self.__init__()
+
         # get the language parameter
         if language is None:
             language = 'en'
@@ -113,7 +116,6 @@ class LoadFile(object):
         else:
             for i, sentence in enumerate(self.sentences):
                 self.sentences[i].stems = [w.lower() for w in sentence.words]
-
 
     def is_redundant(self, candidate, prev, minimum_length=1):
         """Test if one candidate is redundant with respect to a list of already
@@ -230,6 +232,9 @@ class LoadFile(object):
             n (int): the n-gram length, defaults to 3.
         """
 
+        # reset the candidates
+        self.candidates.clear()
+
         # loop through the sentences
         for i, sentence in enumerate(self.sentences):
 
@@ -264,6 +269,9 @@ class LoadFile(object):
             key (func) : function that given a sentence return an iterable
             valid_values (set): the set of valid values, defaults to None.
         """
+
+        # reset the candidates
+        self.candidates.clear()
 
         # loop through the sentences
         for i, sentence in enumerate(self.sentences):
@@ -303,6 +311,9 @@ class LoadFile(object):
         Args:
             grammar (str): grammar defining POS patterns of NPs.
         """
+
+        # reset the candidates
+        self.candidates.clear()
 
         # initialize default grammar if none provided
         if grammar is None:
