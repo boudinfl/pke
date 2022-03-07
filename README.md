@@ -61,7 +61,7 @@ To get your hands dirty with `pke`, we invite you to try our tutorials out.
 
 |                          Name                   |     Link     |
 | ----------------------------------------------  |  ----------  |
-| Graph-based keyphrase extraction with TopicRank | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/keyphrasification/hands-on-with-pke/blob/main/part-1-graph-based-keyphrase-extraction.ipynb) |
+| Getting started with `pke` and keyphrase extraction | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/keyphrasification/hands-on-with-pke/blob/main/part-1-graph-based-keyphrase-extraction.ipynb) |
 | Model parameterization                          | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/keyphrasification/hands-on-with-pke/blob/main/part-2-parameterization.ipynb) |
 | Benchmarking models                             | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/keyphrasification/hands-on-with-pke/blob/main/part-3-benchmarking-models.ipynb) |
 
