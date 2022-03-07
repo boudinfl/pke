@@ -25,6 +25,12 @@ To pip install `pke` from github:
 pip install git+https://github.com/boudinfl/pke.git
 ```
 
+`pke` relies on `spacy` for text processing and requires [models](https://spacy.io/usage/models) to be installed: 
+
+```bash
+python -m spacy download en_core_web_sm # download the english model
+```
+
 ## Minimal example
 
 `pke` provides a standardized API for extracting keyphrases from a document.

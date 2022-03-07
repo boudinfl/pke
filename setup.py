@@ -19,8 +19,7 @@ setup(name='pke',
           'unidecode',
           'future',
           'joblib',
-          'spacy',
-          'en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.2.0/en_core_web_sm-3.2.0.tar.gz',
+          'spacy'
       ],
       package_data={'pke': ['models/*.pickle', 'models/*.gz']}
       )
