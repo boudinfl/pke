@@ -66,8 +66,8 @@ class RawTextReader(Reader):
                 logging.error('A list of available spacy models is available at https://spacy.io/models.')
                 return
 
-        # add the sentence splitter
-        nlp.add_pipe('sentencizer')
+            # add the sentence splitter
+            nlp.add_pipe('sentencizer')
 
         # Fix for non splitting words with hyphens with spacy taken from
         # https://stackoverflow.com/questions/43388476/how-could-spacy-tokenize-hashtag-as-a-whole
