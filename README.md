@@ -7,7 +7,7 @@ easy benchmarking of state-of-the-art keyphrase extraction models, and
 ships with supervised models trained on the
 [SemEval-2010 dataset](http://aclweb.org/anthology/S10-1004).
 
-[![Build Status](https://travis-ci.org/boudinfl/pke.svg?branch=master)](https://travis-ci.org/boudinfl/pke)
+![python-package workflow](https://github.com/boudinfl/pke/actions/workflows/python-package.yml/badge.svg)
 
 ## Table of Contents
 
