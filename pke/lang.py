@@ -77,4 +77,5 @@ langcodes = {
        "ru": "russian",
        "sp": "spanish",
        "sw": "swedish",
+       "ja": "japanese"
 }
