@@ -9,7 +9,6 @@ from __future__ import print_function
 import os
 import sys
 import csv
-import glob
 import pickle
 import gzip
 import json

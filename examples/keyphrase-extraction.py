@@ -4,11 +4,10 @@
 # this example uses TopicRank
 from pke.unsupervised import TopicRank
 
-
 # create a TopicRank extractor
 extractor = TopicRank()
 
-# load the content of the document, here in CoreNLP XML format
+# load the content of the document, here in raw text format
 # the input language is set to English (used for the stoplist)
 # normalization is set to stemming (computed with Porter's stemming algorithm)
 with open('2.txt') as f:
