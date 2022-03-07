@@ -72,8 +72,7 @@ class PositionRank(SingleRank):
 
     def candidate_selection(self,
                             grammar=None,
-                            maximum_word_number=3,
-                            **kwargs):
+                            maximum_word_number=3):
         """Candidate selection heuristic using a syntactic PoS pattern for
         noun phrase extraction.
 

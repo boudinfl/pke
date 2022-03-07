@@ -36,23 +36,21 @@ class Kea(SupervisedLoadFile):
     Parameterized example::
 
         import pke
-        from nltk.corpus import stopwords
-
-        # define a list of stopwords
-        stoplist = stopwords.words('english')
 
         # 1. create a Kea extractor.
         extractor = pke.supervised.Kea()
 
         # 2. load the content of the document.
+        stoplist = pke.lang.stopwords.get('en')
         extractor.load_document(input='path/to/input',
                                 language='en',
+                                stoplist=stoplist,
                                 normalization=None)
 
         # 3. select 1-3 grams that do not start or end with a stopword as
         #    candidates. Candidates that contain punctuation marks as words
         #    are discarded.
-        extractor.candidate_selection(stoplist=stoplist)
+        extractor.candidate_selection()
 
         # 4. classify candidates as keyphrase or not keyphrase.
         df = pke.load_document_frequency_file(input_file='path/to/df.tsv.gz')
@@ -69,26 +67,20 @@ class Kea(SupervisedLoadFile):
 
         super(Kea, self).__init__()
 
-    def candidate_selection(self, stoplist=None, **kwargs):
+    def candidate_selection(self):
         """Select 1-3 grams of `normalized` words as keyphrase candidates.
         Candidates that start or end with a stopword are discarded. Candidates
         that contain punctuation marks (from `string.punctuation`) as words are
         filtered out.
-
-        Args:
-            stoplist (list): the stoplist for filtering candidates, defaults
-                to the nltk stoplist.
         """
 
         # select ngrams from 1 to 3 grams
         self.ngram_selection(n=3)
 
-        # filter candidates containing punctuation marks
-        self.candidate_filtering(list(string.punctuation))
-
-        # initialize stoplist list if not provided
-        if stoplist is None:
-            stoplist = self.stoplist
+        # filter candidates
+        self.candidate_filtering()
+        # TODO: is filtering only candidate with punctuation mandatory ?
+        #self.candidate_filtering(list(string.punctuation))
 
         # filter candidates that start or end with a stopword
         for k in list(self.candidates):
@@ -98,7 +90,7 @@ class Kea(SupervisedLoadFile):
 
             # delete if candidate contains a stopword in first/last position
             words = [u.lower() for u in v.surface_forms[0]]
-            if words[0] in stoplist or words[-1] in stoplist:
+            if words[0] in self.stoplist or words[-1] in self.stoplist:
                 del self.candidates[k]
 
     def feature_extraction(self, df=None, training=False):

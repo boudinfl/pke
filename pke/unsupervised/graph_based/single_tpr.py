@@ -22,7 +22,6 @@ import logging
 
 import networkx as nx
 import numpy as np
-import six
 from scipy.spatial.distance import cosine
 from sklearn.feature_extraction.text import CountVectorizer
 
@@ -36,7 +35,6 @@ class TopicalPageRank(SingleRank):
     Parameterized example::
 
         import pke
-        from nltk.corpus import stopwords
 
         # define the valid Part-of-Speeches to occur in the graph
         pos = {'NOUN', 'PROPN', 'ADJ'}
@@ -72,7 +70,7 @@ class TopicalPageRank(SingleRank):
 
         super(TopicalPageRank, self).__init__()
 
-    def candidate_selection(self, grammar=None, **kwargs):
+    def candidate_selection(self, grammar=None):
         """Candidate selection heuristic.
 
         Here we select noun phrases that match the regular expression
@@ -102,7 +100,6 @@ class TopicalPageRank(SingleRank):
                             window=10,
                             pos=None,
                             lda_model=None,
-                            stoplist=None,
                             normalized=False):
         """Candidate weight calculation using a biased PageRank towards LDA
         topic distributions.
@@ -114,8 +111,6 @@ class TopicalPageRank(SingleRank):
                 nodes in the graph, defaults to ('NOUN', 'PROPN', 'ADJ').
             lda_model (pickle.gz): an LDA model produced by sklearn in
                 pickle compressed (.gz) format
-            stoplist (list): the stoplist for filtering words in LDA, defaults
-                to the nltk stoplist.
             normalized (False): normalize keyphrase score by their length,
                 defaults to False.
         """
@@ -125,10 +120,6 @@ class TopicalPageRank(SingleRank):
         if pos is None:
             pos = {'NOUN', 'PROPN', 'ADJ'}
 
-        # initialize stoplist list if not provided
-        if stoplist is None:
-            stoplist = self.stoplist
-
         # build the word graph
         # ``Since keyphrases are usually noun phrases, we only add adjectives
         # and nouns in word graph.'' -> (Liu et al., 2010)
@@ -137,12 +128,8 @@ class TopicalPageRank(SingleRank):
 
         # set the default LDA model if none provided
         if lda_model is None:
-            if six.PY2:
-                lda_model = os.path.join(self._models,
-                                         "lda-1000-semeval2010.py2.pickle.gz")
-            else:
-                lda_model = os.path.join(self._models,
-                                         "lda-1000-semeval2010.py3.pickle.gz")
+            lda_model = os.path.join(self._models,
+                                     "lda-1000-semeval2010.py3.pickle.gz")
             logging.warning('LDA model is hard coded to {}'.format(lda_model))
 
         # load parameters from file
@@ -154,7 +141,7 @@ class TopicalPageRank(SingleRank):
             doc.extend([s.stems[i] for i in range(s.length)])
 
         # vectorize document
-        tf_vectorizer = CountVectorizer(stop_words=stoplist,
+        tf_vectorizer = CountVectorizer(stop_words=self.stoplist,
                                         vocabulary=dictionary)
 
         tf = tf_vectorizer.fit_transform([' '.join(doc)])

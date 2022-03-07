@@ -125,7 +125,7 @@ class SingleRank(TextRank):
         self.build_word_graph(window=window, pos=pos)
 
         # compute the word scores using random walk
-        w = nx.pagerank_scipy(self.graph,
+        w = nx.pagerank(self.graph,
                               alpha=0.85,
                               tol=0.0001,
                               weight='weight')

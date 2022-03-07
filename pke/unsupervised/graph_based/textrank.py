@@ -155,7 +155,7 @@ class TextRank(LoadFile):
         self.build_word_graph(window=window, pos=pos)
 
         # compute the word scores using the unweighted PageRank formulae
-        w = nx.pagerank_scipy(self.graph, alpha=0.85, tol=0.0001, weight=None)
+        w = nx.pagerank(self.graph, alpha=0.85, tol=0.0001, weight=None)
 
         # generate the phrases from the T-percent top ranked words
         if top_percent is not None:
