@@ -14,3 +14,4 @@ from pke.unsupervised.graph_based.textrank import TextRank
 from pke.unsupervised.statistical.tfidf import TfIdf
 from pke.unsupervised.statistical.yake import YAKE
 from pke.unsupervised.statistical.firstphrases import FirstPhrases
+from pke.unsupervised.statistical.kpminer import KPMiner

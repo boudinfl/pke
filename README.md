@@ -80,6 +80,7 @@ To get your hands dirty with `pke`, we invite you to try our tutorials out.
   * Statistical models
     * FirstPhrases
     * TfIdf
+    * KPMiner [(El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf)
     * YAKE [(Campos et al., 2020)](https://doi.org/10.1016/j.ins.2019.09.013)
   * Graph-based models
     * TextRank [(Mihalcea and Tarau, 2004)](http://www.aclweb.org/anthology/W04-3252.pdf)
