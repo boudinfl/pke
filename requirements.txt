@@ -6,4 +6,4 @@ scikit-learn
 unidecode
 future
 joblib
-spacy
+spacy>=3.2.3

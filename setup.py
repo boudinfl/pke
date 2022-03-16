@@ -19,7 +19,7 @@ setup(name='pke',
           'unidecode',
           'future',
           'joblib',
-          'spacy'
+          'spacy>=3.2.3'
       ],
       package_data={'pke': ['models/*.pickle', 'models/*.gz']}
       )
