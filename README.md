@@ -25,7 +25,7 @@ To pip install `pke` from github:
 pip install git+https://github.com/boudinfl/pke.git
 ```
 
-`pke` relies on `spacy` for text processing and requires [models](https://spacy.io/usage/models) to be installed: 
+`pke` relies on `spacy` (>= 3.2.3) for text processing and requires [models](https://spacy.io/usage/models) to be installed: 
 
 ```bash
 # download the english model
