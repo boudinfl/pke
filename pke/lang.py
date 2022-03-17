@@ -10,6 +10,7 @@ https://github.com/nltk/nltk_data/blob/gh-pages/packages/corpora/stopwords.zip
 Langcodes.
 
 """
+import spacy.lang.ja
 
 stopwords = {
     "en": ["i", "me", "my", "myself", "we", "our", "ours", "ourselves", "you", "you\'re", "you\'ve", "you\'ll",
@@ -58,7 +59,8 @@ stopwords = {
            'unser', 'unseres', 'unter', 'viel', 'vom', 'von', 'vor', 'während', 'war', 'waren', 'warst', 'was', 'weg',
            'weil', 'weiter', 'welche', 'welchem', 'welchen', 'welcher', 'welches', 'wenn', 'werde', 'werden', 'wie',
            'wieder', 'will', 'wir', 'wird', 'wirst', 'wo', 'wollen', 'wollte', 'würde', 'würden', 'zu', 'zum', 'zur',
-           'zwar', 'zwischen']
+           'zwar', 'zwischen'],
+       'ja': list(spacy.lang.ja.stop_words.STOP_WORDS)
 }
 
 langcodes = {
