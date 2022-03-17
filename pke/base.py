@@ -105,9 +105,15 @@ class LoadFile(object):
 
         # TODO: this code could go into Reader.normalize ? Hum, not sure
         if self.normalization == 'stemming':
-            # fall back to porter if english language is used
-            langcode = langcodes.get(self.language.replace('en', 'xx'), 'porter')
-            stemmer = SnowballStemmer(langcode)
+            # fall back to porter if english language (or unavailable languages) is used
+            try:
+                langcode = langcodes.get(self.language)
+                if langcode == "english":
+                    langcode = 'porter'
+                stemmer = SnowballStemmer(langcode)
+            except ValueError:
+                logging.error('No stemmer available for \'{}\' language -> fall back to porter.'.format(self.language))
+                stemmer = SnowballStemmer("porter")
 
             # populate Sentence.stems
             for i, sentence in enumerate(self.sentences):
