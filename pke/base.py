@@ -58,7 +58,8 @@ class LoadFile(object):
             stoplist (list): custom list of stopwords, defaults to
                 pke.lang.stopwords[language].
             normalization (str): word normalization method, defaults to
-                'stemming'. Other possible value is 'none'
+                'stemming'. Other possible values are 'lemmatization'
+                for using lemmas as stems and 'none'
                 for using word surface forms instead of stems/lemmas.
             spacy_model (spacy.lang): preloaded spacy model when input is a
                 string.
@@ -118,6 +119,10 @@ class LoadFile(object):
             # populate Sentence.stems
             for i, sentence in enumerate(self.sentences):
                 self.sentences[i].stems = [stemmer.stem(w).lower() for w in sentence.words]
+
+        elif self.normalization == 'lemmatization':
+            for i, sentence in enumerate(self.sentences):
+                self.sentences[i].stems = sentence.meta['lemmas']
 
         else:
             for i, sentence in enumerate(self.sentences):
