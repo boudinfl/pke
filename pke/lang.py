@@ -28,7 +28,8 @@ langcodes = {
        "ru": "russian",
        "sp": "spanish",
        "sw": "swedish",
-       "ja": "japanese"
+       "ja": "japanese",
+       "zh": "chinese"
 }
 
 stopwords = {}
