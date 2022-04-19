@@ -19,13 +19,13 @@ sys.path.insert(0, os.path.abspath('../../'))
 # -- Project information -----------------------------------------------------
 
 project = 'pke'
-copyright = '2018, pke Contributors'
+copyright = '2018-2022, pke Contributors'
 author = 'pke Contributors'
 
 # The short X.Y version
-version = '1.8'
+version = '2.0'
 # The full version, including alpha/beta/rc tags
-release = '1.8'
+release = '2.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -77,7 +77,7 @@ pygments_style = 'sphinx'
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'classic'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

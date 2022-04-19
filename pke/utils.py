@@ -168,14 +168,6 @@ def train_supervised_model(documents,
         leave_one_out (bool): whether to use a leave-one-out procedure for
             training, creating one model per input, defaults to False.
     """
-
-    """references = load_references(reference_file,
-                                 sep_doc_id=sep_doc_id,
-                                 sep_ref_keyphrases=sep_ref_keyphrases,
-                                 normalize_reference=normalize_reference,
-                                 language=language,
-                                 encoding=ref_encoding)
-    """
     training_instances = []
     training_classes = []
     masks = {}
