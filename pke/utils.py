@@ -332,7 +332,8 @@ def compute_lda_model(documents,
                       n_topics=500,
                       language="en",
                       stoplist=None,
-                      normalization="stemming"):
+                      normalization="stemming",
+                      spacy_model=None):
     """Compute a LDA model from a collection of documents. Latent Dirichlet
     Allocation is computed using sklearn module.
 
@@ -347,13 +348,26 @@ def compute_lda_model(documents,
         normalization (str): word normalization method, defaults to
             'stemming'. Other possible value is 'none'
             for using word surface forms instead of stems/lemmas.
+        spacy_model (spacy.lang): preloaded spacy model when input is a
+            string. Preloading the spacy model makes this function way faster for 
+            large documents collections. Example:
+                import spacy
+                nlp = spacy.load("it_core_news_lg", disable=['ner', 'textcat', 'parser'])
+                nlp.add_pipe('sentencizer')
+                compute_lda_model(documents, output_file, spacy_model=nlp)
     """
 
     # texts container
     texts = []
 
+    documents_count = len(documents)
+    updates = 0
     # loop throught the documents
-    for document in documents:
+    for idx, document in enumerate(documents):
+        processed = 100*(idx/documents_count)
+        if divmod(processed, 10) == (updates, 0):
+            updates += 1
+            logging.info('processed {} % of all documents'.format(int(processed)))
 
         # initialize load file object
         doc = LoadFile()
@@ -361,7 +375,8 @@ def compute_lda_model(documents,
         # read the input file
         doc.load_document(input=document,
                           language=language,
-                          normalization=normalization)
+                          normalization=normalization,
+                          spacy_model=spacy_model)
 
         # container for current document
         text = []
@@ -376,7 +391,7 @@ def compute_lda_model(documents,
 
         # add the document to the texts container
         texts.append(' '.join(text))
-
+    logging.info('fitting model...')
     # vectorize dataset
     # get the stoplist from pke.lang because CountVectorizer only contains
     # english stopwords atm
