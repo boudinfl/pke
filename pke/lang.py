@@ -23,7 +23,7 @@ langcodes = {
        "hu": "hungarian",
        "it": "italian",
        "no": "norwegian",
-       "po": "portuguese",
+       "pt": "portuguese",
        "ro": "romanian",
        "ru": "russian",
        "sp": "spanish",
