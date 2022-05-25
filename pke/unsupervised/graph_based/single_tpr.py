@@ -133,7 +133,12 @@ class TopicalPageRank(SingleRank):
             logging.warning('LDA model is hard coded to {}'.format(lda_model))
 
         # load parameters from file
-        dictionary, model = pke.utils.load_lda_model(lda_model)
+        elif isinstance(lda_model, str):
+            dictionary, model = pke.utils.load_lda_model(lda_model)
+
+        # otherwise, we expect a loaded lda model
+        else:
+            dictionary, model = lda_model
 
         # build the document representation
         doc = []
