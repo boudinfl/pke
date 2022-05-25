@@ -313,7 +313,7 @@ def load_lda_model(input_file):
         input_file (str): the gzip input file containing lda model.
 
     Returns:
-        dictionnary: a dictionary of the form {term_1: freq}, freq being an
+        dictionary: a dictionary of the form {term_1: freq}, freq being an
             integer.
         model: an initialized sklearn.decomposition.LatentDirichletAllocation
             model.
