@@ -128,12 +128,11 @@ class TopicalPageRank(SingleRank):
 
         # set the default LDA model if none provided
         if lda_model is None:
-            lda_model = os.path.join(self._models,
-                                     "lda-1000-semeval2010.py3.pickle.gz")
+            lda_model = os.path.join(self._models, "lda-1000-semeval2010.py3.pickle.gz")
             logging.warning('LDA model is hard coded to {}'.format(lda_model))
 
         # load parameters from file
-        elif isinstance(lda_model, str):
+        if isinstance(lda_model, str):
             dictionary, model = pke.utils.load_lda_model(lda_model)
 
         # otherwise, we expect a loaded lda model
