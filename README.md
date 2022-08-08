@@ -15,6 +15,7 @@ ships with supervised models trained on the
 * [Minimal example](#minimal-example)
 * [Getting started](#getting-started)
 * [Implemented models](#implemented-models)
+* [Model performances](#model-performances)
 * [Citing pke](#citing-pke)
 
 ## Installation
@@ -92,6 +93,12 @@ To get your hands dirty with `pke`, we invite you to try our tutorials out.
 * Supervised models
   * Feature-based models
     * Kea [(Witten et al., 2005)](https://www.cs.waikato.ac.nz/ml/publications/2005/chap_Witten-et-al_Windows.pdf)
+
+## Model performances 
+
+For comparison purposes, overall results of implemented models on commonly-used benchmark datasets are available in [results](results.md).
+Code for reproducing these experiments are in the [benchmarking](examples/benchmarking-models.ipynb) notebook
+(also available on [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/boudinfl/pke/blob/main/examples/benchmarking-models.ipynb)).
 
 ## Citing pke
 

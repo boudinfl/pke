@@ -131,17 +131,13 @@ class YAKE(LoadFile):
             # loop through words in sentence
             for j, word in enumerate(sentence.words):
 
-                # consider words containing at least one alpha-numeric character
-                if self._is_alphanum(word) and \
-                        not re.search('(?i)^-[lr][rcs]b-$', word):
+                # get the word or stem
+                index = word.lower()
+                if use_stems:
+                    index = sentence.stems[j]
 
-                    # get the word or stem
-                    index = word.lower()
-                    if use_stems:
-                        index = sentence.stems[j]
-
-                    # add the word occurrence
-                    self.words[index].add((shift + j, shift, i, word))
+                # add the word occurrence
+                self.words[index].add((shift + j, shift, i, word))
 
     def _contexts_building(self, use_stems=False, window=2):
         """Build the contexts of the words for computing the relatedness

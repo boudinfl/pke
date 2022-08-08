@@ -168,14 +168,6 @@ def train_supervised_model(documents,
         leave_one_out (bool): whether to use a leave-one-out procedure for
             training, creating one model per input, defaults to False.
     """
-
-    """references = load_references(reference_file,
-                                 sep_doc_id=sep_doc_id,
-                                 sep_ref_keyphrases=sep_ref_keyphrases,
-                                 normalize_reference=normalize_reference,
-                                 language=language,
-                                 encoding=ref_encoding)
-    """
     training_instances = []
     training_classes = []
     masks = {}
@@ -321,7 +313,7 @@ def load_lda_model(input_file):
         input_file (str): the gzip input file containing lda model.
 
     Returns:
-        dictionnary: a dictionary of the form {term_1: freq}, freq being an
+        dictionary: a dictionary of the form {term_1: freq}, freq being an
             integer.
         model: an initialized sklearn.decomposition.LatentDirichletAllocation
             model.
