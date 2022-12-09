@@ -381,14 +381,15 @@ def compute_lda_model(documents,
     # get the stoplist from pke.lang because CountVectorizer only contains
     # english stopwords atm
     if stoplist is None:
-        stoplist = stopwords.get(language)
+        # CountVectorizer expects a list
+        #  stopwords.get is a set
+        stoplist = list(stopwords.get(language))
     tf_vectorizer = CountVectorizer(
         stop_words=stoplist)
     tf = tf_vectorizer.fit_transform(texts)
 
     # extract vocabulary
-    vocabulary = tf_vectorizer.get_feature_names()
-    # TODO: deprecation warning: use get_feature_names_out
+    vocabulary = tf_vectorizer.get_feature_names_out()
 
     # create LDA model and train
     lda_model = LatentDirichletAllocation(n_components=n_topics,
