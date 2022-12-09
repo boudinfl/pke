@@ -31,7 +31,7 @@ class KPMiner(LoadFile):
 
         import pke
 
-        # 1. create a KPMiner extractor. 
+        # 1. create a KPMiner extractor.
         extractor = pke.unsupervised.KPMiner()
 
         # 2. load the content of the document.
@@ -58,7 +58,7 @@ class KPMiner(LoadFile):
         keyphrases = extractor.get_n_best(n=10)
     """
 
-    def candidate_selection(self, lasf=3, cutoff=400, stoplist=None, **kwargs):
+    def candidate_selection(self, lasf=3, cutoff=400):
         """The candidate selection as described in the KP-Miner paper.
 
         Args:
@@ -73,12 +73,8 @@ class KPMiner(LoadFile):
         # select ngrams from 1 to 5 grams
         self.ngram_selection(n=5)
 
-        # initialize stoplist list if not provided
-        if stoplist is None:
-            stoplist = self.stoplist
-
-        # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=list(string.punctuation) + stoplist)
+        # filter candidates containing stopwords
+        self.candidate_filtering()
 
         # further filter candidates using lasf and cutoff
         # Python 2/3 compatible
@@ -101,7 +97,7 @@ class KPMiner(LoadFile):
         Note:
             w = tf * idf * B * P_f
             with
-            
+
               * B = N_d / (P_d * alpha) and B = min(sigma, B)
               * N_d = the number of all candidate terms
               * P_d = number of candidates whose length exceeds one
@@ -153,4 +149,4 @@ class KPMiner(LoadFile):
                 # If single word candidate do not apply boosting factor
                 self.weights[k] = len(v.surface_forms) * idf
             else:
-                 self.weights[k] = len(v.surface_forms) * B * idf
+                self.weights[k] = len(v.surface_forms) * B * idf

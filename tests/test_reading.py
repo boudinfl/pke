@@ -1,40 +1,28 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import pke
-import codecs
 
-model = pke.unsupervised.TopicRank
-
-data_path = os.path.join('tests', 'data')
-xml_test_file = data_path + os.sep + '1939.xml'
-raw_test_file = data_path + os.sep + '1939.txt'
+from .sample import sample, sample_doc, sample_list
 
 
 def test_reading():
 
-    # loading XML input
-    extr1 = model()
-    extr1.load_document(xml_test_file)
-
-    # loading txt input
-    extr2 = model()
-    extr2.load_document(raw_test_file)
+    # loading from string
+    extractor1 = pke.base.LoadFile()
+    extractor1.load_document(sample)
 
     # loading from string
-    extr3 = model()
-    with codecs.open(raw_test_file, 'r', 'utf-8') as f:
-        text = f.read()
-    extr3.load_document(text)
+    extractor2 = pke.base.LoadFile()
+    extractor2.load_document(sample_doc)
 
-    assert len(extr1.sentences) == 4 and extr2.sentences == extr3.sentences
+    # loading from preprocessed text
+    extractor3 = pke.base.LoadFile()
+    extractor3.load_document(sample_list)
 
+    assert len(extractor1.sentences) == 4 and extractor1.sentences == extractor2.sentences and \
+           extractor2.sentences == extractor3.sentences and extractor1.sentences[0] == extractor2.sentences[0] and \
+           extractor2.sentences[0] == extractor3.sentences[0]
 
-def test_french_model():
-    extr = model()
-    extr.load_document('est-ce')
-    assert '' not in extr.sentences[0].pos
 
 if __name__ == '__main__':
     test_reading()

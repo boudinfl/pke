@@ -34,21 +34,21 @@ class MultipartiteRank(TopicRank):
 
         import pke
         import string
-        from nltk.corpus import stopwords
 
         # 1. create a MultipartiteRank extractor.
         extractor = pke.unsupervised.MultipartiteRank()
 
+        stoplist = list(string.punctuation)
+        stoplist += pke.lang.stopwords.get('en')
+
         # 2. load the content of the document.
-        extractor.load_document(input='path/to/input.xml')
+        extractor.load_document(input='path/to/input.xml',
+                                stoplist=stoplist)
 
         # 3. select the longest sequences of nouns and adjectives, that do
         #    not contain punctuation marks or stopwords as candidates.
         pos = {'NOUN', 'PROPN', 'ADJ'}
-        stoplist = list(string.punctuation)
-        stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
-        stoplist += stopwords.words('english')
-        extractor.candidate_selection(pos=pos, stoplist=stoplist)
+        extractor.candidate_selection(pos=pos)
 
         # 4. build the Multipartite graph and rank candidates using random
         #    walk, alpha controls the weight adjustment mechanism, see
@@ -234,4 +234,4 @@ class MultipartiteRank(TopicRank):
             self.weight_adjustment(alpha)
 
         # compute the word scores using random walk
-        self.weights = nx.pagerank_scipy(self.graph)
+        self.weights = nx.pagerank(self.graph)

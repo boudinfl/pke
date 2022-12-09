@@ -16,7 +16,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import string
 from itertools import combinations
 
 import networkx as nx
@@ -34,21 +33,20 @@ class TopicRank(LoadFile):
 
         import pke
         import string
-        from nltk.corpus import stopwords
 
         # 1. create a TopicRank extractor.
         extractor = pke.unsupervised.TopicRank()
 
         # 2. load the content of the document.
-       extractor.load_document(input='path/to/input.xml')
+        stoplist = list(string.punctuation)
+        stoplist += pke.lang.stopwords.get('en')
+        extractor.load_document(input='path/to/input.xml',
+                                stoplist=stoplist)
 
         # 3. select the longest sequences of nouns and adjectives, that do
         #    not contain punctuation marks or stopwords as candidates.
         pos = {'NOUN', 'PROPN', 'ADJ'}
-        stoplist = list(string.punctuation)
-        stoplist += ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
-        stoplist += stopwords.words('english')
-        extractor.candidate_selection(pos=pos, stoplist=stoplist)
+        extractor.candidate_selection(pos=pos)
 
         # 4. build topics by grouping candidates with HAC (average linkage,
         #    threshold of 1/4 of shared stems). Weight the topics using random
@@ -72,17 +70,16 @@ class TopicRank(LoadFile):
         self.topics = []
         """ The topic container. """
 
-    def candidate_selection(self, pos=None, stoplist=None):
+        self._w = {}
+        """ Weights computed for each topic. """
+
+    def candidate_selection(self, pos=None):
         """Selects longest sequences of nouns and adjectives as keyphrase
         candidates.
 
         Args:
             pos (set): the set of valid POS tags, defaults to ('NOUN',
                 'PROPN', 'ADJ').
-            stoplist (list): the stoplist for filtering candidates, defaults to
-                the nltk stoplist. Words that are punctuation marks from
-                string.punctuation are not allowed.
-
         """
 
         # define default pos tags set
@@ -92,16 +89,10 @@ class TopicRank(LoadFile):
         # select sequence of adjectives and nouns
         self.longest_pos_sequence_selection(valid_pos=pos)
 
-        # initialize stoplist list if not provided
-        if stoplist is None:
-            stoplist = self.stoplist
-
-        # filter candidates containing stopwords or punctuation marks
-        self.candidate_filtering(stoplist=(
-            list(string.punctuation)
-            + ['-lrb-', '-rrb-', '-lcb-', '-rcb-', '-lsb-', '-rsb-']
-            + stoplist
-        ))
+        # filter candidates containing stopwords
+        self.candidate_filtering()
+        # TODO: is filtering only candidate with punctuation mandatory ?
+        #self.candidate_filtering(list(string.punctuation))
 
     def vectorize_candidates(self):
         """Vectorize the keyphrase candidates.
@@ -223,7 +214,7 @@ class TopicRank(LoadFile):
         self.build_topic_graph()
 
         # compute the word scores using random walk
-        w = nx.pagerank_scipy(self.graph, alpha=0.85, weight='weight')
+        self._w = nx.pagerank(self.graph, alpha=0.85, weight='weight')
 
         # loop through the topics
         for i, topic in enumerate(self.topics):
@@ -244,8 +235,8 @@ class TopicRank(LoadFile):
                 indexes_offsets = [offsets[j] for j in indexes]
                 # Choosing the first occuring most frequent candidate
                 most_frequent = offsets.index(min(indexes_offsets))
-                self.weights[topic[most_frequent]] = w[i]
+                self.weights[topic[most_frequent]] = self._w[i]
 
             else:
                 first = offsets.index(min(offsets))
-                self.weights[topic[first]] = w[i]
+                self.weights[topic[first]] = self._w[i]

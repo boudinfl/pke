@@ -9,7 +9,6 @@ from __future__ import division
 from __future__ import print_function
 
 import math
-import string
 import logging
 
 from pke.base import LoadFile
@@ -28,13 +27,15 @@ class TfIdf(LoadFile):
         extractor = pke.unsupervised.TfIdf()
 
         # 2. load the content of the document.
+        stoplist = list(string.punctuation)
+        stoplist += pke.lang.stopwords.get('en')
         extractor.load_document(input='path/to/input',
                                 language='en',
+                                stoplist=stoplist,
                                 normalization=None)
 
         # 3. select {1-3}-grams not containing punctuation marks as candidates.
-        extractor.candidate_selection(n=3,
-                                      stoplist=list(string.punctuation))
+        extractor.candidate_selection(n=3)
 
         # 4. weight the candidates using a `tf` x `idf`
         df = pke.load_document_frequency_file(input_file='path/to/df.tsv.gz')
@@ -44,26 +45,20 @@ class TfIdf(LoadFile):
         keyphrases = extractor.get_n_best(n=10)
     """
 
-    def candidate_selection(self, n=3, stoplist=None, **kwargs):
+    def candidate_selection(self, n=3):
         """Select 1-3 grams as keyphrase candidates.
 
         Args:
             n (int): the length of the n-grams, defaults to 3.
-            stoplist (list): the stoplist for filtering candidates, defaults to
-                `None`. Words that are punctuation marks from
-                `string.punctuation` are not allowed.
-
         """
 
         # select ngrams from 1 to 3 grams
         self.ngram_selection(n=n)
 
-        # initialize empty list if stoplist is not provided
-        if stoplist is None:
-            stoplist = list(string.punctuation)
-
         # filter candidates containing punctuation marks
-        self.candidate_filtering(stoplist=stoplist)
+        self.candidate_filtering()
+        # TODO: is filtering only candidate with punctuation mandatory ?
+        #self.candidate_filtering(list(string.punctuation))
 
     def candidate_weighting(self, df=None):
         """Candidate weighting function using document frequencies.

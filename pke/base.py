@@ -4,104 +4,18 @@
 
 from collections import defaultdict
 
-from pke.data_structures import Candidate, Document
-from pke.readers import MinimalCoreNLPReader, RawTextReader
+from pke.data_structures import Candidate
+from pke.readers import RawTextReader, SpacyDocReader, PreprocessedReader
 
 from nltk import RegexpParser
-from nltk.corpus import stopwords
-from nltk.tag.mapping import map_tag
-from nltk.stem.snowball import SnowballStemmer, PorterStemmer
+from nltk.stem.snowball import SnowballStemmer
 
-from .langcodes import LANGUAGE_CODE_BY_NAME
+from pke.lang import stopwords, langcodes
 
 from string import punctuation
 import os
 import logging
-import codecs
-
-from six import string_types
-
-from builtins import str
-
-
-# The language management should be in `pke.utils` but it would create a circular import.
-
-get_alpha_2 = lambda l: LANGUAGE_CODE_BY_NAME[l]
-
-lang_stopwords = {get_alpha_2(l): l for l in stopwords._fileids}
-
-lang_stem = {get_alpha_2(l): l for l in set(SnowballStemmer.languages) - set(['porter'])}
-lang_stem.update({'en': 'porter'})
-
-PRINT_NO_STEM_WARNING = defaultdict(lambda: True)
-PRINT_NO_STWO_WARNING = defaultdict(lambda: True)
-
-
-def get_stopwords(lang):
-    """Provide stopwords for the given language, or default value.
-
-    If stopwords are not available for a given language, a default value is
-    returned and a warning is displayed
-    :param lang: Alpha-2 language code.
-    :type lang: str
-    :returns: A list of stop words or an empty list.
-    :rtype: {List}
-    """
-    global PRINT_NO_STWO_WARNING
-    try:
-        lang = lang_stopwords[lang]
-        return stopwords.words(lang)
-    except KeyError:
-        if PRINT_NO_STWO_WARNING[lang]:
-            logging.warning('No stopwords for \'{}\' language.'.format(lang))
-            logging.warning(
-                'Please provide custom stoplist if willing to use stopwords. Or '
-                'update nltk\'s `stopwords` corpora using `nltk.download(\'stopwords\')`')
-            PRINT_NO_STWO_WARNING[lang] = False
-        return []
-
-
-def get_stemmer_func(lang):
-    """Provide steming function for the given language, or identity function.
-
-    If stemming is not available for a given language, a default value is
-    returned and a warning is displayed
-    :param lang: Alpha-2 language code.
-    :type lang: str
-    :returns: A function to stem a word (or the identity function).
-    :rtype: {Callable[[str], str]}
-    """
-    global PRINT_NO_STEM_WARNING
-    try:
-        lang = lang_stem[lang]
-        ignore_sw = lang != 'porter'  # PorterStemmer do not use stop_words
-        stemmer = SnowballStemmer(lang, ignore_stopwords=ignore_sw)
-        return stemmer.stem
-    except KeyError:
-        if PRINT_NO_STEM_WARNING[lang]:
-            logging.warning('No stemmer for \'{}\' language.'.format(lang))
-            logging.warning('Stemming will not be applied.')
-            PRINT_NO_STEM_WARNING[lang] = False
-        return lambda x: x
-
-
-escaped_punctuation = {'-lrb-': '(', '-rrb-': ')', '-lsb-': '[', '-rsb-': ']',
-                       '-lcb-': '{', '-rcb-': '}'}
-
-
-def is_file_path(input):
-    try:
-        return os.path.isfile(input)
-    except Exception:
-        # On some windows version the maximum path length is 255. When calling
-        #  `os.path.isfile` on long string it will raise a ValueError.
-        # We return false as even is the string is a file_path we won't be able
-        #  to open it
-        return False
-
-
-def is_corenlp(input):
-    return is_file_path(input) and input.endswith('.xml')
+import spacy
 
 
 class LoadFile(object):
@@ -109,9 +23,6 @@ class LoadFile(object):
 
     def __init__(self):
         """Initializer for LoadFile class."""
-
-        self.input_file = None
-        """Path to the input file."""
 
         self.language = None
         """Language of the input file."""
@@ -137,90 +48,80 @@ class LoadFile(object):
         self.stoplist = None
         """List of stopwords."""
 
-    def load_document(self, input, **kwargs):
+    def load_document(self, input, language=None, stoplist=None,
+                      normalization='stemming', spacy_model=None):
         """Loads the content of a document/string/stream in a given language.
 
         Args:
             input (str): input.
             language (str): language of the input, defaults to 'en'.
-            encoding (str): encoding of the raw file.
+            stoplist (list): custom list of stopwords, defaults to
+                pke.lang.stopwords[language].
             normalization (str): word normalization method, defaults to
-                'stemming'. Other possible values are 'lemmatization' or 'None'
+                'stemming'. Other possible value is 'none'
                 for using word surface forms instead of stems/lemmas.
+            spacy_model (spacy.lang): preloaded spacy model when input is a
+                string.
         """
 
+        # Reset object for new document
+        self.__init__()
+
         # get the language parameter
-        language = kwargs.get('language', 'en')
-
-        # initialize document
-        doc = Document()
-
-        if is_corenlp(input):
-            path = input
-            parser = MinimalCoreNLPReader()
-            doc = parser.read(path=input, **kwargs)
-            doc.is_corenlp_file = True
-        elif is_file_path(input):
-            path = input
-            with open(path, encoding=kwargs.get('encoding', 'utf-8')) as f:
-                input = f.read()
-            parser = RawTextReader(language=language)
-            doc = parser.read(text=input, path=path, **kwargs)
-        elif isinstance(input, str):
-            parser = RawTextReader(language=language)
-            doc = parser.read(text=input, **kwargs)
-        else:
-            logging.error('Cannot process input. It is neither a file path '
-                          'or a string: {}'.format(type(input)))
-            return
-
-        # set the input file
-        self.input_file = doc.input_file
+        if language is None:
+            language = 'en'
 
         # set the language of the document
         self.language = language
 
-        # set the sentences
-        self.sentences = doc.sentences
+        # word normalization (filling self.sentences[].stems)
+        self.normalization = normalization
 
         # initialize the stoplist
-        self.stoplist = get_stopwords(self.language)
-
-        # word normalization
-        self.normalization = kwargs.get('normalization', 'stemming')
-
-        if self.normalization == 'stemming':
-            stem = get_stemmer_func(self.language)
-            get_stem = lambda s: [stem(w).lower() for w in s.words]
+        if stoplist:
+            self.stoplist = stoplist
         else:
-            get_stem = lambda s: [w.lower() for w in s.words]
+            self.stoplist = stopwords.get(self.language)
 
-        # Populate Sentence.stems according to normalization
-        for i, sentence in enumerate(self.sentences):
-            self.sentences[i].stems = get_stem(sentence)
+        # check whether input is a spacy doc object instance
+        if isinstance(input, spacy.tokens.doc.Doc):
+            parser = SpacyDocReader()
+            sents = parser.read(spacy_doc=input)
+        # check whether input is a string
+        elif isinstance(input, str):
+            parser = RawTextReader(language=self.language)
+            sents = parser.read(text=input, spacy_model=spacy_model)
+        # check whether input is processed text
+        elif isinstance(input, list) and all(isinstance(item, list) for item in input):
+            parser = PreprocessedReader()
+            sents = parser.read(list_of_sentence_tuples=input)
+        else:
+            logging.error('Cannot process input. It is neither a spacy doc or a string: {}'.format(type(input)))
+            # TODO raise TypeError('Cannot process input. It is neither a spacy doc, a string or a list of tuple: {}'.format(type(input)))) ?
+            return
 
-        # POS normalization
-        if getattr(doc, 'is_corenlp_file', False):
-            self.normalize_pos_tags()
-            self.unescape_punctuation_marks()
+        # populate the sentences
+        self.sentences = sents
 
-    def normalize_pos_tags(self):
-        """Normalizes the PoS tags from udp-penn to UD."""
+        # TODO: this code could go into Reader.normalize ? Hum, not sure
+        if self.normalization == 'stemming':
+            # fall back to porter if english language (or unavailable languages) is used
+            try:
+                langcode = langcodes.get(self.language)
+                if langcode == "english":
+                    langcode = 'porter'
+                stemmer = SnowballStemmer(langcode)
+            except ValueError:
+                logging.error('No stemmer available for \'{}\' language -> fall back to porter.'.format(self.language))
+                stemmer = SnowballStemmer("porter")
 
-        if self.language == 'en':
-            # iterate throughout the sentences
+            # populate Sentence.stems
             for i, sentence in enumerate(self.sentences):
-                self.sentences[i].pos = [map_tag('en-ptb', 'universal', tag)
-                                         for tag in sentence.pos]
+                self.sentences[i].stems = [stemmer.stem(w).lower() for w in sentence.words]
 
-    def unescape_punctuation_marks(self):
-        """Replaces the special punctuation marks produced by CoreNLP."""
-
-        for i, sentence in enumerate(self.sentences):
-            for j, word in enumerate(sentence.words):
-                l_word = word.lower()
-                self.sentences[i].words[j] = escaped_punctuation.get(l_word,
-                                                                     word)
+        else:
+            for i, sentence in enumerate(self.sentences):
+                self.sentences[i].stems = [w.lower() for w in sentence.words]
 
     def is_redundant(self, candidate, prev, minimum_length=1):
         """Test if one candidate is redundant with respect to a list of already
@@ -337,6 +238,9 @@ class LoadFile(object):
             n (int): the n-gram length, defaults to 3.
         """
 
+        # reset the candidates
+        self.candidates.clear()
+
         # loop through the sentences
         for i, sentence in enumerate(self.sentences):
 
@@ -371,6 +275,9 @@ class LoadFile(object):
             key (func) : function that given a sentence return an iterable
             valid_values (set): the set of valid values, defaults to None.
         """
+
+        # reset the candidates
+        self.candidates.clear()
 
         # loop through the sentences
         for i, sentence in enumerate(self.sentences):
@@ -410,6 +317,9 @@ class LoadFile(object):
         Args:
             grammar (str): grammar defining POS patterns of NPs.
         """
+
+        # reset the candidates
+        self.candidates.clear()
 
         # initialize default grammar if none provided
         if grammar is None:
@@ -468,7 +378,6 @@ class LoadFile(object):
         return word.isalnum()
 
     def candidate_filtering(self,
-                            stoplist=None,
                             minimum_length=3,
                             minimum_word_size=2,
                             valid_punctuation_marks='-',
@@ -479,9 +388,8 @@ class LoadFile(object):
         keep the candidates containing alpha-numeric characters (if the
         non_latin_filter is set to True) and those length exceeds a given
         number of characters.
-            
+
         Args:
-            stoplist (list): list of strings, defaults to None.
             minimum_length (int): minimum number of characters for a
                 candidate, defaults to 3.
             minimum_word_size (int): minimum number of characters for a
@@ -496,9 +404,6 @@ class LoadFile(object):
                 candidates, defaults to [].
         """
 
-        if stoplist is None:
-            stoplist = []
-
         if pos_blacklist is None:
             pos_blacklist = []
 
@@ -512,7 +417,8 @@ class LoadFile(object):
             words = [u.lower() for u in v.surface_forms[0]]
 
             # discard if words are in the stoplist
-            if set(words).intersection(stoplist):
+            # TODO: shouldn't it be the stems ?
+            if set(words).intersection(self.stoplist):
                 del self.candidates[k]
 
             # discard if tags are in the pos_blacklist

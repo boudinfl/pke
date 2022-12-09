@@ -1,9 +1,9 @@
-.DS_Store
+**.DS_Store
 *.pyc
 docs/build/doctrees/*
 docs/build/html/_sources/*
 dev/
 .pytest_cache/
 /venv/
-/venv2/
 \.idea/
+/examples/.ipynb_checkpoints/

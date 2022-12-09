@@ -7,7 +7,7 @@ easy benchmarking of state-of-the-art keyphrase extraction models, and
 ships with supervised models trained on the
 [SemEval-2010 dataset](http://aclweb.org/anthology/S10-1004).
 
-[![Build Status](https://travis-ci.org/boudinfl/pke.svg?branch=master)](https://travis-ci.org/boudinfl/pke)
+![python-package workflow](https://github.com/boudinfl/pke/actions/workflows/python-package.yml/badge.svg)
 
 ## Table of Contents
 
@@ -15,6 +15,7 @@ ships with supervised models trained on the
 * [Minimal example](#minimal-example)
 * [Getting started](#getting-started)
 * [Implemented models](#implemented-models)
+* [Model performances](#model-performances)
 * [Citing pke](#citing-pke)
 
 ## Installation
@@ -25,15 +26,12 @@ To pip install `pke` from github:
 pip install git+https://github.com/boudinfl/pke.git
 ```
 
-`pke` also requires external resources that can be obtained using:
+`pke` relies on `spacy` (>= 3.2.3) for text processing and requires [models](https://spacy.io/usage/models) to be installed: 
 
 ```bash
-python -m nltk.downloader stopwords
-python -m nltk.downloader universal_tagset
-python -m spacy download en_core_web_sm # download the english model
+# download the english model
+python -m spacy download en_core_web_sm
 ```
-
-As of April 2019, `pke` only supports Python 3.6+.
 
 ## Minimal example
 
@@ -47,9 +45,9 @@ import pke
 # initialize keyphrase extraction model, here TopicRank
 extractor = pke.unsupervised.TopicRank()
 
-# load the content of the document, here document is expected to be in raw
-# format (i.e. a simple text file) and preprocessing is carried out using spacy
-extractor.load_document(input='/path/to/input.txt', language='en')
+# load the content of the document, here document is expected to be a simple 
+# test string and preprocessing is carried out using spacy
+extractor.load_document(input='text', language='en')
 
 # keyphrase candidate selection, in the case of TopicRank: sequences of nouns
 # and adjectives (i.e. `(Noun|Adj)*`)
@@ -67,8 +65,13 @@ A detailed example is provided in the [`examples/`](examples/) directory.
 
 ## Getting started
 
-Tutorials and code documentation are available at
-[https://boudinfl.github.io/pke/](https://boudinfl.github.io/pke/).
+To get your hands dirty with `pke`, we invite you to try our tutorials out.
+
+|                          Name                   |     Link     |
+| ----------------------------------------------  |  ----------  |
+| Getting started with `pke` and keyphrase extraction | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/keyphrasification/hands-on-with-pke/blob/main/part-1-graph-based-keyphrase-extraction.ipynb) |
+| Model parameterization                          | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/keyphrasification/hands-on-with-pke/blob/main/part-2-parameterization.ipynb) |
+| Benchmarking models                             | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/keyphrasification/hands-on-with-pke/blob/main/part-3-benchmarking-models.ipynb) |
 
 ## Implemented models
 
@@ -76,20 +79,26 @@ Tutorials and code documentation are available at
 
 * Unsupervised models
   * Statistical models
-    * TfIdf [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#tfidf)]
-    * KPMiner [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#kpminer), [article by (El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf)]
-    * YAKE [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#yake), [article by (Campos et al., 2020)](https://doi.org/10.1016/j.ins.2019.09.013)]
+    * FirstPhrases
+    * TfIdf
+    * KPMiner [(El-Beltagy and Rafea, 2010)](http://www.aclweb.org/anthology/S10-1041.pdf)
+    * YAKE [(Campos et al., 2020)](https://doi.org/10.1016/j.ins.2019.09.013)
   * Graph-based models
-    * TextRank [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#textrank), [article by (Mihalcea and Tarau, 2004)](http://www.aclweb.org/anthology/W04-3252.pdf)]
-    * SingleRank  [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#singlerank), [article by (Wan and Xiao, 2008)](http://www.aclweb.org/anthology/C08-1122.pdf)]
-    * TopicRank [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#topicrank), [article by (Bougouin et al., 2013)](http://aclweb.org/anthology/I13-1062.pdf)]
-    * TopicalPageRank [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#topicalpagerank), [article by (Sterckx et al., 2015)](http://users.intec.ugent.be/cdvelder/papers/2015/sterckx2015wwwb.pdf)]
-    * PositionRank [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#positionrank), [article by (Florescu and Caragea, 2017)](http://www.aclweb.org/anthology/P17-1102.pdf)]
-    * MultipartiteRank [[documentation](https://boudinfl.github.io/pke/build/html/unsupervised.html#multipartiterank), [article by (Boudin, 2018)](https://arxiv.org/abs/1803.08721)]
+    * TextRank [(Mihalcea and Tarau, 2004)](http://www.aclweb.org/anthology/W04-3252.pdf)
+    * SingleRank  [(Wan and Xiao, 2008)](http://www.aclweb.org/anthology/C08-1122.pdf)
+    * TopicRank [(Bougouin et al., 2013)](http://aclweb.org/anthology/I13-1062.pdf)
+    * TopicalPageRank [(Sterckx et al., 2015)](http://users.intec.ugent.be/cdvelder/papers/2015/sterckx2015wwwb.pdf)
+    * PositionRank [(Florescu and Caragea, 2017)](http://www.aclweb.org/anthology/P17-1102.pdf)
+    * MultipartiteRank [(Boudin, 2018)](https://arxiv.org/abs/1803.08721)
 * Supervised models
   * Feature-based models
-    * Kea [[documentation](https://boudinfl.github.io/pke/build/html/supervised.html#kea), [article by (Witten et al., 2005)](https://www.cs.waikato.ac.nz/ml/publications/2005/chap_Witten-et-al_Windows.pdf)]
-    * WINGNUS [[documentation](https://boudinfl.github.io/pke/build/html/supervised.html#wingnus), [article by (Nguyen and Luong, 2010)](http://www.aclweb.org/anthology/S10-1035.pdf)]
+    * Kea [(Witten et al., 2005)](https://www.cs.waikato.ac.nz/ml/publications/2005/chap_Witten-et-al_Windows.pdf)
+
+## Model performances 
+
+For comparison purposes, overall results of implemented models on commonly-used benchmark datasets are available in [results](results.md).
+Code for reproducing these experiments are in the [benchmarking](examples/benchmarking-models.ipynb) notebook
+(also available on [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/boudinfl/pke/blob/main/examples/benchmarking-models.ipynb)).
 
 ## Citing pke
 

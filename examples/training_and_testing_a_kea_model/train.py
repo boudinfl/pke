@@ -1,32 +1,47 @@
 # -*- coding: utf-8 -*-
 
+import os
 import logging
+from glob import glob
 
 import pke
 
 # setting info in terminal
 logging.basicConfig(level=logging.INFO)
+base = os.path.dirname(__file__)
 
 # path to the collection of documents
-input_dir = 'train' + os.sep
+documents = []
+for fn in glob(base + os.sep + 'train/*.txt'):
+    with open(fn) as f:
+        doc = f.read()
+    doc_id = os.path.basename(fn).rsplit('.', 1)[0]
+    documents.append((doc_id, doc))
+
+logging.info('Loaded {} documents'.format(len(documents)))
 
 # path to the reference file
-reference_file = "gold-annotation.txt"
+reference = {}
+with open(base + os.sep + 'gold-annotation.txt') as f:
+    for line in f:
+        doc_id, keywords = line.split(' : ')
+        reference[doc_id] = keywords.split(',')
 
 # path to the df file
-df_file = "df.tsv.gz"
+df_file = base + os.sep + 'df.tsv.gz'
 logging.info('Loading df counts from {}'.format(df_file))
-df_counts = pke.load_document_frequency_file(input_file=df_file,
-                                             delimiter='\t')
+df_counts = pke.load_document_frequency_file(
+    input_file=df_file, delimiter='\t'
+)
 
 # path to the model, saved as a pickle
-output_mdl = "model.pickle"
-
-pke.train_supervised_model(input_dir=input_dir,
-                           reference_file=reference_file,
-                           model_file=output_mdl,
-                           extension='xml',
-                           language='en',
-                           normalization="stemming",
-                           df=df_counts,
-                           model=pke.supervised.Kea())
+output_mdl = base + os.sep + 'model.pickle'
+pke.train_supervised_model(
+    documents,
+    reference,
+    model_file=output_mdl,
+    language='en',
+    normalization='stemming',
+    df=df_counts,
+    model=pke.supervised.Kea()
+)
