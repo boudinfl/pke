@@ -26,7 +26,7 @@ langcodes = {
        "pt": "portuguese",
        "ro": "romanian",
        "ru": "russian",
-       "sp": "spanish",
+       "es": "spanish",
        "sw": "swedish",
        "ja": "japanese"
 }
