@@ -19,7 +19,7 @@ langcodes = {
        "en": "english",
        "fi": "finnish",
        "fr": "french",
-       "ge": "german",
+       "de": "german",
        "hu": "hungarian",
        "it": "italian",
        "no": "norwegian",
@@ -28,7 +28,8 @@ langcodes = {
        "ru": "russian",
        "sp": "spanish",
        "sw": "swedish",
-       "ja": "japanese"
+       "ja": "japanese",
+       "pl": "polish",
 }
 
 stopwords = {}
