@@ -15,20 +15,20 @@ import importlib
 langcodes = {
        "ar": "arabic",
        "da": "danish",
-       "du": "dutch",
        "en": "english",
+       "es": "spanish",
        "fi": "finnish",
        "fr": "french",
-       "ge": "german",
+       "de": "german",
        "hu": "hungarian",
        "it": "italian",
-       "no": "norwegian",
+       "ja": "japanese",
+       "nb": "norwegian",
+       "nl": "dutch",
        "pt": "portuguese",
        "ro": "romanian",
        "ru": "russian",
-       "sp": "spanish",
-       "sw": "swedish",
-       "ja": "japanese"
+       "sv": "swedish"
 }
 
 stopwords = {}
