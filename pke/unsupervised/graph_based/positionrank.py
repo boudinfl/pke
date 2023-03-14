@@ -168,7 +168,7 @@ class PositionRank(SingleRank):
             self.positions[word] /= norm
 
         # compute the word scores using biased random walk
-        w = nx.pagerank(G=self.graph,
+        w = nx.pagerank(self.graph,
                         alpha=0.85,
                         tol=0.0001,
                         personalization=self.positions,
