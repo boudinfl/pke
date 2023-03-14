@@ -145,7 +145,7 @@ class TopicalPageRank(SingleRank):
             doc.extend([s.stems[i] for i in range(s.length)])
 
         # vectorize document
-        tf_vectorizer = CountVectorizer(stop_words=self.stoplist,
+        tf_vectorizer = CountVectorizer(stop_words=list(self.stoplist),
                                         vocabulary=dictionary)
 
         tf = tf_vectorizer.fit_transform([' '.join(doc)])
@@ -186,7 +186,7 @@ class TopicalPageRank(SingleRank):
             W[word] /= norm
 
         # compute the word scores using biased random walk
-        w = nx.pagerank(G=self.graph,
+        w = nx.pagerank(self.graph,
                         personalization=W,
                         alpha=0.85,
                         tol=0.0001,
