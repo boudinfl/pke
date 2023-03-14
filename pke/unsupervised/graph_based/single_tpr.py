@@ -186,7 +186,7 @@ class TopicalPageRank(SingleRank):
             W[word] /= norm
 
         # compute the word scores using biased random walk
-        w = nx.pagerank(G=self.graph,
+        w = nx.pagerank(self.graph,
                         personalization=W,
                         alpha=0.85,
                         tol=0.0001,
