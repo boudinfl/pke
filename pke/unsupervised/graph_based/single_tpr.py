@@ -145,7 +145,7 @@ class TopicalPageRank(SingleRank):
             doc.extend([s.stems[i] for i in range(s.length)])
 
         # vectorize document
-        tf_vectorizer = CountVectorizer(stop_words=self.stoplist,
+        tf_vectorizer = CountVectorizer(stop_words=list(self.stoplist),
                                         vocabulary=dictionary)
 
         tf = tf_vectorizer.fit_transform([' '.join(doc)])
