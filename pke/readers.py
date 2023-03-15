@@ -54,6 +54,9 @@ class RawTextReader(Reader):
         if language is None:
             self.language = 'en'
 
+        if len(self.language) != 2:
+            raise ValueError('`language` is \'{}\', but should be an iso2 language code (\'en\' instead of \'english\')'.format(self.language))
+
     def read(self, text, spacy_model=None):
         """Read the input file and use spacy to pre-process.
 
