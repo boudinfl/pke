@@ -78,10 +78,15 @@ class LoadFile(object):
         self.normalization = normalization
 
         # initialize the stoplist
-        if stoplist:
+        if stoplist is not None:
             self.stoplist = stoplist
         else:
-            self.stoplist = stopwords.get(self.language)
+            try:
+                self.stoplist = stopwords[self.language]
+            except KeyError:
+                logging.warning('No stoplist available in pke for \'{}\' language.'.format(self.language))
+                # logging.warning('Set `stoplist` to `[]` or a custom stoplist to suppress this warning.')
+                self.stoplist = []
 
         # check whether input is a spacy doc object instance
         if isinstance(input, spacy.tokens.doc.Doc):
@@ -96,9 +101,7 @@ class LoadFile(object):
             parser = PreprocessedReader()
             sents = parser.read(list_of_sentence_tuples=input)
         else:
-            logging.error('Cannot process input. It is neither a spacy doc or a string: {}'.format(type(input)))
-            # TODO raise TypeError('Cannot process input. It is neither a spacy doc, a string or a list of tuple: {}'.format(type(input)))) ?
-            return
+            raise TypeError('Cannot process input. It is neither a spacy doc, a string or a list of list of tuple: {}'.format(type(input)))
 
         # populate the sentences
         self.sentences = sents
@@ -112,7 +115,7 @@ class LoadFile(object):
                     langcode = 'porter'
                 stemmer = SnowballStemmer(langcode)
             except ValueError:
-                logging.error('No stemmer available for \'{}\' language -> fall back to porter.'.format(self.language))
+                logging.warning('No stemmer available in pke for \'{}\' language -> falling back to porter stemmer.'.format(self.language))
                 stemmer = SnowballStemmer("porter")
 
             # populate Sentence.stems

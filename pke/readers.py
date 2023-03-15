@@ -54,6 +54,9 @@ class RawTextReader(Reader):
         if language is None:
             self.language = 'en'
 
+        if len(self.language) != 2:
+            raise ValueError('`language` is \'{}\', but should be an iso2 language code (\'en\' instead of \'english\')'.format(self.language))
+
     def read(self, text, spacy_model=None):
         """Read the input file and use spacy to pre-process.
 
@@ -83,9 +86,11 @@ class RawTextReader(Reader):
 
             # stop execution is no model is available
             else:
-                logging.error('No spacy model for \'{}\' language.'.format(self.language))
-                logging.error('A list of available spacy models is available at https://spacy.io/models.')
-                return
+                excp_msg = 'No downloaded spacy model for \'{}\' language.'.format(self.language)
+                excp_msg += '\nA list of downloadable spacy models is available at https://spacy.io/models.'
+                excp_msg += '\nAlternatively, preprocess your document as a list of sentence tuple (word, pos), such as:'
+                excp_msg += "\n\t[[('The', 'DET'), ('brown', 'ADJ'), ('fox', 'NOUN'), ('.', 'PUNCT')]]"
+                raise Exception(excp_msg)
 
             # add the sentence splitter
             nlp.add_pipe('sentencizer')
