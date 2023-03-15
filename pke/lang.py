@@ -12,23 +12,30 @@ Langcodes.
 
 import importlib
 
+# This dictionnary holds only languages supported by `pke`.
+# Supported languages need a stemmer and a spacy model.
+
+# This dictionnary maps spacy's langcode to stemmer language
+#  (ordered by language name).
+# The list of languages was obtained using:
+#  `nltk.stem.SnowballStemmer.languages`
+
 langcodes = {
-       "ar": "arabic",
-       "da": "danish",
-       "du": "dutch",
-       "en": "english",
-       "fi": "finnish",
-       "fr": "french",
-       "ge": "german",
-       "hu": "hungarian",
-       "it": "italian",
-       "no": "norwegian",
-       "pt": "portuguese",
-       "ro": "romanian",
-       "ru": "russian",
-       "sp": "spanish",
-       "sw": "swedish",
-       "ja": "japanese"
+    # "ar": "arabic", # no spacy model yet ;)
+    "da": "danish",
+    "nl": "dutch",
+    "en": "english",
+    "fi": "finnish",
+    "fr": "french",
+    "de": "german",
+    # "hu": "hungarian", # no spacy model yet ;)
+    "it": "italian",
+    "nb": "norwegian",
+    "pt": "portuguese",
+    "ro": "romanian",
+    "ru": "russian",
+    "es": "spanish",
+    "sv": "swedish",
 }
 
 stopwords = {}
