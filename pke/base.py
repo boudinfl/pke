@@ -78,10 +78,15 @@ class LoadFile(object):
         self.normalization = normalization
 
         # initialize the stoplist
-        if stoplist:
+        if stoplist is not None:
             self.stoplist = stoplist
         else:
-            self.stoplist = stopwords.get(self.language)
+            try:
+                self.stoplist = stopwords[self.language]
+            except KeyError:
+                logging.warning('No stoplist available for \'{}\' language.'.format(self.language))
+                logging.warning('Set `stoplist` to `[]` or a custom stoplist to suppress this warning.')
+                self.stoplist = set()
 
         # check whether input is a spacy doc object instance
         if isinstance(input, spacy.tokens.doc.Doc):
