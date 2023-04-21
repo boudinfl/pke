@@ -389,7 +389,7 @@ def compute_lda_model(documents,
     tf = tf_vectorizer.fit_transform(texts)
 
     # extract vocabulary
-    vocabulary = tf_vectorizer.get_feature_names_out()
+    vocabulary = list(tf_vectorizer.get_feature_names_out())
 
     # create LDA model and train
     lda_model = LatentDirichletAllocation(n_components=n_topics,
