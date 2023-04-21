@@ -83,8 +83,7 @@ def test_compute_lda(tmp_path):
         corpus, str(tmp_lda), n_topics=2)
 
     # Asserting
-    with gzip.open(tmp_lda, 'rb') as f:
-        (dictionary, _, _, _) = pickle.load(f)
+    dictionary, _ = pke.utils.load_lda_model(tmp_lda)
     assert sorted(dictionary) == sorted(expected_dict)
 
 
