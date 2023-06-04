@@ -7,3 +7,4 @@ dev/
 /venv/
 \.idea/
 /examples/.ipynb_checkpoints/
+env
