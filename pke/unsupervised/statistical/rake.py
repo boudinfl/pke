@@ -63,11 +63,10 @@ class RAKE(LoadFile):
     
 
     def generate_candidate_keyword_scores(self):
-        keyword_candidates = {}
         for c in self.candidates:
-            keyword_candidates.setdefault(c, 0)
+            self.weights.setdefault(c, 0)
             candidate_score = 0
             for word in c.words:
                 candidate_score += self.word_score[word]
-            keyword_candidates[self.word] = candidate_score
-        return keyword_candidates
+            self.weights[self.word] = candidate_score
+        return
