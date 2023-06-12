@@ -23,7 +23,7 @@ class RAKE(LoadFile):
 
 
     def generate_candidate_keywords(self):
-
+        # TODO: pairs across stopwords
         self.candidates.clear()
 
         for i, s in enumerate(self.sentences):
