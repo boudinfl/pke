@@ -31,7 +31,9 @@ class RAKE(LoadFile):
             j = 0
             shift = sum([s.length for s in self.sentences[0:i]])
             for k in range(len(s.words)):
-                if (k == len(s.words) - 1 or s.words[k] in self.stoplist) and k - j > 0: # either we are at the last word in the sentence or the word is a stopword
+                if s.words[j] in self.stoplist or not self._is_alphanum(s.words[j]):
+                    j = j + 1
+                elif (k == len(s.words) - 1 or s.words[k] in self.stoplist or not self._is_alphanum(s.words[j])) and k - j > 0: # either we are at the last word in the sentence or the word is a stopword
                     self.add_candidate(words=s.words[j:k],
                                         stems=s.stems[j:k],
                                         pos=s.pos[j:k],
