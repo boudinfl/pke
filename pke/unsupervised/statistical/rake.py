@@ -46,29 +46,36 @@ class RAKE(LoadFile):
     def calculate_word_scores(self):
         word_frequency = {}
         word_degree = {}
-        for c in self.candidates:
-            word_list_degree = len(c.words) - 1
-            for word in c.words:
-                word_frequency.setdefault(word, 0)
-                word_frequency[word] += 1
-                word_degree.setdefault(word, 0)
-                word_degree[word] += word_list_degree
+        for c in self.candidates.values():
+            word_list_degree = len(c.lexical_form) - 1
+            for phrase in c.surface_forms:
+                for word in phrase:
+                    word = word.lower()
+                    word_frequency.setdefault(word, 0)
+                    word_frequency[word] += 1
+                    word_degree.setdefault(word, 0)
+                    word_degree[word] += word_list_degree # one degree for every occurrence of the word
         for item in word_frequency:
             word_degree[item] = word_degree[item] + word_frequency[item]
         
         # Calculate Word scores = deg(w)/frew(w)
         for item in word_frequency:
-            self.word_score.setdefault(item, 0)
-            self.word_score[item] = word_degree[item] / (word_frequency[item] * 1.0)  #orig.
+            self.word_scores.setdefault(item, 0)
+            self.word_scores[item] = word_degree[item] / (word_frequency[item] * 1.0)  #orig.
         #word_score[item] = word_frequency[item]/(word_degree[item] * 1.0) #exp.
         return
     
 
     def generate_candidate_keyword_scores(self):
-        for c in self.candidates:
-            self.weights.setdefault(c, 0)
-            candidate_score = 0
-            for word in c.words:
-                candidate_score += self.word_score[word]
-            self.weights[self.word] = candidate_score
+        for c in self.candidates.values():
+            keyword_candidate = []
+            for w in c.surface_forms[0]:
+                keyword_candidate.append(w.lower())
+            keyword_candidate = " ".join(keyword_candidate)
+            self.weights.setdefault(keyword_candidate, 0)
+            for phrase in c.surface_forms:
+                candidate_score = 0
+                for word in phrase:
+                    candidate_score += self.word_scores[word.lower()]
+                self.weights[keyword_candidate] = candidate_score
         return
