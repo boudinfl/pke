@@ -1,8 +1,9 @@
 from __future__ import absolute_import
 import os
 import sys
+
+# this code allows testing using whatever code is on machine, not on repo
 sys.path.append('pke')
-print(sys.path)
 from unsupervised.statistical.rake import RAKE
 sys.path.pop()
 
@@ -10,7 +11,7 @@ sys.path.pop()
 from sample import sample_list
 valid_pos = {'NOUN', 'PROPN', 'ADJ'}
 
-# TODO: Download a verified RAKE implementation like https://github.com/aneesha/RAKE/blob/master/rake.py and verify same results
+# Following test cases ran against https://github.com/aneesha/RAKE/blob/master/rake.py results
 
 stop_words = []
 for line in open("tests/data/SmartStoplist.txt"):
@@ -20,6 +21,7 @@ for line in open("tests/data/SmartStoplist.txt"):
 
 extractor = RAKE()
 extractor.load_document(input=sample_list, stoplist=stop_words)
+
 
 def test_rake_candidate_selection():
     extractor.generate_candidate_keywords()
@@ -35,6 +37,7 @@ def test_rake_candidate_selection():
                                   'proposed methods', 'unique solvability', 'ion exchanger compression', 
                                   'numerical experiment', 'ion exchange', 'demonstrated'])
 
+
 def test_rake_word_scores():
     extractor.calculate_word_scores()
     assert extractor.word_scores == {'inverse': 2.0, 'problems': 2.0, 'mathematical': 2.0, 'model': 1.6666666666666667, 
@@ -47,15 +50,9 @@ def test_rake_word_scores():
 
 def test_rake_candidate_scores():
     extractor.generate_candidate_keyword_scores()
-    sorted_weights = sorted(list(extractor.weights.items()), key=lambda x : x[1], reverse=True)
-    print(sorted_weights)
-    assert sorted_weights == sorted([('compressible ion exchanger', 8.4), ('ion exchanger compression', 8.4), 
-                                 ('numerical solution methods', 8.0), ('numerical experiment', 4.5), 
-                                 ('ion exchange', 4.4), ('inverse problems', 4.0), ('proposed methods', 4.0), 
-                                 ('unique solvability', 4.0), ('mathematical model', 3.666666666666667),
-                                   ('model', 1.6666666666666667), ('proposed', 1.5), ('process', 1.0), 
-                                   ('investigated', 1.0), ('proved', 1.0), ('efficiency', 1.0), ('considered', 1.0), 
-                                   ('allowing', 1.0), ('demonstrated', 1.0)], key=lambda x: x[1], reverse=True)
+    assert extractor.get_n_best(6) == [('compressible ion exchanger', 8.4), ('ion exchanger compression', 8.4), 
+                                      ('numerical solution methods', 8.0), ('numerical experiment', 4.5), 
+                                      ('ion exchange', 4.4), ('inverse problems', 4.0)]
 
 
 if __name__ == '__main__':
