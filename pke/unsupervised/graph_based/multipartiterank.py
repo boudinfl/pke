@@ -132,24 +132,10 @@ class MultipartiteRank(TopicRank):
             weights = []
             for p_i in self.candidates[node_i].offsets:
                 for p_j in self.candidates[node_j].offsets:
-
-                    # compute gap
-                    gap = abs(p_i - p_j)
-
-                    # alter gap according to candidate length
-                    # if candidates overlap gap is 1
-                    if p_i < p_j:
-                        len_i = len(self.candidates[node_i].lexical_form)
-                        if gap < len_i:
-                            gap = 1
-                        else:
-                            gap -= len_i - 1
-                    if p_j < p_i:
-                        len_j = len(self.candidates[node_j].lexical_form)
-                        if gap < len_j:
-                            gap = 1
-                        else:
-                            gap -= len_j - 1
+                    len_i = len(self.candidates[node_i].lexical_form)
+                    len_j = len(self.candidates[node_j].lexical_form)
+                    # gap is the number of token between the 2 candidates + 1
+                    gap = self.compute_gap(p_i, p_j, len_i, len_j)
 
                     weights.append(1.0 / gap)
 
