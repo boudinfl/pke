@@ -155,6 +155,21 @@ class TopicRank(LoadFile):
             self.topics.append([candidates[j] for j in range(len(clusters))
                                 if clusters[j] == cluster_id])
 
+    def compute_gap(self, p_i, p_j, len_i, len_j):
+        # compute gap
+        gap = abs(p_i - p_j)
+
+        # alter gap according to candidate length
+        if p_i < p_j:
+            gap -= len_i - 1
+        elif p_i > p_j:
+            gap -= len_j - 1
+
+        if gap == 0:
+            gap = 1
+
+        return gap
+
     def build_topic_graph(self):
         """Build topic graph."""
 
@@ -168,25 +183,12 @@ class TopicRank(LoadFile):
                 for c_j in self.topics[j]:
                     for p_i in self.candidates[c_i].offsets:
                         for p_j in self.candidates[c_j].offsets:
-                            # compute gap
-                            gap = abs(p_i - p_j)
+                            len_i = len(self.candidates[c_i].lexical_form)
+                            len_j = len(self.candidates[c_j].lexical_form)
+                            # gap is the number of token between the 2 candidates + 1
+                            gap = self.compute_gap(p_i, p_j, len_i, len_j)
 
-                            # alter gap according to candidate length
-                            # if candidates overlap gap is 1
-                            if p_i < p_j:
-                                len_i = len(self.candidates[c_i].lexical_form)
-                                if gap < len_i:
-                                    gap = 1
-                                else:
-                                    gap -= len_i - 1
-                            if p_j < p_i:
-                                len_j = len(self.candidates[c_j].lexical_form)
-                                if gap < len_j:
-                                    gap = 1
-                                else:
-                                    gap -= len_j - 1
-
-                            self.graph[i][j]['weight'] += 1.0 / gap
+                            self.graph[i][j]["weight"] += 1.0 / gap
 
     def candidate_weighting(self,
                             threshold=0.74,
